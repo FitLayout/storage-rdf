@@ -183,7 +183,7 @@ public class LinkCrawler {
 
 		// check limit of allowed links
 		if (size() > LINK_LIMIT && LINK_LIMIT > 0)
-			throw new LinkLimit("Pøekroèen limit " + LINK_LIMIT);
+			throw new LinkLimit("Limit exceeded " + LINK_LIMIT);
 
 		url = normalizeUrl(url);
 
