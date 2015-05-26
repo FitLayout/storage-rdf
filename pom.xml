@@ -4,13 +4,14 @@
 	<parent>
 		<groupId>cz.vutbr.fit.layout</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.2</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>layout-storage</artifactId>
+	<version>0.0.2-SNAPSHOT</version>
 	
 	<name>LayoutStorage</name>
 	
@@ -85,12 +86,12 @@
 		<dependency>
 			<groupId>cz.vutbr.fit.layout</groupId>
 			<artifactId>layout-cssbox</artifactId>
-			<version>${project.version}</version>
+			<version>0.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>cz.vutbr.fit.layout</groupId>
 			<artifactId>layout-segmentation</artifactId>
-			<version>${project.version}</version>
+			<version>0.0.2</version>
 			<scope>compile</scope>
 		</dependency>
 
