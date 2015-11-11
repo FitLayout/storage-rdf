@@ -246,5 +246,14 @@ public class BigdataAreaTree  implements AreaTree {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+
+
+
+    @Override
+    public void updateTopologies()
+    {
+        // TODO Auto-generated method stub
+        System.err.println("Update topologies not implemented in BigdataAreaTree");
+    }
 	
 }
