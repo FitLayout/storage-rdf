@@ -1,4 +1,3 @@
 org.fit.layout.storage.gui.StoragePlugin
-org.fit.layout.storage.gui.MultiPageAnalyzerPlugin
 org.fit.layout.anotator.gui.AnotatorPlugin
 org.fit.layout.tagViewer.gui.TagViewerPlugin
