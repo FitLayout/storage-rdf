@@ -70,7 +70,7 @@ public class StoragePlugin implements BrowserPlugin
     public boolean init(Browser browser)
     {
         this.browser = browser;
-        this.browser.addToolPanel("Model Storage", getPnl_main()  );
+        this.browser.addToolPanel("RDF Storage", getPnl_main()  );
         return true;
     }
     
