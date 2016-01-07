@@ -17,7 +17,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 
 import com.bigdata.rdf.sail.remote.BigdataSailRemoteRepository;
-import com.bigdata.rdf.sail.webapp.client.RemoteRepository;
 
 /**
  * 
@@ -54,15 +53,6 @@ public class RDFConnector
         return connection;
     }
 
-    /**
-     * Obtains the current repository.
-     * @return
-     */
-    public RemoteRepository getRemoteRepository()
-    {
-        return repo.getRemoteRepository();
-    }
-    
 	/**
 	 * Creates a new connection.
 	 * @throws RepositoryException
