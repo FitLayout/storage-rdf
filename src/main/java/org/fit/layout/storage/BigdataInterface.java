@@ -9,6 +9,7 @@ import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.ontology.BOX;
+import org.fit.layout.storage.ontology.LAYOUT;
 import org.fit.layout.storage.ontology.SEGM;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Model;
@@ -63,6 +64,31 @@ public class BigdataInterface {
 	
 
 	
+    public List<String> getPageSets() 
+    {
+        List<String> output = new ArrayList<String>();
+        
+        try {
+            GraphQueryResult result = this.bddb.repo.getRemoteRepository()
+                    .getStatements(null, RDF.TYPE, LAYOUT.PageSet, true);
+
+            // do something with the results
+            while (result.hasNext()) {
+                Statement bindingSet = result.next();
+
+                String url = bindingSet.getSubject().stringValue();
+
+                if (!output.contains(url)) {
+                    output.add(url);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return output;
+    }
+        
 	
 	
 	//box tree functions ===========================================================	
@@ -101,14 +127,14 @@ public class BigdataInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<String> getAllPageIds() throws Exception {
+	public List<String> getAllPageIds() 
+	{
 		
 		List<String> output = new ArrayList<String>();
-		URIImpl pageType = new URIImpl(BOX.Page.toString());
 
 		try {
 			GraphQueryResult result = this.bddb.repo.getRemoteRepository()
-					.getStatements(null, RDF.TYPE, pageType, true);
+					.getStatements(null, RDF.TYPE, BOX.Page, true);
 
 			// do something with the results
 			while (result.hasNext()) {

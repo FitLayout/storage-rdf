@@ -32,6 +32,9 @@ import org.fit.layout.storage.model.BigdataAreaTree;
 import org.fit.layout.storage.model.BigdataPage;
 import org.openrdf.model.Model;
 import org.openrdf.model.impl.URIImpl;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import java.awt.FlowLayout;
 
 
 
@@ -60,6 +63,13 @@ public class StoragePlugin implements BrowserPlugin
     private JButton btn_saveAreaTreeModel;
     private JComboBox<String> cbx_areaTrees;
     private JButton btn_loadAreaTreeModel;
+    private JPanel tbr_pageset;
+    private JLabel lblPageSets;
+    private JList pageSetList;
+    private JButton btnNew;
+    private JButton btnEdit;
+    private JScrollPane pageSourceScroll;
+    private JButton btnDelete;
     
     
 	//=============================
@@ -74,21 +84,64 @@ public class StoragePlugin implements BrowserPlugin
         return true;
     }
     
+    private void connect()
+    {
+        String DBConnectionUrl = tfl_urlRDFDB.getText();
+        
+        cbx_pages.removeAllItems();
+        
+        try {
+            bdi = new BigdataInterface(DBConnectionUrl, false);
+            
+            getBtn_loadBoxModel().setEnabled(true);
+            getBtn_loadAreaTreeModel().setEnabled(true);
+            
+            getBtn_saveBoxTreeModel().setEnabled(true);
+            getBtn_removePage().setEnabled(true);
+            getBtn_clearDB().setEnabled(true);
+            getBtn_saveAreaTreeModel().setEnabled(true);
+        }
+        catch (Exception e) {
+
+            JOptionPane.showMessageDialog((Component) browser,
+                    "There is a problem with DB connection: "+e.getMessage(),
+                    "Connection Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
     
-    private JPanel getPnl_main() {
+    /**
+     * it loads distinct URLs into ulrsComboBox
+     */
+    private void loadAllPages() 
+    {
+        List<String> listURL = bdi.getAllPageIds();
+        for(String url : listURL)
+            cbx_pages.addItem(url);
+    }
+    
+    private void loadPageSets()
+    {
+        List<String> listURL = bdi.getAllPageIds();
+        for(String url : listURL)
+            cbx_pages.addItem(url);
+    }
+    
+    private JPanel getPnl_main() 
+    {
     	
     	 if (pnl_main == null) {
     		 
              pnl_main = new JPanel();
              GridBagLayout gbl_main = new GridBagLayout();
-             gbl_main.columnWeights = new double[] { 0.0 };
-             gbl_main.rowWeights = new double[] { 0.0, 0.0, 0.0 };
+             gbl_main.columnWeights = new double[] { 1.0, 0.0 };
+             gbl_main.rowWeights = new double[] { 0.0, 0.0 };
              pnl_main.setLayout(gbl_main);
              GridBagConstraints gbc_connection = new GridBagConstraints();
+             gbc_connection.fill = GridBagConstraints.BOTH;
              gbc_connection.weightx = 1.0;
              gbc_connection.anchor = GridBagConstraints.EAST;
-             gbc_connection.fill = GridBagConstraints.BOTH;
-             gbc_connection.insets = new Insets(0, 0, 5, 0);
+             gbc_connection.insets = new Insets(0, 0, 5, 5);
              gbc_connection.gridx = 0;
              gbc_connection.gridy = 0;
              pnl_main.add(getPnl_connection(), gbc_connection);
@@ -96,17 +149,25 @@ public class StoragePlugin implements BrowserPlugin
              gbc_storageSelection.weightx = 1.0;
              gbc_storageSelection.fill = GridBagConstraints.BOTH;
              gbc_storageSelection.insets = new Insets(0, 0, 5, 0);
-             gbc_storageSelection.gridx = 0;
-             gbc_storageSelection.gridy = 1;
+             gbc_storageSelection.gridx = 1;
+             gbc_storageSelection.gridy = 0;
              pnl_main.add(getPnl_storageSelection(), gbc_storageSelection);
              GridBagConstraints gbc_control = new GridBagConstraints();
              gbc_control.weightx = 1.0;
              gbc_control.anchor = GridBagConstraints.EAST;
              gbc_control.fill = GridBagConstraints.BOTH;
              gbc_control.insets = new Insets(0, 0, 5, 0);
-             gbc_control.gridx = 0;
-             gbc_control.gridy = 2;
+             gbc_control.gridx = 1;
+             gbc_control.gridy = 1;
              pnl_main.add(getPnl_control(), gbc_control);
+             GridBagConstraints gbc_tbr_pageset = new GridBagConstraints();
+             gbc_tbr_pageset.weighty = 1.0;
+             gbc_tbr_pageset.weightx = 1.0;
+             gbc_tbr_pageset.insets = new Insets(0, 0, 0, 5);
+             gbc_tbr_pageset.fill = GridBagConstraints.BOTH;
+             gbc_tbr_pageset.gridx = 0;
+             gbc_tbr_pageset.gridy = 1;
+             pnl_main.add(getTbr_pageset(), gbc_tbr_pageset);
          }
          return pnl_main;
     }
@@ -118,6 +179,8 @@ public class StoragePlugin implements BrowserPlugin
     {
 		if (tbr_connection == null) {
 			tbr_connection = new JPanel();
+			FlowLayout flowLayout = (FlowLayout) tbr_connection.getLayout();
+			flowLayout.setAlignment(FlowLayout.LEFT);
 			tbr_connection.add(getLbl_RdfDb());
 			tbr_connection.add(getTfl_urlRDFDB());
 			tbr_connection.add(getBtn_loadDBData());
@@ -140,7 +203,7 @@ public class StoragePlugin implements BrowserPlugin
 	private JLabel getLbl_RdfDb() 
 	{
 		if (lbl_rdfDb == null) {
-			lbl_rdfDb = new JLabel("RDF DB");
+			lbl_rdfDb = new JLabel("Server");
 		}
 		return lbl_rdfDb;
 	}
@@ -148,7 +211,7 @@ public class StoragePlugin implements BrowserPlugin
 	private JButton getBtn_loadDBData() 
 	{
 		if (btn_loadDBData == null) {
-			btn_loadDBData = new JButton("Establish Connection");
+			btn_loadDBData = new JButton("Connect");
 			btn_loadDBData.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					loadAllPages();
@@ -244,41 +307,6 @@ public class StoragePlugin implements BrowserPlugin
 		}
 		return btn_loadBoxModel;
 	}
-	
-	/**
-	 * it loads distinct URLs into ulrsComboBox
-	 */
-	private void loadAllPages() 
-	{
-		String DBConnectionUrl = tfl_urlRDFDB.getText();
-		
-		cbx_pages.removeAllItems();
-		
-		try {
-			bdi = new BigdataInterface(DBConnectionUrl, false);
-			
-			List<String> listURL = bdi.getAllPageIds();
-			for(String url : listURL) {
-				cbx_pages.addItem(url);
-			}
-			
-			getBtn_loadBoxModel().setEnabled(true);
-			getBtn_loadAreaTreeModel().setEnabled(true);
-			
-			getBtn_saveBoxTreeModel().setEnabled(true);
-			getBtn_removePage().setEnabled(true);
-			getBtn_clearDB().setEnabled(true);
-			getBtn_saveAreaTreeModel().setEnabled(true);
-		}
-		catch (Exception e) {
-
-			JOptionPane.showMessageDialog((Component) browser,
-				    "There is a problem with DB connection: "+e.getMessage(),
-				    "Connection Error",
-				    JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
 	
 	
 	//Control panel =============================
@@ -420,4 +448,87 @@ public class StoragePlugin implements BrowserPlugin
 		}
 		return btn_loadAreaTreeModel;
 	}
+    private JPanel getTbr_pageset() {
+        if (tbr_pageset == null) {
+        	tbr_pageset = new JPanel();
+        	GridBagLayout gbl_tbr_pageset = new GridBagLayout();
+        	gbl_tbr_pageset.columnWidths = new int[] {0, 0, 0, 0};
+        	gbl_tbr_pageset.rowHeights = new int[] {0, 0, 0};
+        	gbl_tbr_pageset.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0};
+        	gbl_tbr_pageset.rowWeights = new double[]{0.0, 1.0, 0.0};
+        	tbr_pageset.setLayout(gbl_tbr_pageset);
+        	GridBagConstraints gbc_lblPageSets = new GridBagConstraints();
+        	gbc_lblPageSets.gridwidth = 4;
+        	gbc_lblPageSets.weightx = 1.0;
+        	gbc_lblPageSets.insets = new Insets(0, 0, 5, 0);
+        	gbc_lblPageSets.fill = GridBagConstraints.HORIZONTAL;
+        	gbc_lblPageSets.gridx = 0;
+        	gbc_lblPageSets.gridy = 0;
+        	tbr_pageset.add(getLblPageSets(), gbc_lblPageSets);
+        	GridBagConstraints gbc_pageSourceScroll = new GridBagConstraints();
+        	gbc_pageSourceScroll.gridwidth = 4;
+        	gbc_pageSourceScroll.fill = GridBagConstraints.BOTH;
+        	gbc_pageSourceScroll.insets = new Insets(0, 0, 5, 0);
+        	gbc_pageSourceScroll.gridx = 0;
+        	gbc_pageSourceScroll.gridy = 1;
+        	tbr_pageset.add(getPageSourceScroll(), gbc_pageSourceScroll);
+        	GridBagConstraints gbc_btnNew = new GridBagConstraints();
+        	gbc_btnNew.insets = new Insets(0, 0, 5, 5);
+        	gbc_btnNew.gridx = 1;
+        	gbc_btnNew.gridy = 2;
+        	tbr_pageset.add(getBtnNew(), gbc_btnNew);
+        	GridBagConstraints gbc_btnEdit = new GridBagConstraints();
+        	gbc_btnEdit.insets = new Insets(0, 0, 5, 5);
+        	gbc_btnEdit.gridx = 2;
+        	gbc_btnEdit.gridy = 2;
+        	tbr_pageset.add(getBtnEdit(), gbc_btnEdit);
+        	GridBagConstraints gbc_btnDelete = new GridBagConstraints();
+        	gbc_btnDelete.insets = new Insets(0, 0, 5, 5);
+        	gbc_btnDelete.gridx = 3;
+        	gbc_btnDelete.gridy = 2;
+        	tbr_pageset.add(getBtnDelete(), gbc_btnDelete);
+        }
+        return tbr_pageset;
+    }
+    private JLabel getLblPageSets() {
+        if (lblPageSets == null) {
+        	lblPageSets = new JLabel("Page Sets");
+        }
+        return lblPageSets;
+    }
+    private JList getPageSetList() {
+        if (pageSetList == null) {
+        	pageSetList = new JList();
+        }
+        return pageSetList;
+    }
+    private JButton getBtnNew() {
+        if (btnNew == null) {
+        	btnNew = new JButton("New...");
+        	btnNew.addActionListener(new ActionListener() {
+        	    public void actionPerformed(ActionEvent e) {
+        	    }
+        	});
+        }
+        return btnNew;
+    }
+    private JButton getBtnEdit() {
+        if (btnEdit == null) {
+        	btnEdit = new JButton("Edit...");
+        }
+        return btnEdit;
+    }
+    private JScrollPane getPageSourceScroll() {
+        if (pageSourceScroll == null) {
+        	pageSourceScroll = new JScrollPane();
+        	pageSourceScroll.setViewportView(getPageSetList());
+        }
+        return pageSourceScroll;
+    }
+    private JButton getBtnDelete() {
+        if (btnDelete == null) {
+        	btnDelete = new JButton("Delete");
+        }
+        return btnDelete;
+    }
 }
