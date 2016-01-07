@@ -26,6 +26,13 @@ public class LAYOUT {
 	public static final URI containsPage;
 
 	/**
+	 * {@code http://fitlayout.github.io/ontology/fitlayout.owl#createdOn}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/fitlayout.owl#createdOn">createdOn</a>
+	 */
+	public static final URI createdOn;
+
+	/**
 	 * {@code http://fitlayout.github.io/ontology/fitlayout.owl#hasName}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/fitlayout.owl#hasName">hasName</a>
@@ -45,6 +52,7 @@ public class LAYOUT {
 		ValueFactory factory = ValueFactoryImpl.getInstance();
 
 		containsPage = factory.createURI(LAYOUT.NAMESPACE, "containsPage");
+		createdOn = factory.createURI(LAYOUT.NAMESPACE, "createdOn");
 		hasName = factory.createURI(LAYOUT.NAMESPACE, "hasName");
 		PageSet = factory.createURI(LAYOUT.NAMESPACE, "PageSet");
 	}
