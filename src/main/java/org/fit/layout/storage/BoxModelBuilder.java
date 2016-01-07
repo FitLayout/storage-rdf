@@ -21,7 +21,7 @@ import org.openrdf.model.vocabulary.RDF;
  * @author milicka
  * 
  */
-public class BigdataBoxModelBuilder {
+public class BoxModelBuilder {
 
 	private Graph graph;
 	private String baseUrl;
@@ -29,7 +29,7 @@ public class BigdataBoxModelBuilder {
 	private String launchID;
 	private URI pageNode;
 
-	public BigdataBoxModelBuilder(Page page) {
+	public BoxModelBuilder(Page page) {
 
 		baseUrl = page.getSourceURL().toString();
 		

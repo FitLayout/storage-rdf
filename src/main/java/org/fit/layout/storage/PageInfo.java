@@ -13,14 +13,14 @@ import org.openrdf.query.QueryEvaluationException;
  * @author milicka
  *
  */
-public class BigdataPageInfo {
+public class PageInfo {
 
 	private String date;
 	private URI id;
 	private String url;
 	
 	
-	public BigdataPageInfo(GraphQueryResult statements) throws QueryEvaluationException {
+	public PageInfo(GraphQueryResult statements) throws QueryEvaluationException {
 		
 		
 		while(statements.hasNext()) {

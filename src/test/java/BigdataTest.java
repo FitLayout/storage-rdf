@@ -1,6 +1,6 @@
  
  
-import org.fit.layout.storage.BigdataInterface;
+import org.fit.layout.storage.RDFStorage;
 import org.junit.Test; 
 import org.openrdf.model.Namespace;
 import org.openrdf.repository.RepositoryException;
@@ -25,7 +25,7 @@ public class BigdataTest {
     public void correctRun() { 
     	
 			try {
-				BigdataInterface bdi = new BigdataInterface();		
+				RDFStorage bdi = new RDFStorage();		
 				
 				System.out.println("no problem");
 			} catch (RepositoryException e) {
@@ -43,7 +43,7 @@ public class BigdataTest {
     public void correctRun2() { 
     	
 			try {
-				BigdataInterface bdi = new BigdataInterface();
+				RDFStorage bdi = new RDFStorage();
 				
 				System.out.println("no problem");
 			} catch (RepositoryException e) {

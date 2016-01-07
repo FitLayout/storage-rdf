@@ -15,7 +15,7 @@ import org.fit.layout.api.ScriptObject;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
-import org.fit.layout.storage.BigdataInterface;
+import org.fit.layout.storage.RDFStorage;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.repository.RepositoryException;
 
@@ -31,7 +31,7 @@ public class ScriptApi implements ScriptObject
     private PrintWriter wout;
     private PrintWriter werr;
     
-    private BigdataInterface bdi;
+    private RDFStorage bdi;
 
     
     public ScriptApi()
@@ -57,7 +57,7 @@ public class ScriptApi implements ScriptObject
     {
         try
         {
-            bdi = new BigdataInterface(uri, false);
+            bdi = new RDFStorage(uri, false);
         } 
         catch (RepositoryException e)
         {

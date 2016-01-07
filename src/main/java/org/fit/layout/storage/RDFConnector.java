@@ -20,7 +20,7 @@ import org.openrdf.repository.RepositoryResult;
 import com.bigdata.rdf.sail.remote.BigdataSailRemoteRepository;
 
 
-public class BigdataConnector {
+public class RDFConnector {
 	String endpointUrl;
 	Boolean lbs;
 	//BigdataSailRemote
@@ -45,7 +45,7 @@ public class BigdataConnector {
 	 * @param lbs
 	 * @throws RepositoryException
 	 */
-	public BigdataConnector(String endpoint, Boolean lbs) throws RepositoryException 
+	public RDFConnector(String endpoint, Boolean lbs) throws RepositoryException 
 	{
 		this.endpointUrl = endpoint;
 		this.lbs = lbs;

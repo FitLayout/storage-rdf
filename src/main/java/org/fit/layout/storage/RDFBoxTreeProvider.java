@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
  * 
  * @author milicka
  */
-public class BigdataBoxTreeProvider extends BaseBoxTreeProvider
+public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 {
     private URL urlDb;
     private URIImpl pageId;
@@ -33,14 +33,14 @@ public class BigdataBoxTreeProvider extends BaseBoxTreeProvider
     private final String[] paramNames = { "urlDb", "pageId" };
     private final ValueType[] paramTypes = { ValueType.STRING, ValueType.STRING };
 
-    public BigdataBoxTreeProvider() throws MalformedURLException
+    public RDFBoxTreeProvider() throws MalformedURLException
     {
 		this.urlDb = new URL("http://localhost:8080/bigdata/sparql");
 		pageId = null;
     }
 
     
-    public BigdataBoxTreeProvider(URL urlDb, URIImpl pageId)
+    public RDFBoxTreeProvider(URL urlDb, URIImpl pageId)
     {
         this.urlDb = urlDb;
         this.pageId = pageId;
@@ -114,7 +114,7 @@ public class BigdataBoxTreeProvider extends BaseBoxTreeProvider
     public Page getPage() 
     {
     	try {
-			BigdataInterface bdi = new BigdataInterface(urlDb.toString(), false);
+			RDFStorage bdi = new RDFStorage(urlDb.toString(), false);
 			
 			//Model m = bdi.getPageBoxModelFromNode(pageId.toString());
 			Model m = bdi.getBoxModelForPageId(pageId.toString());

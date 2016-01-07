@@ -27,7 +27,7 @@ import org.fit.layout.gui.BrowserPlugin;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
-import org.fit.layout.storage.BigdataInterface;
+import org.fit.layout.storage.RDFStorage;
 import org.fit.layout.storage.model.BigdataAreaTree;
 import org.fit.layout.storage.model.BigdataPage;
 import org.openrdf.model.Model;
@@ -45,7 +45,7 @@ import java.awt.FlowLayout;
 public class StoragePlugin implements BrowserPlugin
 {
     private Browser browser;
-    BigdataInterface bdi = null;	
+    RDFStorage bdi = null;	
     
     private JPanel pnl_main;
     private JPanel tbr_connection;
@@ -91,7 +91,7 @@ public class StoragePlugin implements BrowserPlugin
         cbx_pages.removeAllItems();
         
         try {
-            bdi = new BigdataInterface(DBConnectionUrl, false);
+            bdi = new RDFStorage(DBConnectionUrl, false);
             
             getBtn_loadBoxModel().setEnabled(true);
             getBtn_loadAreaTreeModel().setEnabled(true);

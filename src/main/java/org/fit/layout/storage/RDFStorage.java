@@ -36,26 +36,26 @@ import org.openrdf.rio.RDFParseException;
 import com.bigdata.rdf.sail.webapp.client.IPreparedGraphQuery;
 
 
-public class BigdataInterface {
+public class RDFStorage {
 
     private static final String PREFIXES =
             "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
             "PREFIX box: <" + BOX.NAMESPACE + "> " +        
             "PREFIX segm: <" + SEGM.NAMESPACE + "> ";        
     
-	BigdataConnector bddb;
+	RDFConnector bddb;
 	Boolean lbs = false;
 	String url = "http://localhost:8080/bigdata/sparql";
 	
 
-	public BigdataInterface() throws RepositoryException {
-		bddb = new BigdataConnector(this.url, this.lbs);
+	public RDFStorage() throws RepositoryException {
+		bddb = new RDFConnector(this.url, this.lbs);
 	}
 
-	public BigdataInterface(String url, Boolean lbs) throws RepositoryException {
+	public RDFStorage(String url, Boolean lbs) throws RepositoryException {
 		this.url = url;
 		this.lbs = lbs;
-		bddb = new BigdataConnector(this.url, this.lbs);
+		bddb = new RDFConnector(this.url, this.lbs);
 	}
 
 	public RepositoryConnection getConnection() {
@@ -203,7 +203,7 @@ public class BigdataInterface {
 	public void insertPageBoxModel(Page page) {
 		
 		// creates graph representation of RDF triples
-		BigdataBoxModelBuilder pgb = new BigdataBoxModelBuilder(page);
+		BoxModelBuilder pgb = new BoxModelBuilder(page);
 
 		// stores graph of triples into DB
 		insertGraph(pgb.getGraph());
@@ -352,7 +352,7 @@ public class BigdataInterface {
 		    if (actualUrl.lastIndexOf("#") != -1)
 		        actualUrl = actualUrl.substring(0, actualUrl.lastIndexOf("#"));
 			
-			BigdataAreaModelBuilder buildingModel = new BigdataAreaModelBuilder(atree, ltree, pageId, actualUrl);
+			AreaModelBuilder buildingModel = new AreaModelBuilder(atree, ltree, pageId, actualUrl);
 			insertGraph(buildingModel.getGraph());
 			
 		} catch (Exception e) {

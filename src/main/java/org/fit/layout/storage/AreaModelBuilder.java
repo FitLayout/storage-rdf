@@ -20,7 +20,7 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 
-public class BigdataAreaModelBuilder {
+public class AreaModelBuilder {
 
 	private Graph graph = null;
 	private ValueFactoryImpl vf;
@@ -29,7 +29,7 @@ public class BigdataAreaModelBuilder {
 	private URI areaTreeNode;
 	private int logAreaCnt;
 
-	public BigdataAreaModelBuilder(AreaTree areaTree, LogicalAreaTree logicalTree, URI pageNode, String url) {
+	public AreaModelBuilder(AreaTree areaTree, LogicalAreaTree logicalTree, URI pageNode, String url) {
 		
 		graph = new LinkedHashModel();
 		vf = ValueFactoryImpl.getInstance();
