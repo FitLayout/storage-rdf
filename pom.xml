@@ -75,6 +75,12 @@
 			<artifactId>bigdata</artifactId>
 			<version>1.4.0</version>
 		</dependency>
+		<!-- a necessary workaround for bigdata 1.5.3 -->
+		<!-- <dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-proxy</artifactId>
+			<version>9.2.14.v20151106</version>
+		</dependency>  -->
 
 		<dependency>
 			<groupId>org.slf4j</groupId>

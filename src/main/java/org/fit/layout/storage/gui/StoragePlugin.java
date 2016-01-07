@@ -214,6 +214,7 @@ public class StoragePlugin implements BrowserPlugin
 			btn_loadDBData = new JButton("Connect");
 			btn_loadDBData.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+				    connect();
 					loadAllPages();
 				}
 			});

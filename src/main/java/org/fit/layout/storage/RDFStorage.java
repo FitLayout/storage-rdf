@@ -20,6 +20,7 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.GraphQuery;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -33,26 +34,24 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 
-import com.bigdata.rdf.sail.webapp.client.IPreparedGraphQuery;
-
-
-public class RDFStorage {
-
+public class RDFStorage 
+{
     private static final String PREFIXES =
             "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
             "PREFIX box: <" + BOX.NAMESPACE + "> " +        
             "PREFIX segm: <" + SEGM.NAMESPACE + "> ";        
     
-	RDFConnector bddb;
-	Boolean lbs = false;
-	String url = "http://localhost:8080/bigdata/sparql";
-	
+	private RDFConnector bddb;
+	private boolean lbs = false;
+	private String url = "http://localhost:8080/bigdata/sparql";
 
-	public RDFStorage() throws RepositoryException {
+	public RDFStorage() throws RepositoryException 
+	{
 		bddb = new RDFConnector(this.url, this.lbs);
 	}
 
-	public RDFStorage(String url, Boolean lbs) throws RepositoryException {
+	public RDFStorage(String url, boolean lbs) throws RepositoryException
+	{
 		this.url = url;
 		this.lbs = lbs;
 		bddb = new RDFConnector(this.url, this.lbs);
@@ -69,7 +68,7 @@ public class RDFStorage {
         List<String> output = new ArrayList<String>();
         
         try {
-            GraphQueryResult result = this.bddb.repo.getRemoteRepository()
+            RepositoryResult<Statement> result = this.bddb.getConnection()
                     .getStatements(null, RDF.TYPE, LAYOUT.PageSet, true);
 
             // do something with the results
@@ -102,7 +101,7 @@ public class RDFStorage {
 		List<String> output = new ArrayList<String>();
 
 		try {
-			GraphQueryResult result = this.bddb.repo.getRemoteRepository()
+			RepositoryResult<Statement> result = this.bddb.getConnection()
 					.getStatements(null, BOX.sourceUrl, null, true);
 
 			while (result.hasNext()) {
@@ -133,7 +132,7 @@ public class RDFStorage {
 		List<String> output = new ArrayList<String>();
 
 		try {
-			GraphQueryResult result = this.bddb.repo.getRemoteRepository()
+			RepositoryResult<Statement> result = this.bddb.getConnection()
 					.getStatements(null, RDF.TYPE, BOX.Page, true);
 
 			// do something with the results
@@ -169,7 +168,7 @@ public class RDFStorage {
 			URIImpl sourceUrlPredicate = new URIImpl(BOX.sourceUrl.toString());
 			ValueFactoryImpl vf = ValueFactoryImpl.getInstance(); 
 																	
-			GraphQueryResult result = bddb.repo.getRemoteRepository()
+			RepositoryResult<Statement> result = bddb.getConnection()
 					.getStatements(null, sourceUrlPredicate, vf.createLiteral(url), true); 
 
 			// stores all launches into list of string
@@ -185,8 +184,6 @@ public class RDFStorage {
 			}
 
 		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} catch (QueryEvaluationException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -236,11 +233,10 @@ public class RDFStorage {
 				+ "?a box:launchDatetime \"" + timestamp + "\". "
 				+ "?a rdf:type box:Page  }";
 
-		IPreparedGraphQuery pgq = bddb.repo.getRemoteRepository()
-				.prepareGraphQuery(query);
+		GraphQuery pgq = bddb.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
 		GraphQueryResult gqr = pgq.evaluate();
 
-		return convertGraphQueryResult2Model(gqr);
+		return createModel(gqr);
 	}
 	
 	/*
@@ -257,11 +253,10 @@ public class RDFStorage {
 				+ "?s rdf:type app:Box . " 
 				+ "?s box:belongsTo <"+pageId+">}";
 
-		IPreparedGraphQuery pgq = bddb.repo.getRemoteRepository()
-				.prepareGraphQuery(query);
+		GraphQuery pgq = bddb.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
 		GraphQueryResult gqr = pgq.evaluate();
 
-		return convertGraphQueryResult2Model(gqr);
+		return createModel(gqr);
 	}
 	
 	/**
@@ -274,15 +269,15 @@ public class RDFStorage {
 		
 		URIImpl page = new URIImpl(pageId);
 		
-		GraphQueryResult result = null;
+		RepositoryResult<Statement> result = null;
 		try {
-			result = this.bddb.repo.getRemoteRepository().getStatements(page, null, null, true);
+			result = this.bddb.getConnection().getStatements(page, null, null, true);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return convertGraphQueryResult2Model(result);
+		return createModel(result);
 	}
 	
 	
@@ -304,11 +299,10 @@ public class RDFStorage {
 				+ "?s rdf:type segm:Area . "
 				+ "?s segm:belongsTo <" + areaTreeId + "> }";
 
-		IPreparedGraphQuery pgq = bddb.repo.getRemoteRepository()
-				.prepareGraphQuery(query);
+		GraphQuery pgq = bddb.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
 		GraphQueryResult gqr = pgq.evaluate();
 
-		return convertGraphQueryResult2Model(gqr);
+		return createModel(gqr);
 	}
 	
 	/**
@@ -322,7 +316,7 @@ public class RDFStorage {
 		URI page = new URIImpl(pageId);
 
 		try {
-			GraphQueryResult result = this.bddb.repo.getRemoteRepository()
+			RepositoryResult<Statement> result = this.bddb.getConnection()
 					.getStatements(null, SEGM.sourcePage, page, true);
 
 			while (result.hasNext()) {
@@ -379,7 +373,7 @@ public class RDFStorage {
 	 */
 	public RepositoryResult<Statement> getSubjectStatements(Resource subject)
 			throws RepositoryException {
-		RepositoryResult<Statement> stm = bddb.connection.getStatements(subject, null, null, true);
+		RepositoryResult<Statement> stm = bddb.getConnection().getStatements(subject, null, null, true);
 		
 		return stm;
 	}
@@ -393,8 +387,8 @@ public class RDFStorage {
 	 */
 	public Model getSubjectModel(Resource subject) throws Exception {
 		
-		GraphQueryResult gqr = this.bddb.repo.getRemoteRepository().getStatements(subject, null, null, true);
-		Model m = convertGraphQueryResult2Model(gqr);
+		RepositoryResult<Statement> gqr = this.bddb.getConnection().getStatements(subject, null, null, true);
+		Model m = createModel(gqr);
 		return m;
 	}
 	
@@ -410,7 +404,7 @@ public class RDFStorage {
 			throws QueryEvaluationException {
 
 		try {
-			org.openrdf.query.TupleQuery tq = bddb.repo.getConnection()
+			org.openrdf.query.TupleQuery tq = bddb.getConnection()
 					.prepareTupleQuery(QueryLanguage.SPARQL, query);
 			return tq.evaluate();
 
@@ -428,7 +422,7 @@ public class RDFStorage {
 	public void clearRDFDatabase() {
 		
 		try {
-			Update upd = bddb.repo.getConnection().prepareUpdate(QueryLanguage.SPARQL, "DELETE WHERE { ?s ?p ?o }");
+			Update upd = bddb.getConnection().prepareUpdate(QueryLanguage.SPARQL, "DELETE WHERE { ?s ?p ?o }");
 			upd.execute();
 			
 		} catch (MalformedQueryException | RepositoryException | UpdateExecutionException e) {
@@ -440,7 +434,7 @@ public class RDFStorage {
 	public void execSparql(String query) {
 	    
         try {
-            Update upd = bddb.repo.getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
+            Update upd = bddb.getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
             upd.execute();
         } catch (MalformedQueryException | RepositoryException | UpdateExecutionException e) {
             e.printStackTrace();
@@ -451,7 +445,7 @@ public class RDFStorage {
     public void importTurtle(String query) {
         
         try {
-            bddb.repo.getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
+            bddb.getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
         } catch (RepositoryException e) {
             e.printStackTrace();
         } catch (RDFParseException e)
@@ -526,22 +520,32 @@ public class RDFStorage {
 	
 	/**
 	 * converstion from GraphQueryResult info Model
-	 * @param gqr
+	 * @param result
 	 * @return
-	 * @throws QueryEvaluationException
+	 * @throws RepositoryException 
 	 */
-	private Model convertGraphQueryResult2Model(GraphQueryResult gqr) throws QueryEvaluationException {
-		
-		// create a new Model to put statements in
+	private Model createModel(RepositoryResult<Statement> result) throws RepositoryException 
+	{
 		Model model = new LinkedHashModel();
-
-		while (gqr.hasNext()) {
-			model.add(gqr.next());
-		}
-
+		while (result.hasNext())
+			model.add(result.next());
 		return model;
 	}
 
+    /**
+     * converstion from GraphQueryResult info Model
+     * @param result
+     * @return
+     * @throws QueryEvaluationException 
+     */
+    private Model createModel(GraphQueryResult result) throws QueryEvaluationException 
+    {
+        Model model = new LinkedHashModel();
+        while (result.hasNext())
+            model.add(result.next());
+        return model;
+    }
+    
 	/**
 	 * it appends graph into database
 	 * 

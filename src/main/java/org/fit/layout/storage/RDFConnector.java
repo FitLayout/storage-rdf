@@ -1,6 +1,5 @@
 package org.fit.layout.storage;
 
-
 import org.openrdf.model.Graph;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
@@ -18,64 +17,66 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 
 import com.bigdata.rdf.sail.remote.BigdataSailRemoteRepository;
+import com.bigdata.rdf.sail.webapp.client.RemoteRepository;
 
+/**
+ * 
+ * 
+ * @author milicka
+ * @author burgetr
+ */
+public class RDFConnector 
+{
+	private String endpointUrl;
+	private boolean lbs;
+	private RepositoryConnection connection;
+	private BigdataSailRemoteRepository repo;
 
-public class RDFConnector {
-	String endpointUrl;
-	Boolean lbs;
-	//BigdataSailRemote
-	RepositoryConnection connection;
-	BigdataSailRemoteRepository repo;
-	
-
-	/******************** getters/setters ************************/
 	/**
-	 * it returns connection
-	 * @return
-	 */
-	public RepositoryConnection getConnection() 
-	{
-		return connection;
-	}
-	
-	
-	/**
-	 * it redefines parameters and creates connection to server 
+	 * Establishes a connection to the endpoint.
 	 * @param endpoint
 	 * @param lbs
 	 * @throws RepositoryException
 	 */
-	public RDFConnector(String endpoint, Boolean lbs) throws RepositoryException 
+	public RDFConnector(String endpoint, boolean lbs) throws RepositoryException 
 	{
 		this.endpointUrl = endpoint;
 		this.lbs = lbs;
 		this.createConnection();
 	}
 	
+    /**
+     * Obtains current connection to the repository.
+     * @return
+     */
+    public RepositoryConnection getConnection() 
+    {
+        return connection;
+    }
 
+    /**
+     * Obtains the current repository.
+     * @return
+     */
+    public RemoteRepository getRemoteRepository()
+    {
+        return repo.getRemoteRepository();
+    }
+    
 	/**
-	 * it creates db connection
+	 * Creates a new connection.
 	 * @throws RepositoryException
 	 */
 	private void createConnection() throws RepositoryException 
 	{
-		this.repo = new BigdataSailRemoteRepository(this.endpointUrl, this.lbs);
-		this.connection = repo.getConnection();
-	
-		/*	
-			try {
-				BigdataSail bds = new BigdataSail();
-				bds.getConnection().getNamespaces();
-			} catch (SailException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	*/
+	    //final RemoteRepositoryManager mgr = new RemoteRepositoryManager(endpointUrl, lbs);
+	    //repo = mgr.getRepositoryForDefaultNamespace().getBigdataSailRemoteRepository();
+	    repo = new BigdataSailRemoteRepository(endpointUrl, lbs);
+	    connection = repo.getConnection();
 	}
-
 	
 	/**
-	 * it adds single tripple
+	 * Adds single tripple to the repository.
 	 * @param s
 	 * @param p
 	 * @param o
@@ -95,9 +96,8 @@ public class RDFConnector {
 		}
 	}
 	
-	
 	/**
-	 * it executes sparql and returns tupy
+	 * Executes a SPARQL query and returns the result.
 	 * @param queryString
 	 * @return
 	 * @throws RepositoryException
@@ -112,14 +112,13 @@ public class RDFConnector {
         	return tqr;
 		}
 		catch(Exception ex) {
-			System.out.println("nastala chyba");
+			ex.printStackTrace();
 		}
 		return null;
 	}
-
 	
 	/**
-	 * it stores graph of statements into bigdata
+	 * Stores a graph of statements into the repository.
 	 * @param graph
 	 */
 	public void addGraph(Graph graph) 
@@ -139,7 +138,8 @@ public class RDFConnector {
 	 * in BigData 1.4 it is unimplemented function
 	 * @param newNamespace
 	 */
-	public void addNamespace(String newNamespace) {
+	public void addNamespace(String newNamespace) 
+	{
 		
 	/*	
 		final Properties props = new Properties();
@@ -179,12 +179,13 @@ public class RDFConnector {
 		
 	}
 	
-	public void removeNamespace(String namespace) throws RepositoryException {
+	public void removeNamespace(String namespace) throws RepositoryException 
+	{
 		repo.getConnection().removeNamespace(namespace);
 	}
 	
-	public RepositoryResult<Namespace> getAllNamespaces() throws RepositoryException {
-		
+	public RepositoryResult<Namespace> getAllNamespaces() throws RepositoryException 
+	{
 		return repo.getConnection().getNamespaces();
 	}
 }
