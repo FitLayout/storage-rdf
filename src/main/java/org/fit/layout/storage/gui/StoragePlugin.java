@@ -12,7 +12,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -31,9 +31,13 @@ import org.fit.layout.storage.RDFStorage;
 import org.fit.layout.storage.model.BigdataAreaTree;
 import org.fit.layout.storage.model.BigdataPage;
 import org.openrdf.model.Model;
+import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.repository.RepositoryException;
+
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+
 import java.awt.FlowLayout;
 
 
@@ -54,14 +58,14 @@ public class StoragePlugin implements BrowserPlugin
     private JButton btn_loadDBData;
     private JPanel tbr_storageSelection;
     private JLabel lbl_urls;
-    private JComboBox<String> cbx_pages;
+    private JComboBox<URI> cbx_pages;
     private JButton btn_loadBoxModel;
     private JPanel tbr_control;
     private JButton btn_saveBoxTreeModel;
     private JButton btn_removePage;
     private JButton btn_clearDB;
     private JButton btn_saveAreaTreeModel;
-    private JComboBox<String> cbx_areaTrees;
+    private JComboBox<URI> cbx_areaTrees;
     private JButton btn_loadAreaTreeModel;
     private JPanel tbr_pageset;
     private JLabel lblPageSets;
@@ -116,16 +120,17 @@ public class StoragePlugin implements BrowserPlugin
      */
     private void loadAllPages() 
     {
-        List<String> listURL = bdi.getAllPageIds();
-        for(String url : listURL)
-            cbx_pages.addItem(url);
+        try {
+            Set<URI> listURL = bdi.getAllPageIds();
+            for(URI url : listURL)
+                cbx_pages.addItem(url);
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
     }
     
     private void loadPageSets()
     {
-        List<String> listURL = bdi.getAllPageIds();
-        for(String url : listURL)
-            cbx_pages.addItem(url);
     }
     
     private JPanel getPnl_main() 
@@ -248,10 +253,10 @@ public class StoragePlugin implements BrowserPlugin
 		return lbl_urls;
 	}
 	
-	private JComboBox<String> getCbx_pages() 
+	private JComboBox<URI> getCbx_pages() 
 	{
 		if (cbx_pages == null) {
-			cbx_pages = new JComboBox<String>();
+			cbx_pages = new JComboBox<URI>();
 			cbx_pages.setMaximumRowCount(8);
 			cbx_pages.setPreferredSize(new Dimension(300,25));
 			cbx_pages.addActionListener(new ActionListener() {
@@ -265,8 +270,8 @@ public class StoragePlugin implements BrowserPlugin
 			    		cbx_areaTrees.setEnabled(true);
 			    		
 			    		try {
-							List<String> areaTrees = bdi.getAreaTreeIdsForPageId(cbx_pages.getSelectedItem().toString() );
-							for(String area: areaTrees) {
+							Set<URI> areaTrees = bdi.getAreaTreeIdsForPageId((URI) cbx_pages.getSelectedItem());
+							for(URI area : areaTrees) {
 								cbx_areaTrees.addItem(area);
 							}
 						} catch (Exception e1) {
@@ -363,7 +368,7 @@ public class StoragePlugin implements BrowserPlugin
 				public void actionPerformed(ActionEvent arg0) 
 				{
 					try {
-						String pageId = cbx_pages.getSelectedItem().toString();
+						URI pageId = (URI) cbx_pages.getSelectedItem();
 						bdi.removePage(pageId);
 						
 						loadAllPages();
@@ -419,9 +424,9 @@ public class StoragePlugin implements BrowserPlugin
 		return btn_saveAreaTreeModel;
 	}
 	
-	private JComboBox<String> getCbx_areaTrees() {
+	private JComboBox<URI> getCbx_areaTrees() {
 		if (cbx_areaTrees == null) {
-			cbx_areaTrees = new JComboBox<String>();
+			cbx_areaTrees = new JComboBox<URI>();
 			cbx_areaTrees.setPreferredSize(new Dimension(300,25));
 			
 		}
@@ -437,7 +442,7 @@ public class StoragePlugin implements BrowserPlugin
 					if(cbx_areaTrees.getItemCount()>0) {
 						
 						try {
-							Model m = bdi.getAreaModelForAreaTreeId( cbx_areaTrees.getSelectedItem().toString() );
+							Model m = bdi.getAreaModelForAreaTreeId((URI) cbx_areaTrees.getSelectedItem());
 							BigdataAreaTree bdAreaTree = new BigdataAreaTree(m, browser.getPage().getSourceURL().toString());
 							browser.setAreaTree(bdAreaTree);
 						} catch (Exception e) {

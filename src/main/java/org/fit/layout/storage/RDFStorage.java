@@ -3,7 +3,9 @@ package org.fit.layout.storage;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
@@ -17,7 +19,6 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.GraphQuery;
@@ -34,6 +35,13 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 
+
+/**
+ * This class implements all the high level operations on a RDF repository.
+ * 
+ * @author milicka
+ * @author burgetr
+ */
 public class RDFStorage 
 {
     private static final String PREFIXES =
@@ -43,472 +51,318 @@ public class RDFStorage
     
 	private RDFConnector db;
 
+	/**
+	 * Creates a new RDFStorage for a given SPARQL endpoint.
+	 * @param url the SPARQL endpoint URL
+	 * @throws RepositoryException
+	 */
 	public RDFStorage(String url) throws RepositoryException
 	{
 		db = new RDFConnector(url);
 	}
 
-	public RepositoryConnection getConnection() {
-		return this.db.getConnection();
+	/**
+	 * Obtains a connection to the current repository.
+	 * @return the repository connection.
+	 */
+	public RepositoryConnection getConnection() 
+	{
+		return db.getConnection();
 	}
 	
-    public List<String> getPageSets() 
+    /**
+     * Reads all the existing page sets.
+     * @return a list of page sets
+     */
+	public List<String> getPageSets() 
     {
         List<String> output = new ArrayList<String>();
-        
         try {
-            RepositoryResult<Statement> result = this.db.getConnection()
-                    .getStatements(null, RDF.TYPE, LAYOUT.PageSet, true);
-
-            // do something with the results
-            while (result.hasNext()) {
+            RepositoryResult<Statement> result = getConnection().getStatements(null, RDF.TYPE, LAYOUT.PageSet, true);
+            while (result.hasNext()) 
+            {
                 Statement bindingSet = result.next();
-
                 String url = bindingSet.getSubject().stringValue();
-
-                if (!output.contains(url)) {
+                if (!output.contains(url))
                     output.add(url);
-                }
             }
-        } catch (Exception e) {
+        } catch (RepositoryException e) {
             e.printStackTrace();
         }
-
         return output;
     }
-        
-	
 	
 	//box tree functions ===========================================================	
 	
 	/**
-	 * it returns a list of distinct source urls in database
-	 * 
+	 * Returns a list of distinct source urls in database.
+	 * @throws RepositoryException 
 	 */
-	public List<String> getDistinctUrlPages() {
-
-		List<String> output = new ArrayList<String>();
-
-		try {
-			RepositoryResult<Statement> result = this.db.getConnection()
-					.getStatements(null, BOX.sourceUrl, null, true);
-
-			while (result.hasNext()) {
-				Statement bindingSet = result.next();
-
-				String url = bindingSet.getObject().stringValue();
-
-				if (!output.contains(url)) {
-					output.add(url);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return output;
-
-	}
-
-	/**
-	 * gets all pages URI
-	 * @return
-	 * @throws Exception
-	 */
-	public List<String> getAllPageIds() 
+	public Set<String> getDistinctPageUrls() throws RepositoryException 
 	{
-		
-		List<String> output = new ArrayList<String>();
+		Set<String> output = new HashSet<String>();
 
-		try {
-			RepositoryResult<Statement> result = this.db.getConnection()
-					.getStatements(null, RDF.TYPE, BOX.Page, true);
-
-			// do something with the results
-			while (result.hasNext()) {
-				Statement bindingSet = result.next();
-
-				String url = bindingSet.getSubject().stringValue();
-
-				if (!output.contains(url)) {
-					output.add(url);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		RepositoryResult<Statement> result = getConnection().getStatements(null, BOX.sourceUrl, null, true);
+		while (result.hasNext()) 
+		{
+			Statement bindingSet = result.next();
+			String url = bindingSet.getObject().stringValue();
+			output.add(url);
 		}
 
 		return output;
 	}
+
+	/**
+	 * Obtains the URIs of all the stored Page objects.
+	 * @return
+	 * @throws RepositoryException 
+	 */
+	public Set<URI> getAllPageIds() throws RepositoryException 
+	{
+		RepositoryResult<Statement> result = getConnection().getStatements(null, RDF.TYPE, BOX.Page, true);
+		return getSubjectsFromResult(result);
+	}
 		
 	/**
-	 * method gives a list of pageIDs for the specific url
-	 * 
-	 * @param url
-	 *            it defines url of processed site
-	 * @return list of specific launches
+	 * Obtains the pageIDs for a specific url
+	 * @param url the processed page url
+	 * @return list of launch URIs
+	 * @throws RepositoryException 
 	 */
-	public List<String> getPageIdsForUrl(String url) {
-		
-		List<String> output = new ArrayList<String>();
-
-		try {
-			// request for all launches of the specific url
-			URIImpl sourceUrlPredicate = new URIImpl(BOX.sourceUrl.toString());
-			ValueFactoryImpl vf = ValueFactoryImpl.getInstance(); 
-																	
-			RepositoryResult<Statement> result = db.getConnection()
-					.getStatements(null, sourceUrlPredicate, vf.createLiteral(url), true); 
-
-			// stores all launches into list of string
-			while (result.hasNext()) 
-			{
-				Statement row = result.next();
-				String page = row.getSubject().toString();
-
-				System.out.println("output "+page);
-				
-				if (!output.contains(page))
-					output.add(page);
-			}
-
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return output;
+	public Set<URI> getPageIdsForUrl(String url) throws RepositoryException 
+	{
+		ValueFactoryImpl vf = ValueFactoryImpl.getInstance(); 
+		RepositoryResult<Statement> result = getConnection().getStatements(null, BOX.sourceUrl, vf.createLiteral(url), true); 
+        return getSubjectsFromResult(result);
 	}
 	
 	/**
-	 * stores page model into bigdata database
-	 * 
-	 * @param page
+	 * Stores a page model.
+	 * @param page the Page to be stored.
 	 */
-	public void insertPageBoxModel(Page page) {
-		
-		// creates graph representation of RDF triples
+	public void insertPageBoxModel(Page page) 
+	{
 		BoxModelBuilder pgb = new BoxModelBuilder(page);
-
-		// stores graph of triples into DB
 		insertGraph(pgb.getGraph());
 	}
 
 	/**
-	 * it removes page
-	 * 
+	 * Removes a page from the storage. 
 	 * @param pageId
+	 * @throws RepositoryException 
 	 */
-	public void removePage(String pageId) {
-
+	public void removePage(URI pageId) throws RepositoryException 
+	{
 		removePageModel(pageId);
 		removePageInfo(pageId);
 	}
 
 	/**
-	 * it builds Model variable (specific type of Graph) for the information
-	 * 
-	 * 
+	 * Builds a Model for the given timestamp.
 	 * @param timestamp
 	 * @return
-	 * @throws Exception
+	 * @throws RepositoryException 
 	 */
-	public Model getBoxModelForTimestamp(String timestamp) throws Exception {
-		
-		String query = PREFIXES
+	public Model getBoxModelForTimestamp(String timestamp) throws RepositoryException
+	{
+		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
 				+ "?s rdf:type app:Box . " + "?s ?b ?a . "
 				+ "?a box:launchDatetime \"" + timestamp + "\". "
 				+ "?a rdf:type box:Page  }";
-
-		GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
-		GraphQueryResult gqr = pgq.evaluate();
-
-		return createModel(gqr);
-	}
-	
-	/*
-	 * gets page box model from the unique page ID
-	 * 
-	 * @param pageId
-	 * @return
-	 * @throws Exception
-	 */
-	public Model getBoxModelForPageId(String pageId) throws Exception {
-		
-		String query = PREFIXES
-				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
-				+ "?s rdf:type app:Box . " 
-				+ "?s box:belongsTo <"+pageId+">}";
-
-		GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
-		GraphQueryResult gqr = pgq.evaluate();
-
-		return createModel(gqr);
+		return executeSafeQuery(query);
 	}
 	
 	/**
-	 * loads page info - sourceUrl, launchDateTime
+	 * Gets page box model from the unique page ID.
 	 * @param pageId
 	 * @return
-	 * @throws Exception
+	 * @throws RepositoryException 
 	 */
-	public Model getPageInfo(String pageId) throws Exception {
-		
-		URIImpl page = new URIImpl(pageId);
-		
-		RepositoryResult<Statement> result = null;
-		try {
-			result = this.db.getConnection().getStatements(page, null, null, true);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return createModel(result);
+	public Model getBoxModelForPageId(String pageId) throws RepositoryException
+	{
+		final String query = PREFIXES
+				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
+				+ "?s rdf:type app:Box . " 
+				+ "?s box:belongsTo <"+pageId+">}";
+        return executeSafeQuery(query);
 	}
 	
-	
-	
+	/**
+	 * Loads the page info - sourceUrl, launchDateTime, ...
+	 * @param pageId
+	 * @return
+	 * @throws RepositoryException 
+	 */
+	public Model getPageInfo(URI pageUri) throws RepositoryException 
+	{
+		RepositoryResult<Statement> result = null;
+		result = getConnection().getStatements(pageUri, null, null, true);
+		return createModel(result);
+	}
+
 	
 	//AREA tree functions ===========================================================
-	
 	
 	/**
 	 * it returns area model
 	 * @param areaTreeId
 	 * @return
-	 * @throws Exception
+	 * @throws RepositoryException 
 	 */
-	public Model getAreaModelForAreaTreeId(String areaTreeId) throws Exception {
-		
-		String query = PREFIXES
+	public Model getAreaModelForAreaTreeId(URI areaTreeId) throws RepositoryException
+	{
+		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
 				+ "?s rdf:type segm:Area . "
-				+ "?s segm:belongsTo <" + areaTreeId + "> }";
-
-		GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
-		GraphQueryResult gqr = pgq.evaluate();
-
-		return createModel(gqr);
+				+ "?s segm:belongsTo <" + areaTreeId.stringValue() + "> }";
+        return executeSafeQuery(query);
 	}
 	
 	/**
 	 * gets all area models for specific url
 	 * @param pageId
-	 * @throws Exception 
+	 * @throws RepositoryException 
 	 */
-	public List<String> getAreaTreeIdsForPageId(String pageId) throws Exception {
-		
-		List<String> output = new ArrayList<String>();
-		URI page = new URIImpl(pageId);
-
-		try {
-			RepositoryResult<Statement> result = this.db.getConnection()
-					.getStatements(null, SEGM.sourcePage, page, true);
-
-			while (result.hasNext()) {
-				Statement bindingSet = result.next();
-				String url = bindingSet.getObject().stringValue();
-
-				if (!output.contains(url))
-					output.add(url);
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return output;
+	public Set<URI> getAreaTreeIdsForPageId(URI pageUri) throws RepositoryException 
+	{
+		RepositoryResult<Statement> result = getConnection().getStatements(null, SEGM.sourcePage, pageUri, true);
+        return getSubjectsFromResult(result);
 	}
 	
 	/**
-	 * inserts area tree to specific pageId
+	 * Adds an area tree to a specific pageId
 	 * @param atree
 	 * @param pageId
 	 */
-	public void insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URIImpl pageId) {
+	public void insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageId)
+	{
+	    String actualUrl = pageId.toString();
+	    if (actualUrl.lastIndexOf("#") != -1) //TODO what's this?
+	        actualUrl = actualUrl.substring(0, actualUrl.lastIndexOf("#"));
 		
-		try {
-		    String actualUrl = pageId.toString();
-		    if (actualUrl.lastIndexOf("#") != -1)
-		        actualUrl = actualUrl.substring(0, actualUrl.lastIndexOf("#"));
-			
-			AreaModelBuilder buildingModel = new AreaModelBuilder(atree, ltree, pageId, actualUrl);
-			insertGraph(buildingModel.getGraph());
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		AreaModelBuilder buildingModel = new AreaModelBuilder(atree, ltree, pageId, actualUrl);
+		insertGraph(buildingModel.getGraph());
 	}
 	
-	
-	
-	
 	//others =========================================================================
-
-	
 	
 	/**
-	 * gets all statements for the specific subject
+	 * Obtains all statements for the specific subject.
 	 * (gets all triples for specific node)
 	 * 
 	 * @param subject
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public RepositoryResult<Statement> getSubjectStatements(Resource subject)
-			throws RepositoryException {
-		RepositoryResult<Statement> stm = db.getConnection().getStatements(subject, null, null, true);
-		
-		return stm;
+	public RepositoryResult<Statement> getSubjectStatements(Resource subject) throws RepositoryException 
+	{
+		return getConnection().getStatements(subject, null, null, true);
 	}
 	
 	/**
-	 * gets model with all attributes
-	 * 
+	 * Obtains a model for the specific subject.
 	 * @param subject
 	 * @return
-	 * @throws Exception
+	 * @throws RepositoryException 
 	 */
-	public Model getSubjectModel(Resource subject) throws Exception {
-		
-		RepositoryResult<Statement> gqr = this.db.getConnection().getStatements(subject, null, null, true);
-		Model m = createModel(gqr);
-		return m;
+	public Model getSubjectModel(Resource subject) throws RepositoryException 
+	{
+		return createModel(getSubjectStatements(subject));
 	}
-	
 
 	/**
-	 * it executes SPARQL query on the databse
-	 * 
-	 * @param str
+	 * Executes a SPARQL query on the databse
+	 * @param query the SPARQL query
 	 * @return
 	 * @throws QueryEvaluationException
+	 * @throws MalformedQueryException 
+	 * @throws RepositoryException 
 	 */
-	public TupleQueryResult executeQuery(String query)
-			throws QueryEvaluationException {
-
-		try {
-			org.openrdf.query.TupleQuery tq = db.getConnection()
-					.prepareTupleQuery(QueryLanguage.SPARQL, query);
-			return tq.evaluate();
-
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedQueryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public TupleQueryResult executeQuery(String query) throws QueryEvaluationException, RepositoryException, MalformedQueryException
+	{
+		org.openrdf.query.TupleQuery tq = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query);
+		return tq.evaluate();
 	}
 	
 	
-	public void clearRDFDatabase() {
-		
+	public void clearRDFDatabase() 
+	{
 		try {
-			Update upd = db.getConnection().prepareUpdate(QueryLanguage.SPARQL, "DELETE WHERE { ?s ?p ?o }");
+			Update upd = getConnection().prepareUpdate(QueryLanguage.SPARQL, "DELETE WHERE { ?s ?p ?o }");
 			upd.execute();
-			
 		} catch (MalformedQueryException | RepositoryException | UpdateExecutionException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
-	public void execSparql(String query) {
-	    
-        try {
-            Update upd = db.getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
-            upd.execute();
-        } catch (MalformedQueryException | RepositoryException | UpdateExecutionException e) {
-            e.printStackTrace();
-        }
-        
+	public void execSparqlUpdate(String query) throws RepositoryException, MalformedQueryException, UpdateExecutionException 
+	{
+        Update upd = getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
+        upd.execute();
 	}
 	
-    public void importTurtle(String query) {
-        
-        try {
-            db.getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
-        } catch (RepositoryException e) {
-            e.printStackTrace();
-        } catch (RDFParseException e)
-        {
-            e.printStackTrace();
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        
+    public void importTurtle(String query) throws RDFParseException, RepositoryException, IOException 
+    {
+        db.getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
     }
 
 	
 	//PRIVATE =========================================
 	
 	/**
-	 * removes page model with its area trees
-	 * 
+	 * Removes the page model together with its area trees.
 	 * @param pageId
+	 * @throws RepositoryException 
 	 */
-	private void removePageModel(String pageId) {
-
-		//remove page model
-		try {
-			Model m;
-			m = getBoxModelForPageId(pageId);
-			db.getConnection().remove(m);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+	private void removePageModel(URI pageUri) throws RepositoryException 
+	{
 		//load all area trees
-		List<String> areaTreeModels = null;
-		try {
-			areaTreeModels = getAreaTreeIdsForPageId(pageId);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Set<URI> areaTreeModels = getAreaTreeIdsForPageId(pageUri);
 		
 		//removes all area trees
-		for(String areaTreeId: areaTreeModels) {
-			try {
-				Model mat = getAreaModelForAreaTreeId(areaTreeId);
-				db.getConnection().remove(mat);	
-			
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		for(URI areaTreeId : areaTreeModels) 
+		{
+			Model mat = getAreaModelForAreaTreeId(areaTreeId);
+			getConnection().remove(mat);	
 		}
-
 	}
 
 	/**
-	 * it removes page info
-	 * 
+	 * Removes the page record.
 	 * @param pageId
+	 * @throws RepositoryException 
 	 */
-	private void removePageInfo(String pageId) {
-		
-		try {
-			Model m = getPageInfo(pageId);
-			db.getConnection().remove(m);
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+	private void removePageInfo(URI pageUri) throws RepositoryException 
+	{
+		Model m = getPageInfo(pageUri);
+		getConnection().remove(m);
 	}
 	
 	/**
-	 * converstion from GraphQueryResult info Model
+	 * Executes a SPARQL query where the query syntax is safe (should not fail)
+	 * @param query
+	 * @return
+	 * @throws RepositoryException
+	 */
+	private Model executeSafeQuery(String query) throws RepositoryException
+	{
+        try
+        {
+            GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
+            GraphQueryResult gqr = pgq.evaluate();
+            return createModel(gqr);
+        } catch (MalformedQueryException e) {
+            e.printStackTrace();
+        } catch (QueryEvaluationException e) {
+            e.printStackTrace();
+        }
+        return new LinkedHashModel(); //this should not happen
+	}
+	
+	/**
+	 * Creates a Model from the RepositoryResult
 	 * @param result
 	 * @return
 	 * @throws RepositoryException 
@@ -522,7 +376,7 @@ public class RDFStorage
 	}
 
     /**
-     * converstion from GraphQueryResult info Model
+     * Creates a model from a GraphQueryResult
      * @param result
      * @return
      * @throws QueryEvaluationException 
@@ -534,13 +388,31 @@ public class RDFStorage
             model.add(result.next());
         return model;
     }
+
+    /**
+     * Create a set of subjects in a repository result.
+     * @param result
+     * @return
+     * @throws RepositoryException
+     */
+    public Set<URI> getSubjectsFromResult(RepositoryResult<Statement> result) throws RepositoryException 
+    {
+        Set<URI> output = new HashSet<URI>();
+        while (result.hasNext()) 
+        {
+            Resource uri = result.next().getSubject();
+            if (uri instanceof URI)
+                output.add((URI) uri);
+        }
+        return output;
+    }
     
 	/**
-	 * it appends graph into database
-	 * 
+	 * Inserts a new graph to the database.
 	 * @param graph
 	 */
-	private void insertGraph(Graph graph) {
+    private void insertGraph(Graph graph)
+	{
 		db.addGraph(graph);
 	}
 

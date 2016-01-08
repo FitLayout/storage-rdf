@@ -6,6 +6,7 @@
 package org.fit.layout.storage.gui;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -17,7 +18,10 @@ import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.RDFStorage;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFParseException;
 
 /**
  * JavaScript application interface for the storage.
@@ -88,15 +92,23 @@ public class ScriptApi implements ScriptObject
     
     public void execQueryFromResource(String res)
     {
-        Scanner scan = new Scanner(ClassLoader.getSystemResourceAsStream(res));
-        String query = scan.useDelimiter("\\Z").next();
-        scan.close();
-        bdi.execSparql(query);
+        try {
+            Scanner scan = new Scanner(ClassLoader.getSystemResourceAsStream(res));
+            String query = scan.useDelimiter("\\Z").next();
+            scan.close();
+            bdi.execSparqlUpdate(query);
+        } catch (RepositoryException | UpdateExecutionException | MalformedQueryException e) {
+            werr.println("Couldn't execute query: " + e.getMessage());
+        }
     }
     
     public void importTurtle(String turtle)
     {
-        bdi.importTurtle(turtle);
+        try {
+            bdi.importTurtle(turtle);
+        } catch (RDFParseException | RepositoryException | IOException e) {
+            werr.println("Couldn't import Turtle data: " + e.getMessage());
+        }
     }
     
     public void importTurtleFromResource(String res)
@@ -104,7 +116,11 @@ public class ScriptApi implements ScriptObject
         Scanner scan = new Scanner(ClassLoader.getSystemResourceAsStream(res));
         String turtle = scan.useDelimiter("\\Z").next();
         scan.close();
-        bdi.importTurtle(turtle);
+        try {
+            bdi.importTurtle(turtle);
+        } catch (RDFParseException | RepositoryException | IOException e) {
+            werr.println("Couldn't import Turtle data: " + e.getMessage());
+        }
     }
     
 }
