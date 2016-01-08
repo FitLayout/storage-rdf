@@ -57,7 +57,7 @@ public class ScriptApi implements ScriptObject
     {
         try
         {
-            bdi = new RDFStorage(uri, false);
+            bdi = new RDFStorage(uri);
         } 
         catch (RepositoryException e)
         {

@@ -41,32 +41,23 @@ public class RDFStorage
             "PREFIX box: <" + BOX.NAMESPACE + "> " +        
             "PREFIX segm: <" + SEGM.NAMESPACE + "> ";        
     
-	private RDFConnector bddb;
-	private String url = "http://localhost:8080/bigdata/sparql";
+	private RDFConnector db;
 
-	public RDFStorage() throws RepositoryException 
+	public RDFStorage(String url) throws RepositoryException
 	{
-		bddb = new RDFConnector(url);
-	}
-
-	public RDFStorage(String url, boolean lbs) throws RepositoryException
-	{
-		this.url = url;
-		bddb = new RDFConnector(url);
+		db = new RDFConnector(url);
 	}
 
 	public RepositoryConnection getConnection() {
-		return this.bddb.getConnection();
+		return this.db.getConnection();
 	}
-	
-
 	
     public List<String> getPageSets() 
     {
         List<String> output = new ArrayList<String>();
         
         try {
-            RepositoryResult<Statement> result = this.bddb.getConnection()
+            RepositoryResult<Statement> result = this.db.getConnection()
                     .getStatements(null, RDF.TYPE, LAYOUT.PageSet, true);
 
             // do something with the results
@@ -99,7 +90,7 @@ public class RDFStorage
 		List<String> output = new ArrayList<String>();
 
 		try {
-			RepositoryResult<Statement> result = this.bddb.getConnection()
+			RepositoryResult<Statement> result = this.db.getConnection()
 					.getStatements(null, BOX.sourceUrl, null, true);
 
 			while (result.hasNext()) {
@@ -130,7 +121,7 @@ public class RDFStorage
 		List<String> output = new ArrayList<String>();
 
 		try {
-			RepositoryResult<Statement> result = this.bddb.getConnection()
+			RepositoryResult<Statement> result = this.db.getConnection()
 					.getStatements(null, RDF.TYPE, BOX.Page, true);
 
 			// do something with the results
@@ -166,7 +157,7 @@ public class RDFStorage
 			URIImpl sourceUrlPredicate = new URIImpl(BOX.sourceUrl.toString());
 			ValueFactoryImpl vf = ValueFactoryImpl.getInstance(); 
 																	
-			RepositoryResult<Statement> result = bddb.getConnection()
+			RepositoryResult<Statement> result = db.getConnection()
 					.getStatements(null, sourceUrlPredicate, vf.createLiteral(url), true); 
 
 			// stores all launches into list of string
@@ -231,7 +222,7 @@ public class RDFStorage
 				+ "?a box:launchDatetime \"" + timestamp + "\". "
 				+ "?a rdf:type box:Page  }";
 
-		GraphQuery pgq = bddb.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
+		GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
 		GraphQueryResult gqr = pgq.evaluate();
 
 		return createModel(gqr);
@@ -251,7 +242,7 @@ public class RDFStorage
 				+ "?s rdf:type app:Box . " 
 				+ "?s box:belongsTo <"+pageId+">}";
 
-		GraphQuery pgq = bddb.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
+		GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
 		GraphQueryResult gqr = pgq.evaluate();
 
 		return createModel(gqr);
@@ -269,7 +260,7 @@ public class RDFStorage
 		
 		RepositoryResult<Statement> result = null;
 		try {
-			result = this.bddb.getConnection().getStatements(page, null, null, true);
+			result = this.db.getConnection().getStatements(page, null, null, true);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -297,7 +288,7 @@ public class RDFStorage
 				+ "?s rdf:type segm:Area . "
 				+ "?s segm:belongsTo <" + areaTreeId + "> }";
 
-		GraphQuery pgq = bddb.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
+		GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
 		GraphQueryResult gqr = pgq.evaluate();
 
 		return createModel(gqr);
@@ -314,7 +305,7 @@ public class RDFStorage
 		URI page = new URIImpl(pageId);
 
 		try {
-			RepositoryResult<Statement> result = this.bddb.getConnection()
+			RepositoryResult<Statement> result = this.db.getConnection()
 					.getStatements(null, SEGM.sourcePage, page, true);
 
 			while (result.hasNext()) {
@@ -371,7 +362,7 @@ public class RDFStorage
 	 */
 	public RepositoryResult<Statement> getSubjectStatements(Resource subject)
 			throws RepositoryException {
-		RepositoryResult<Statement> stm = bddb.getConnection().getStatements(subject, null, null, true);
+		RepositoryResult<Statement> stm = db.getConnection().getStatements(subject, null, null, true);
 		
 		return stm;
 	}
@@ -385,7 +376,7 @@ public class RDFStorage
 	 */
 	public Model getSubjectModel(Resource subject) throws Exception {
 		
-		RepositoryResult<Statement> gqr = this.bddb.getConnection().getStatements(subject, null, null, true);
+		RepositoryResult<Statement> gqr = this.db.getConnection().getStatements(subject, null, null, true);
 		Model m = createModel(gqr);
 		return m;
 	}
@@ -402,7 +393,7 @@ public class RDFStorage
 			throws QueryEvaluationException {
 
 		try {
-			org.openrdf.query.TupleQuery tq = bddb.getConnection()
+			org.openrdf.query.TupleQuery tq = db.getConnection()
 					.prepareTupleQuery(QueryLanguage.SPARQL, query);
 			return tq.evaluate();
 
@@ -420,7 +411,7 @@ public class RDFStorage
 	public void clearRDFDatabase() {
 		
 		try {
-			Update upd = bddb.getConnection().prepareUpdate(QueryLanguage.SPARQL, "DELETE WHERE { ?s ?p ?o }");
+			Update upd = db.getConnection().prepareUpdate(QueryLanguage.SPARQL, "DELETE WHERE { ?s ?p ?o }");
 			upd.execute();
 			
 		} catch (MalformedQueryException | RepositoryException | UpdateExecutionException e) {
@@ -432,7 +423,7 @@ public class RDFStorage
 	public void execSparql(String query) {
 	    
         try {
-            Update upd = bddb.getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
+            Update upd = db.getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
             upd.execute();
         } catch (MalformedQueryException | RepositoryException | UpdateExecutionException e) {
             e.printStackTrace();
@@ -443,7 +434,7 @@ public class RDFStorage
     public void importTurtle(String query) {
         
         try {
-            bddb.getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
+            db.getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
         } catch (RepositoryException e) {
             e.printStackTrace();
         } catch (RDFParseException e)
@@ -470,7 +461,7 @@ public class RDFStorage
 		try {
 			Model m;
 			m = getBoxModelForPageId(pageId);
-			bddb.getConnection().remove(m);
+			db.getConnection().remove(m);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -489,7 +480,7 @@ public class RDFStorage
 		for(String areaTreeId: areaTreeModels) {
 			try {
 				Model mat = getAreaModelForAreaTreeId(areaTreeId);
-				bddb.getConnection().remove(mat);	
+				db.getConnection().remove(mat);	
 			
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -507,7 +498,7 @@ public class RDFStorage
 		
 		try {
 			Model m = getPageInfo(pageId);
-			bddb.getConnection().remove(m);
+			db.getConnection().remove(m);
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -550,7 +541,7 @@ public class RDFStorage
 	 * @param graph
 	 */
 	private void insertGraph(Graph graph) {
-		bddb.addGraph(graph);
+		db.addGraph(graph);
 	}
 
 }

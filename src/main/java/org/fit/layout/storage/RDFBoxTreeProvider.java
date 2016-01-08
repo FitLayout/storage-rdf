@@ -5,19 +5,15 @@
  */
 package org.fit.layout.storage;
 
-import java.awt.Dimension;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.fit.layout.cssbox.CSSBoxTreeBuilder;
 import org.fit.layout.impl.BaseBoxTreeProvider;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.model.BigdataPage;
 import org.openrdf.model.Model;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.repository.RepositoryException;
-import org.xml.sax.SAXException;
 
 /**
  * A box tree provider implementation based on BigdataDB 
@@ -114,7 +110,7 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
     public Page getPage() 
     {
     	try {
-			RDFStorage bdi = new RDFStorage(urlDb.toString(), false);
+			RDFStorage bdi = new RDFStorage(urlDb.toString());
 			
 			//Model m = bdi.getPageBoxModelFromNode(pageId.toString());
 			Model m = bdi.getBoxModelForPageId(pageId.toString());

@@ -91,7 +91,7 @@ public class StoragePlugin implements BrowserPlugin
         cbx_pages.removeAllItems();
         
         try {
-            bdi = new RDFStorage(DBConnectionUrl, false);
+            bdi = new RDFStorage(DBConnectionUrl);
             
             getBtn_loadBoxModel().setEnabled(true);
             getBtn_loadAreaTreeModel().setEnabled(true);

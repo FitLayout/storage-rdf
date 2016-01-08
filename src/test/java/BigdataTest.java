@@ -25,7 +25,7 @@ public class BigdataTest {
     public void correctRun() { 
     	
 			try {
-				RDFStorage bdi = new RDFStorage();		
+				RDFStorage bdi = new RDFStorage("http://localhost:8080/bigdata/sparql");		
 				
 				System.out.println("no problem");
 			} catch (RepositoryException e) {
@@ -43,7 +43,7 @@ public class BigdataTest {
     public void correctRun2() { 
     	
 			try {
-				RDFStorage bdi = new RDFStorage();
+                RDFStorage bdi = new RDFStorage("http://localhost:8080/bigdata/sparql");        
 				
 				System.out.println("no problem");
 			} catch (RepositoryException e) {
