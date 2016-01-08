@@ -12,11 +12,12 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-
-import com.bigdata.rdf.sail.remote.BigdataSailRemoteRepository;
+import org.openrdf.repository.config.RepositoryConfigException;
+import org.openrdf.repository.sparql.SPARQLRepository;
 
 /**
  * 
@@ -27,21 +28,18 @@ import com.bigdata.rdf.sail.remote.BigdataSailRemoteRepository;
 public class RDFConnector 
 {
 	private String endpointUrl;
-	private boolean lbs;
 	private RepositoryConnection connection;
-	private BigdataSailRemoteRepository repo;
+	private Repository repo;
 
 	/**
-	 * Establishes a connection to the endpoint.
-	 * @param endpoint
-	 * @param lbs
+	 * Establishes a connection to the SPARQL endpoint.
+	 * @param endpoint the SPARQL endpoint URL
 	 * @throws RepositoryException
 	 */
-	public RDFConnector(String endpoint, boolean lbs) throws RepositoryException 
+	public RDFConnector(String endpoint) throws RepositoryException 
 	{
-		this.endpointUrl = endpoint;
-		this.lbs = lbs;
-		this.createConnection();
+		endpointUrl = endpoint;
+		createConnection();
 	}
 	
     /**
@@ -53,18 +51,18 @@ public class RDFConnector
         return connection;
     }
 
-	/**
-	 * Creates a new connection.
-	 * @throws RepositoryException
-	 */
-	private void createConnection() throws RepositoryException 
-	{
-	    //final RemoteRepositoryManager mgr = new RemoteRepositoryManager(endpointUrl, lbs);
-	    //repo = mgr.getRepositoryForDefaultNamespace().getBigdataSailRemoteRepository();
-	    repo = new BigdataSailRemoteRepository(endpointUrl, lbs);
-	    connection = repo.getConnection();
-	}
-	
+    /**
+     * Creates a new connection.
+     * @throws RepositoryException
+     * @throws RepositoryConfigException 
+     */
+    private void createConnection() throws RepositoryException
+    {
+        repo = new SPARQLRepository(endpointUrl);
+        repo.initialize();
+        connection = repo.getConnection();
+    }
+    
 	/**
 	 * Adds single tripple to the repository.
 	 * @param s

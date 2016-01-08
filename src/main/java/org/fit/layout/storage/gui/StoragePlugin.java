@@ -103,10 +103,11 @@ public class StoragePlugin implements BrowserPlugin
         }
         catch (Exception e) {
 
-            JOptionPane.showMessageDialog((Component) browser,
+            /*JOptionPane.showMessageDialog((Component) browser,
                     "There is a problem with DB connection: "+e.getMessage(),
                     "Connection Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.ERROR_MESSAGE);*/
+            e.printStackTrace();
         }
     }
     
@@ -194,7 +195,7 @@ public class StoragePlugin implements BrowserPlugin
 			tfl_urlRDFDB = new JTextField();
 			//tfl_urlRDFDB.setMinimumSize(new Dimension(12, 20));
 			tfl_urlRDFDB.setHorizontalAlignment(SwingConstants.LEFT);
-			tfl_urlRDFDB.setText("http://localhost:8080/bigdata/sparql");
+			tfl_urlRDFDB.setText("http://localhost:8080/openrdf-sesame/repositories/user");
 			//tfl_urlRDFDB.setColumns(30);
 		}
 		return tfl_urlRDFDB;

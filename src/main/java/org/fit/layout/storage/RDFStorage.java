@@ -42,19 +42,17 @@ public class RDFStorage
             "PREFIX segm: <" + SEGM.NAMESPACE + "> ";        
     
 	private RDFConnector bddb;
-	private boolean lbs = false;
 	private String url = "http://localhost:8080/bigdata/sparql";
 
 	public RDFStorage() throws RepositoryException 
 	{
-		bddb = new RDFConnector(this.url, this.lbs);
+		bddb = new RDFConnector(url);
 	}
 
 	public RDFStorage(String url, boolean lbs) throws RepositoryException
 	{
 		this.url = url;
-		this.lbs = lbs;
-		bddb = new RDFConnector(this.url, this.lbs);
+		bddb = new RDFConnector(url);
 	}
 
 	public RepositoryConnection getConnection() {
