@@ -1,14 +1,11 @@
 package org.fit.layout.storage;
 
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 import org.fit.layout.model.Box;
 import org.fit.layout.model.Box.Type;
 import org.fit.layout.model.Page;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.storage.ontology.BOX;
+import org.fit.layout.storage.ontology.RESOURCE;
 import org.openrdf.model.Graph;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -16,108 +13,66 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 
 /**
- * Class creates RDF graph model from the given Page model
+ * Implements an RDF graph construction from a page box model. 
  * 
  * @author milicka
- * 
+ * @author burgetr 
  */
-public class BoxModelBuilder {
-
+public class BoxModelBuilder 
+{
 	private Graph graph;
 	private String baseUrl;
 	private ValueFactoryImpl vf;
-	private String launchID;
 	private URI pageNode;
 
-	public BoxModelBuilder(Page page) {
-
+	public BoxModelBuilder(Page page, long seq) 
+	{
 		baseUrl = page.getSourceURL().toString();
-		
-		initializeGraph();
-
-		Box bdb = page.getRoot();
-		this.insertBox(bdb);
-
-		insertAllBoxes(bdb);
+		initializeGraph(seq);
+		Box root = page.getRoot();
+		insertBox(root);
+		insertChildBoxes(root);
 	}
 	
 	/*
 	 * Initializes graph model
 	 * 
-	 * @param url defines page url for the identification
-	 * 
 	 * @return launch node for the element linking
 	 */
-	private URI initializeGraph() {
-
+	private URI initializeGraph(long seq) 
+	{
 		graph = new LinkedHashModel(); // it holds whole model
 		vf = ValueFactoryImpl.getInstance();
 		
-		String dateTime = getDateTime();
-		launchID = getLaunchIdFromDatetime(dateTime);
-		
 		// inicialization with launch node
-		pageNode = vf.createURI(baseUrl + "#" + this.launchID);
+		pageNode = RESOURCE.createPageURI(seq);
 		graph.add(pageNode, RDF.TYPE, BOX.Page);
-		graph.add(pageNode,	BOX.launchDatetime,	vf.createLiteral(dateTime));
+		graph.add(pageNode,	BOX.launchDatetime,	vf.createLiteral(new java.util.Date()));
 		graph.add(pageNode, BOX.sourceUrl, vf.createLiteral(baseUrl));
 
 		return this.pageNode;
 	}
 
 	/**
-	 * It generates unique identifier for database storing
-	 * 
-	 * @return
-	 */
-	private String getDateTime() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		java.util.Date date = new java.util.Date();
-		return dateFormat.format(date);
-	}
-
-	/**
-	 * it creates unique identification for the current launch
-	 * 
-	 * @param dateTime
-	 * @return
-	 */
-	private String getLaunchIdFromDatetime(String dateTime) {
-		dateTime = dateTime.replace(":", "");
-		dateTime = dateTime.replace("-", "");
-		dateTime = dateTime.replace(" ", "");
-
-		return dateTime;
-	}
-
-	/**
-	 * it goes through page model and appends information in triples into graph
-	 * model
-	 * 
+	 * Recursively inserts the child boxes of a root box into the grapgh.
 	 * @param root
 	 */
-	private void insertAllBoxes(Box parent) {
-
-		// in case of element with children
-		for (int i = 0; i < parent.getChildCount(); i++) {
-			Box sub1 = parent.getChildBox(i);
-			insertBox(sub1);
-		}
-
-		// if there are some children
-		for (int i = 0; i < parent.getChildCount(); i++) {
-			Box sub1 = parent.getChildBox(i);
-			insertAllBoxes(sub1);
-		}
+	private void insertChildBoxes(Box root) 
+	{
+		// insert the boxes themselves
+		for (int i = 0; i < root.getChildCount(); i++)
+			insertBox(root.getChildBox(i));
+		// recursively insert children
+		for (int i = 0; i < root.getChildCount(); i++)
+			insertChildBoxes(root.getChildBox(i));
 	}
 
 	/**
-	 * it appends particular box into graph model
-	 * 
+	 * Appends a single box into graph model.
 	 * @param box
 	 */
-	private void insertBox(Box box) {
-
+	private void insertBox(Box box) 
+	{
 		// add BOX individual into graph
 		final URI individual = getBoxUri(box);
 		graph.add(individual, RDF.TYPE, BOX.Box);
@@ -147,7 +102,8 @@ public class BoxModelBuilder {
 		}
 
 		// add text content into element
-		if (box.getType() == Type.TEXT_CONTENT) {
+		if (box.getType() == Type.TEXT_CONTENT) 
+		{
 			graph.add(individual, BOX.hasText, vf.createLiteral(box.getText()));
 		}
 		// font attributes
@@ -166,16 +122,19 @@ public class BoxModelBuilder {
 
 	}
 
-	public Graph getGraph() {
+	public Graph getGraph() 
+	{
 		return graph;
 	}
 
-	public URI getLaunchNode() {
+	public URI getLaunchNode()
+	{
 		return pageNode;
 	} 
 
-	public URI getBoxUri(Box box) {
-	    return vf.createURI(baseUrl + "#" + launchID + "-" + box.getId());
+	public URI getBoxUri(Box box) 
+	{
+	    return vf.createURI(pageNode.toString() + '#' + box.getId());
 	}
 	
 }

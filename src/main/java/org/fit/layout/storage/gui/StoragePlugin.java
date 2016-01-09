@@ -341,7 +341,12 @@ public class StoragePlugin implements BrowserPlugin
 					Page page = browser.getPage();
 					
 					if(page!=null) {
-						bdi.insertPageBoxModel(page);
+						try
+                        {
+                            bdi.insertPageBoxModel(page);
+                        } catch (RepositoryException e) {
+                            e.printStackTrace();
+                        }
 						
 						loadAllPages();
 					}

@@ -73,7 +73,12 @@ public class ScriptApi implements ScriptObject
     {
         if (page != null) 
         {
-            bdi.insertPageBoxModel(page);
+            try
+            {
+                bdi.insertPageBoxModel(page);
+            } catch (RepositoryException e) {
+                werr.println("Couldn't save the box tree: " + e.getMessage());
+            }
         }
     }
     

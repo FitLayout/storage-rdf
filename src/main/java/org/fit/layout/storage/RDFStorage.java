@@ -143,10 +143,12 @@ public class RDFStorage
 	/**
 	 * Stores a page model.
 	 * @param page the Page to be stored.
+	 * @throws RepositoryException 
 	 */
-	public void insertPageBoxModel(Page page) 
+	public void insertPageBoxModel(Page page) throws RepositoryException 
 	{
-		BoxModelBuilder pgb = new BoxModelBuilder(page);
+	    long seq = getNextSequenceValue("page");
+		BoxModelBuilder pgb = new BoxModelBuilder(page, seq);
 		insertGraph(pgb.getGraph());
 	}
 
