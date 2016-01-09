@@ -417,7 +417,12 @@ public class StoragePlugin implements BrowserPlugin
 					LogicalAreaTree ltree = browser.getLogicalTree();
 					
 					if(atree!=null && page!=null) {
-						bdi.insertAreaTree(atree, ltree, new URIImpl(cbx_pages.getSelectedItem().toString()));
+						try
+                        {
+                            bdi.insertAreaTree(atree, ltree, new URIImpl(cbx_pages.getSelectedItem().toString()));
+                        } catch (RepositoryException e1) {
+                            e1.printStackTrace();
+                        }
 					}
 					
 					loadAllPages();

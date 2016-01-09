@@ -61,7 +61,7 @@ public class RDFStorage
 	 */
 	public RDFStorage(String url) throws RepositoryException
 	{
-		db = new RDFConnector(url);
+		db = new RDFConnectorSesame(url);
 	}
 
 	/**
@@ -240,8 +240,9 @@ public class RDFStorage
 	 * Adds an area tree to a specific pageId
 	 * @param atree
 	 * @param pageId
+	 * @throws RepositoryException 
 	 */
-	public void insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageId)
+	public void insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageId) throws RepositoryException
 	{
 	    String actualUrl = pageId.toString();
 	    if (actualUrl.lastIndexOf("#") != -1) //TODO what's this?
@@ -463,10 +464,13 @@ public class RDFStorage
 	/**
 	 * Inserts a new graph to the database.
 	 * @param graph
+	 * @throws RepositoryException 
 	 */
-    private void insertGraph(Graph graph)
+    private void insertGraph(Graph graph) throws RepositoryException
 	{
-		db.addGraph(graph);
+        getConnection().begin();
+		getConnection().add(graph);
+		getConnection().commit();
 	}
 
 }

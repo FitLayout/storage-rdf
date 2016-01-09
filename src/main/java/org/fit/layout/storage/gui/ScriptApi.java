@@ -86,7 +86,12 @@ public class ScriptApi implements ScriptObject
     {
         if (atree != null) 
         {
-            bdi.insertAreaTree(atree, ltree, new URIImpl(pageUri+"#something")); //the #suffix is required by bdi implementation
+            try
+            {
+                bdi.insertAreaTree(atree, ltree, new URIImpl(pageUri+"#something"));  //TODO the #suffix is required by bdi implementation
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
         }
     }
 

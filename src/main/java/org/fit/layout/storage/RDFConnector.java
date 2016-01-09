@@ -1,6 +1,5 @@
 package org.fit.layout.storage;
 
-import org.openrdf.model.Graph;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -27,9 +26,9 @@ import org.openrdf.repository.sparql.SPARQLRepository;
  */
 public class RDFConnector 
 {
-	private String endpointUrl;
-	private RepositoryConnection connection;
-	private Repository repo;
+	protected String endpointUrl;
+	protected RepositoryConnection connection;
+	protected Repository repo;
 
 	/**
 	 * Establishes a connection to the SPARQL endpoint.
@@ -56,7 +55,7 @@ public class RDFConnector
      * @throws RepositoryException
      * @throws RepositoryConfigException 
      */
-    private void createConnection() throws RepositoryException
+    protected void createConnection() throws RepositoryException
     {
         repo = new SPARQLRepository(endpointUrl);
         repo.initialize();
@@ -105,23 +104,6 @@ public class RDFConnector
 		return null;
 	}
 	
-	/**
-	 * Stores a graph of statements into the repository.
-	 * @param graph
-	 */
-	public void addGraph(Graph graph) 
-	{
-		
-		try {
-			
-			this.connection.add(graph);
-			this.connection.commit();
-			
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * in BigData 1.4 it is unimplemented function
 	 * @param newNamespace
