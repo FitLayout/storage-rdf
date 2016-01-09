@@ -46,7 +46,7 @@ public class RESOURCE
      */
     public static URI createSequenceURI(String name)
     {
-        return factory.createURI(NAMESPACE, name);
+        return factory.createURI(NAMESPACE, "seq-" + name);
     }
     
     
