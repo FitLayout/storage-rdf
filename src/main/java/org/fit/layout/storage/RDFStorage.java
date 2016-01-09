@@ -12,12 +12,15 @@ import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.LAYOUT;
+import org.fit.layout.storage.ontology.RESOURCE;
 import org.fit.layout.storage.ontology.SEGM;
+import org.openrdf.IsolationLevels;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
@@ -305,9 +308,57 @@ public class RDFStorage
 	
     public void importTurtle(String query) throws RDFParseException, RepositoryException, IOException 
     {
-        db.getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
+        getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
     }
 
+    //sequences ==================================================================
+    
+    /**
+     * Obtains the last assigned value of a sequence with the given name.
+     * @param name the sequence name
+     * @return the last assigned value or 0 when the sequence does not exist.
+     * @throws RepositoryException 
+     */
+    public long getLastSequenceValue(String name) throws RepositoryException
+    {
+        URI sequence = RESOURCE.createSequenceURI(name);
+        RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false); 
+        if (result.hasNext())
+        {
+            try {
+                return Long.parseLong(result.next().getObject().stringValue());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        else
+            return 0;
+    }
+    
+    public long getNextSequenceValue(String name) throws RepositoryException
+    {
+        getConnection().begin(IsolationLevels.SERIALIZABLE);
+        URI sequence = RESOURCE.createSequenceURI(name);
+        RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false); 
+        long val = 0;
+        if (result.hasNext())
+        {
+            Statement statement = result.next();
+            try {
+                val = Long.parseLong(statement.getObject().stringValue());
+            } catch (NumberFormatException e) {
+                val = 0;
+            }
+            getConnection().remove(statement);
+        }
+        val++;
+        ValueFactory vf = ValueFactoryImpl.getInstance();
+        getConnection().add(sequence, RDF.VALUE, vf.createLiteral(val));
+        getConnection().commit();
+        return val;
+    }
+    
+    
 	
 	//PRIVATE =========================================
 	
@@ -350,7 +401,7 @@ public class RDFStorage
 	{
         try
         {
-            GraphQuery pgq = db.getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
+            GraphQuery pgq = getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
             GraphQueryResult gqr = pgq.evaluate();
             return createModel(gqr);
         } catch (MalformedQueryException e) {
