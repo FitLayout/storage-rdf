@@ -3,10 +3,12 @@ package org.fit.layout.storage;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.fit.layout.api.PageSet;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
@@ -16,10 +18,12 @@ import org.fit.layout.storage.ontology.RESOURCE;
 import org.fit.layout.storage.ontology.SEGM;
 import org.openrdf.IsolationLevels;
 import org.openrdf.model.Graph;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -73,26 +77,71 @@ public class RDFStorage
 		return db.getConnection();
 	}
 	
+	//==============================================================================
+	
+	public void createPageSet(String name) throws RepositoryException
+	{
+        Graph graph = new LinkedHashModel(); // it holds whole model
+        ValueFactory vf = ValueFactoryImpl.getInstance();
+        URI uri = RESOURCE.createPageSetURI(name);
+        graph.add(uri, RDF.TYPE, LAYOUT.PageSet);
+        graph.add(uri, LAYOUT.hasName, vf.createLiteral(name));
+        graph.add(uri, LAYOUT.createdOn, vf.createLiteral(new java.util.Date()));
+	    insertGraph(graph);
+	}
+	
+    public PageSet getPageSet(String name) throws RepositoryException
+    {
+        return getPageSet(RESOURCE.createPageSetURI(name));
+    }
+    
+	public PageSet getPageSet(URI uri) throws RepositoryException
+	{
+        RepositoryResult<Statement> result = getConnection().getStatements(uri, null, null, false);
+        PageSet ret = new PageSet(null);
+        while (result.hasNext()) 
+        {
+            Statement st = result.next();
+            if (LAYOUT.hasName.equals(st.getPredicate()))
+                ret.setName(st.getObject().stringValue());
+            else if (LAYOUT.createdOn.equals(st.getPredicate()))
+            {
+                Value val = st.getObject();
+                if (val instanceof Literal)
+                {
+                    Date date = ((Literal) val).calendarValue().toGregorianCalendar().getTime();
+                    ret.setDateCreated(date);
+                }
+            }
+        }
+        result.close();
+        if (ret.getName() == null)
+            return null; //not found
+        else
+            return ret;
+	}
+	
     /**
      * Reads all the existing page sets.
      * @return a list of page sets
+     * @throws RepositoryException 
      */
-	public List<String> getPageSets() 
+	public List<PageSet> getPageSets() throws RepositoryException 
     {
-        List<String> output = new ArrayList<String>();
-        try {
-            RepositoryResult<Statement> result = getConnection().getStatements(null, RDF.TYPE, LAYOUT.PageSet, true);
-            while (result.hasNext()) 
+        List<PageSet> ret = new ArrayList<PageSet>();
+        RepositoryResult<Statement> result = getConnection().getStatements(null, RDF.TYPE, LAYOUT.PageSet, false);
+        while (result.hasNext()) 
+        {
+            Statement st = result.next();
+            if (st.getSubject() instanceof URI)
             {
-                Statement bindingSet = result.next();
-                String url = bindingSet.getSubject().stringValue();
-                if (!output.contains(url))
-                    output.add(url);
+                PageSet newset = getPageSet((URI) st.getSubject());
+                if (newset != null)
+                    ret.add(newset);
             }
-        } catch (RepositoryException e) {
-            e.printStackTrace();
+            
         }
-        return output;
+        return ret;
     }
 	
 	//box tree functions ===========================================================	

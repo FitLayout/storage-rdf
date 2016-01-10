@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Scanner;
 
+import org.fit.layout.api.PageSet;
 import org.fit.layout.api.ScriptObject;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
@@ -66,6 +67,31 @@ public class ScriptApi implements ScriptObject
         catch (RepositoryException e)
         {
             werr.println("Couldn't connect: " + e.getMessage());
+        }
+    }
+    
+    public void createPageSet(String name)
+    {
+        try
+        {
+            bdi.createPageSet(name);
+        } 
+        catch (RepositoryException e)
+        {
+            werr.println("Error: " + e.getMessage());
+        }
+    }
+    
+    public PageSet getPageSet(String name)
+    {
+        try
+        {
+            return bdi.getPageSet(name);
+        } 
+        catch (RepositoryException e)
+        {
+            werr.println("Error: " + e.getMessage());
+            return null;
         }
     }
     
