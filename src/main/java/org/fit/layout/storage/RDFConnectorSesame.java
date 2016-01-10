@@ -23,9 +23,33 @@ public class RDFConnectorSesame extends RDFConnector
     @Override
     protected void createConnection() throws RepositoryException
     {
-        repo = new HTTPRepository("http://localhost:8080/openrdf-sesame", "user");
-        repo.initialize();
-        connection = repo.getConnection();
+        //analyse the endpoint url in order to obtain the server url and the repository name
+        //the expected format is <sevrer_url>/repositories/<repository_ID>
+        final String splitter = "/repositories";
+        String serverUrl = "";
+        String repositoryId = "";
+        String url = endpointUrl;
+        while (url.endsWith("/"))
+            url = url.substring(0, url.length() - 1);
+        int pos = url.lastIndexOf('/');
+        if (pos != -1)
+        {
+            repositoryId = url.substring(pos + 1);
+            url = url.substring(0, pos);
+        }
+        if (url.endsWith(splitter))
+        {
+            serverUrl = url.substring(0, url.length() - splitter.length());
+        }
+            
+        if (!serverUrl.isEmpty() && !repositoryId.isEmpty()) //valid URL found
+        {
+            repo = new HTTPRepository(serverUrl, repositoryId);
+            repo.initialize();
+            connection = repo.getConnection();
+        }
+        else
+            throw new RepositoryException("Unknown endpoint URL format for Sesame; the expected format is <sevrer_url>/repositories/<repository_ID>");
     }
 
 }
