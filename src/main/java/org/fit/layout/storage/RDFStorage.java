@@ -377,11 +377,11 @@ public class RDFStorage
         RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false); 
         if (result.hasNext())
         {
-            try {
-                return Long.parseLong(result.next().getObject().stringValue());
-            } catch (NumberFormatException e) {
+            Value val = result.next().getObject();
+            if (val instanceof Literal)
+                return ((Literal) val).longValue();
+            else
                 return 0;
-            }
         }
         else
             return 0;
@@ -396,11 +396,9 @@ public class RDFStorage
         if (result.hasNext())
         {
             Statement statement = result.next();
-            try {
-                val = Long.parseLong(statement.getObject().stringValue());
-            } catch (NumberFormatException e) {
-                val = 0;
-            }
+            Value vval = statement.getObject();
+            if (vval instanceof Literal)
+                val = ((Literal) vval).longValue();
             getConnection().remove(statement);
         }
         val++;
