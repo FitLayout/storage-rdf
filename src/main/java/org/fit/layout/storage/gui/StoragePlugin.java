@@ -295,10 +295,11 @@ public class StoragePlugin implements BrowserPlugin
 				public void actionPerformed(ActionEvent e) {
 					
 			        try {
-			        	String pageId = cbx_pages.getSelectedItem().toString();
+			        	URI pageId = (URI) cbx_pages.getSelectedItem();
 			        	Model modelStatements = bdi.getBoxModelForPageId(pageId);
-						Page page = new BigdataPage(modelStatements, pageId.substring(0, pageId.lastIndexOf("#")) );
-						browser.setPage(page);
+			        	//TODO
+						//Page page = new BigdataPage(modelStatements, pageId.substring(0, pageId.lastIndexOf("#")) );
+						//browser.setPage(page);
 						
 					} catch (Exception e1) {
 						

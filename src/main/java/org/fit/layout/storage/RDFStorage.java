@@ -255,12 +255,12 @@ public class RDFStorage
 	 * @return
 	 * @throws RepositoryException 
 	 */
-	public Model getBoxModelForPageId(String pageId) throws RepositoryException
+	public Model getBoxModelForPageId(URI pageId) throws RepositoryException
 	{
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
-				+ "?s rdf:type app:Box . " 
-				+ "?s box:belongsTo <"+pageId+">}";
+				+ "?s rdf:type box:Box . " 
+				+ "?s box:belongsTo <" + pageId.toString() + ">}";
         return executeSafeQuery(query);
 	}
 	

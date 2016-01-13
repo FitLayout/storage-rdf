@@ -25,6 +25,13 @@ public class RDFPage extends DefaultPage
     {
         super(url);
     }
+
+    public RDFPage(URL url, URI uri, Date createdOn)
+    {
+        super(url);
+        this.uri = uri;
+        this.createdOn = createdOn;
+    }
     
     public RDFPage(Page src, URI uri)
     {

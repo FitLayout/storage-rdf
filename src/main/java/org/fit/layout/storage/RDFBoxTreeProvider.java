@@ -16,9 +16,10 @@ import org.openrdf.model.impl.URIImpl;
 import org.openrdf.repository.RepositoryException;
 
 /**
- * A box tree provider implementation based on BigdataDB 
+ * A box tree provider that obtains the stored pages from a RDF repository. 
  * 
  * @author milicka
+ * @author burgetr
  */
 public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 {
@@ -31,7 +32,7 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 
     public RDFBoxTreeProvider() throws MalformedURLException
     {
-		this.urlDb = new URL("http://localhost:8080/bigdata/sparql");
+		this.urlDb = new URL("http://localhost:8080/openrdf-sesame/repositories/user");
 		pageId = null;
     }
 
@@ -45,19 +46,19 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 
     public String getId()
     {
-        return "FitLayout.Bigdata";
+        return "FitLayout.RDFSource";
     }
 
    
     public String getName()
     {
-        return "Bigdata loader";
+        return "RDF page source";
     }
 
     
     public String getDescription()
     {
-        return "Uses the Bigdata RDF DB for obtaining the box tree.";
+        return "Uses the a RDF repository for obtaining the box tree.";
     }
 
     
@@ -113,7 +114,7 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 			RDFStorage bdi = new RDFStorage(urlDb.toString());
 			
 			//Model m = bdi.getPageBoxModelFromNode(pageId.toString());
-			Model m = bdi.getBoxModelForPageId(pageId.toString());
+			Model m = bdi.getBoxModelForPageId(pageId);
 			
 			BigdataPage bdmb = new BigdataPage(m, "http://www.idnes.cz");
 			return bdmb;
