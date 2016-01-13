@@ -12,6 +12,7 @@ import org.fit.layout.api.PageSet;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
+import org.fit.layout.storage.model.RDFPage;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.LAYOUT;
 import org.fit.layout.storage.ontology.RESOURCE;
@@ -190,16 +191,36 @@ public class RDFStorage
 	}
 	
 	/**
-	 * Stores a page model.
+	 * Inserts a new page model to the database.
 	 * @param page the Page to be stored.
+	 * @return the RDFPage implementation of the stored page
 	 * @throws RepositoryException 
 	 */
-	public void insertPageBoxModel(Page page) throws RepositoryException 
+	public RDFPage insertPageBoxModel(Page page) throws RepositoryException 
 	{
 	    long seq = getNextSequenceValue("page");
-		BoxModelBuilder pgb = new BoxModelBuilder(page, seq);
+        URI pageUri = RESOURCE.createPageURI(seq);
+		BoxModelBuilder pgb = new BoxModelBuilder(page, pageUri);
 		insertGraph(pgb.getGraph());
+		if (page instanceof RDFPage)
+		    return (RDFPage) page;
+		else
+            return new RDFPage(page, pageUri);
 	}
+
+    /**
+     * Inserts a new page model to the database.
+     * @param page the Page to be updated.
+     * @return the RDFPage implementation of the stored page
+     * @throws RepositoryException 
+     */
+    public RDFPage updatePageBoxModel(RDFPage page) throws RepositoryException 
+    {
+        removePage(page.getUri());
+        BoxModelBuilder pgb = new BoxModelBuilder(page, page.getUri());
+        insertGraph(pgb.getGraph());
+        return page;
+    }
 
 	/**
 	 * Removes a page from the storage. 

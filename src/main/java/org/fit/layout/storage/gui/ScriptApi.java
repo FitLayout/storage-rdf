@@ -18,6 +18,7 @@ import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.RDFStorage;
+import org.fit.layout.storage.model.RDFPage;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.UpdateExecutionException;
@@ -95,17 +96,32 @@ public class ScriptApi implements ScriptObject
         }
     }
     
-    public void saveBoxTree(Page page)
+    public RDFPage insertPage(Page page)
     {
         if (page != null) 
         {
             try
             {
-                bdi.insertPageBoxModel(page);
+                return bdi.insertPageBoxModel(page);
             } catch (RepositoryException e) {
                 werr.println("Couldn't save the box tree: " + e.getMessage());
             }
         }
+        return null;
+    }
+    
+    public RDFPage updatePage(Page page)
+    {
+        if (page != null && page instanceof RDFPage) 
+        {
+            try
+            {
+                return bdi.updatePageBoxModel((RDFPage) page);
+            } catch (RepositoryException e) {
+                werr.println("Couldn't save the box tree: " + e.getMessage());
+            }
+        }
+        return null;
     }
     
     public void saveAreaTree(AreaTree atree, LogicalAreaTree ltree, String pageUri)

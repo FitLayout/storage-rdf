@@ -5,7 +5,6 @@ import org.fit.layout.model.Box.Type;
 import org.fit.layout.model.Page;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.storage.ontology.BOX;
-import org.fit.layout.storage.ontology.RESOURCE;
 import org.openrdf.model.Graph;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -25,27 +24,27 @@ public class BoxModelBuilder
 	private ValueFactoryImpl vf;
 	private URI pageNode;
 
-	public BoxModelBuilder(Page page, long seq) 
+	public BoxModelBuilder(Page page, URI uri) 
 	{
 		baseUrl = page.getSourceURL().toString();
-		initializeGraph(seq);
+		pageNode = uri;
+		initializeGraph();
 		Box root = page.getRoot();
 		insertBox(root);
 		insertChildBoxes(root);
 	}
 	
-	/*
-	 * Initializes graph model
+	/**
+	 * Initializes the graph model
 	 * 
 	 * @return launch node for the element linking
 	 */
-	private URI initializeGraph(long seq) 
+	private URI initializeGraph() 
 	{
 		graph = new LinkedHashModel(); // it holds whole model
 		vf = ValueFactoryImpl.getInstance();
 		
 		// inicialization with launch node
-		pageNode = RESOURCE.createPageURI(seq);
 		graph.add(pageNode, RDF.TYPE, BOX.Page);
 		graph.add(pageNode,	BOX.launchDatetime,	vf.createLiteral(new java.util.Date()));
 		graph.add(pageNode, BOX.sourceUrl, vf.createLiteral(baseUrl));
