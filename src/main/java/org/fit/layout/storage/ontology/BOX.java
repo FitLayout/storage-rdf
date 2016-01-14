@@ -269,6 +269,34 @@ public class BOX {
 	public static final URI underline;
 
 	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#visualHeight}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#visualHeight">visualHeight</a>
+	 */
+	public static final URI visualHeight;
+
+	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#visualWidth}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#visualWidth">visualWidth</a>
+	 */
+	public static final URI visualWidth;
+
+	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#visualX}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#visualX">visualX</a>
+	 */
+	public static final URI visualX;
+
+	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#visualY}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#visualY">visualY</a>
+	 */
+	public static final URI visualY;
+
+	/**
 	 * {@code http://fitlayout.github.io/ontology/render.owl#width}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#width">width</a>
@@ -314,6 +342,10 @@ public class BOX {
 		Rectangle = factory.createURI(BOX.NAMESPACE, "Rectangle");
 		sourceUrl = factory.createURI(BOX.NAMESPACE, "sourceUrl");
 		underline = factory.createURI(BOX.NAMESPACE, "underline");
+		visualHeight = factory.createURI(BOX.NAMESPACE, "visualHeight");
+		visualWidth = factory.createURI(BOX.NAMESPACE, "visualWidth");
+		visualX = factory.createURI(BOX.NAMESPACE, "visualX");
+		visualY = factory.createURI(BOX.NAMESPACE, "visualY");
 		width = factory.createURI(BOX.NAMESPACE, "width");
 	}
 
