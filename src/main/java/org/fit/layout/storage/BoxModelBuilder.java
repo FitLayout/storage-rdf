@@ -84,12 +84,16 @@ public class BoxModelBuilder
 		    graph.add(individual, BOX.isChildOf, getBoxUri(box.getParentBox()));
 
 		// store position and size of element
-		// Rectangular rec = box.getContentBounds();
 		Rectangular content = box.getContentBounds();
 		graph.add(individual, BOX.height, vf.createLiteral(content.getHeight()));
 		graph.add(individual, BOX.width, vf.createLiteral(content.getWidth()));
 		graph.add(individual, BOX.positionX, vf.createLiteral(content.getX1()));
 		graph.add(individual, BOX.positionY, vf.createLiteral(content.getY1()));
+        Rectangular visual = box.getVisualBounds();
+        graph.add(individual, BOX.visualHeight, vf.createLiteral(visual.getHeight()));
+        graph.add(individual, BOX.visualWidth, vf.createLiteral(visual.getWidth()));
+        graph.add(individual, BOX.visualX, vf.createLiteral(visual.getX1()));
+        graph.add(individual, BOX.visualY, vf.createLiteral(visual.getY1()));
 
 		if (box.getBackgroundColor() != null)
 		{

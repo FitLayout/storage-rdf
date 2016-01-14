@@ -119,6 +119,7 @@ public class BoxModelLoader
         RDFBox box = new RDFBox(uri);
         box.setType(Box.Type.ELEMENT);
         int x = 0, y = 0, width = 0, height = 0;
+        int vx = 0, vy = 0, vwidth = 0, vheight = 0;
         
         for (Statement st : model.filter(uri, null, null))
         {
@@ -216,10 +217,30 @@ public class BoxModelLoader
                 if (value instanceof Literal)
                     y = ((Literal) value).intValue();
             }
+            else if (BOX.visualHeight.equals(pred)) 
+            {
+                if (value instanceof Literal)
+                    vheight = ((Literal) value).intValue();
+            }
+            else if (BOX.visualWidth.equals(pred)) 
+            {
+                if (value instanceof Literal)
+                    vwidth = ((Literal) value).intValue();
+            }
+            else if (BOX.visualX.equals(pred)) 
+            {
+                if (value instanceof Literal)
+                    vx = ((Literal) value).intValue();
+            }   
+            else if (BOX.visualY.equals(pred)) 
+            {
+                if (value instanceof Literal)
+                    vy = ((Literal) value).intValue();
+            }
         }
         box.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
-        box.setVisualBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
         box.setContentBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
+        box.setVisualBounds(new Rectangular(vx, vy, vx + vwidth - 1, vy + vheight - 1));
         
         return box;
     }
