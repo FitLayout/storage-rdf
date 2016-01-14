@@ -16,7 +16,7 @@ import org.openrdf.model.URI;
  * 
  * @author burgetr
  */
-public class RDFPage extends DefaultPage
+public class RDFPage extends DefaultPage implements RDFResource
 {
     protected URI uri;
     protected Date createdOn;
@@ -39,6 +39,7 @@ public class RDFPage extends DefaultPage
         this.uri = uri;
     }
 
+    @Override
     public URI getUri()
     {
         return uri;

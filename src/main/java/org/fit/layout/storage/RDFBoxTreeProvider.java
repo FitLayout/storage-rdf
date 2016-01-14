@@ -10,9 +10,11 @@ import java.net.URL;
 
 import org.fit.layout.impl.BaseBoxTreeProvider;
 import org.fit.layout.model.Page;
-import org.fit.layout.storage.model.BigdataPage;
+import org.fit.layout.storage.ontology.RESOURCE;
 import org.openrdf.model.Model;
-import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.RepositoryException;
 
 /**
@@ -24,20 +26,19 @@ import org.openrdf.repository.RepositoryException;
 public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 {
     private URL urlDb;
-    private URIImpl pageId;
-   
+    private URI pageId;
     
     private final String[] paramNames = { "urlDb", "pageId" };
     private final ValueType[] paramTypes = { ValueType.STRING, ValueType.STRING };
 
     public RDFBoxTreeProvider() throws MalformedURLException
     {
-		this.urlDb = new URL("http://localhost:8080/openrdf-sesame/repositories/user");
-		pageId = null;
+		urlDb = new URL("http://localhost:8080/openrdf-sesame/repositories/user");
+		pageId = RESOURCE.createPageURI(1);
     }
 
     
-    public RDFBoxTreeProvider(URL urlDb, URIImpl pageId)
+    public RDFBoxTreeProvider(URL urlDb, URI pageId)
     {
         this.urlDb = urlDb;
         this.pageId = pageId;
@@ -92,38 +93,31 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
         }
     }
 
-    public URIImpl getPageId()
+    public URI getPageId()
     {
         return pageId;
     }
 
-    public void setPageId(URIImpl pageId)
+    public void setPageId(URI pageId)
     {
         this.pageId = pageId;
     }
 
     public void setPageId(String pageId)
     {
-        this.pageId = new URIImpl(pageId);
+        ValueFactory vf = ValueFactoryImpl.getInstance();
+        this.pageId = vf.createURI(pageId);
     }
-
     
     public Page getPage() 
     {
     	try {
-			RDFStorage bdi = new RDFStorage(urlDb.toString());
-			
-			//Model m = bdi.getPageBoxModelFromNode(pageId.toString());
-			Model m = bdi.getBoxModelForPageId(pageId);
-			
-			BigdataPage bdmb = new BigdataPage(m, "http://www.idnes.cz");
-			return bdmb;
-			
+			RDFStorage storage = new RDFStorage(urlDb.toString());
+			Model boxModel = storage.getBoxModelForPageId(pageId);
+			Model pageModel = storage.getPageInfo(pageId);
+			BoxModelLoader loader = new BoxModelLoader(pageModel, boxModel);
+			return loader.getPage();
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	
