@@ -52,6 +52,27 @@ public class BOX {
 	public static final URI Border;
 
 	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#borderColor}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#borderColor">borderColor</a>
+	 */
+	public static final URI borderColor;
+
+	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#borderStyle}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#borderStyle">borderStyle</a>
+	 */
+	public static final URI borderStyle;
+
+	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#borderWidth}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#borderWidth">borderWidth</a>
+	 */
+	public static final URI borderWidth;
+
+	/**
 	 * {@code http://fitlayout.github.io/ontology/render.owl#Box}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#Box">Box</a>
@@ -311,6 +332,9 @@ public class BOX {
 		backgroundImageUrl = factory.createURI(BOX.NAMESPACE, "backgroundImageUrl");
 		belongsTo = factory.createURI(BOX.NAMESPACE, "belongsTo");
 		Border = factory.createURI(BOX.NAMESPACE, "Border");
+		borderColor = factory.createURI(BOX.NAMESPACE, "borderColor");
+		borderStyle = factory.createURI(BOX.NAMESPACE, "borderStyle");
+		borderWidth = factory.createURI(BOX.NAMESPACE, "borderWidth");
 		Box = factory.createURI(BOX.NAMESPACE, "Box");
 		color = factory.createURI(BOX.NAMESPACE, "color");
 		ContainerBox = factory.createURI(BOX.NAMESPACE, "ContainerBox");

@@ -264,6 +264,22 @@ public class RDFStorage
         return executeSafeQuery(query);
 	}
 	
+    /**
+     * Gets page box model from the unique page ID.
+     * @param pageId
+     * @return
+     * @throws RepositoryException 
+     */
+    public Model getBorderModelForPageId(URI pageId) throws RepositoryException
+    {
+        final String query = PREFIXES
+                + "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . "
+                + "?b rdf:type box:Box . " 
+                + "?b box:belongsTo <" + pageId.toString() + "> . "
+                + "{?b box:hasTopBorder ?s} UNION {?b box:hasRightBorder ?s} UNION {?b box:hasBottomBorder ?s} UNION {?b box:hasLeftBorder ?s}}";
+        return executeSafeQuery(query);
+    }
+    
 	/**
 	 * Loads the page info - sourceUrl, launchDateTime, ...
 	 * @param pageId

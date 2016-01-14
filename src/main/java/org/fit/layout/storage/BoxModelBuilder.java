@@ -1,10 +1,13 @@
 package org.fit.layout.storage;
 
+import org.fit.layout.model.Border;
+import org.fit.layout.model.Border.Side;
 import org.fit.layout.model.Box;
 import org.fit.layout.model.Box.Type;
 import org.fit.layout.model.Page;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.storage.ontology.BOX;
+import org.fit.layout.storage.ontology.RESOURCE;
 import org.openrdf.model.Graph;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -122,7 +125,42 @@ public class BoxModelBuilder
                 box.getColor().getGreen(),
                 box.getColor().getBlue());
         graph.add(individual, BOX.color, vf.createLiteral(col));
+        
+        if (box.getBorderStyle(Side.TOP) != null)
+        {
+            URI btop = insertBorder(box.getBorderStyle(Side.TOP), individual, "top");
+            graph.add(individual, BOX.hasTopBorder, btop);
+        }
+        if (box.getBorderStyle(Side.RIGHT) != null)
+        {
+            URI bright = insertBorder(box.getBorderStyle(Side.RIGHT), individual, "right");
+            graph.add(individual, BOX.hasRightBorder, bright);
+        }
+        if (box.getBorderStyle(Side.BOTTOM) != null)
+        {
+            URI bbottom = insertBorder(box.getBorderStyle(Side.BOTTOM), individual, "bottom");
+            graph.add(individual, BOX.hasBottomBorder, bbottom);
+        }
+        if (box.getBorderStyle(Side.LEFT) != null)
+        {
+            URI bleft = insertBorder(box.getBorderStyle(Side.LEFT), individual, "left");
+            graph.add(individual, BOX.hasLeftBorder, bleft);
+        }
 
+	}
+	
+	private URI insertBorder(Border border, URI boxUri, String side)
+	{
+	    URI uri = RESOURCE.createBorderURI(boxUri, side);
+	    graph.add(uri, RDF.TYPE, BOX.Border);
+	    graph.add(uri, BOX.borderWidth, vf.createLiteral(border.getWidth()));
+	    graph.add(uri, BOX.borderStyle, vf.createLiteral(border.getStyle().toString()));
+        final String col = String.format("#%02x%02x%02x", 
+                border.getColor().getRed(),
+                border.getColor().getGreen(),
+                border.getColor().getBlue());
+        graph.add(uri, BOX.borderColor, vf.createLiteral(col));
+	    return uri;
 	}
 
 	public Graph getGraph() 

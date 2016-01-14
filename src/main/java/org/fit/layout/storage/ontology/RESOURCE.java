@@ -39,6 +39,12 @@ public class RESOURCE
         return factory.createURI(NAMESPACE, "page" + seq);
     }
     
+    public static URI createBorderURI(URI boxUri, String side)
+    {
+        String name = boxUri.getLocalName() + "B" + side;
+        return factory.createURI(boxUri.getNamespace(), name);
+    }
+    
     /**
      * Creates a sequence URI from its name.
      * @param name the name of the sequence (alphabetical characters only)

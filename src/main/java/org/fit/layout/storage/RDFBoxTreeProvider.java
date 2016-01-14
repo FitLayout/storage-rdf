@@ -115,7 +115,8 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 			RDFStorage storage = new RDFStorage(urlDb.toString());
 			Model boxModel = storage.getBoxModelForPageId(pageId);
 			Model pageModel = storage.getPageInfo(pageId);
-			BoxModelLoader loader = new BoxModelLoader(pageModel, boxModel);
+			Model borderModel = storage.getBorderModelForPageId(pageId);
+			BoxModelLoader loader = new BoxModelLoader(pageModel, boxModel, borderModel);
 			return loader.getPage();
 		} catch (RepositoryException e) {
 			e.printStackTrace();

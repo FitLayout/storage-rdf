@@ -13,7 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.fit.layout.model.Border;
 import org.fit.layout.model.Box;
+import org.fit.layout.model.Border.Side;
 import org.fit.layout.model.Box.Type;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.storage.model.RDFBox;
@@ -38,12 +40,14 @@ public class BoxModelLoader
     
     private Model pageModel;
     private Model boxTreeModel;
+    private Model borderModel;
     private RDFPage page;
     
-    public BoxModelLoader(Model pageModel, Model boxTreeModel)
+    public BoxModelLoader(Model pageModel, Model boxTreeModel, Model borderModel)
     {
         this.pageModel = pageModel;
         this.boxTreeModel = boxTreeModel;
+        this.borderModel = borderModel;
     }
     
     public RDFPage getPage()
@@ -118,6 +122,7 @@ public class BoxModelLoader
     {
         RDFBox box = new RDFBox(uri);
         box.setType(Box.Type.ELEMENT);
+        box.setDisplayType(Box.DisplayType.BLOCK);
         int x = 0, y = 0, width = 0, height = 0;
         int vx = 0, vy = 0, vwidth = 0, vheight = 0;
         
@@ -174,23 +179,35 @@ public class BoxModelLoader
             }
             else if (BOX.hasBottomBorder.equals(pred)) 
             {
-                if (value instanceof Literal)
-                    box.setBottomBorder(((Literal) value).intValue());
+                if (value instanceof URI)
+                {
+                    Border border = createBorder(borderModel, (URI) value);
+                    box.setBorderStyle(Side.BOTTOM, border);
+                }
             }
             else if (BOX.hasLeftBorder.equals(pred)) 
             {
-                if (value instanceof Literal)
-                    box.setLeftBorder(((Literal) value).intValue());
+                if (value instanceof URI)
+                {
+                    Border border = createBorder(borderModel, (URI) value);
+                    box.setBorderStyle(Side.LEFT, border);
+                }
             }
             else if (BOX.hasRightBorder.equals(pred)) 
             {
-                if (value instanceof Literal)
-                    box.setRightBorder(((Literal) value).intValue());
+                if (value instanceof URI)
+                {
+                    Border border = createBorder(borderModel, (URI) value);
+                    box.setBorderStyle(Side.RIGHT, border);
+                }
             }
             else if (BOX.hasTopBorder.equals(pred)) 
             {
-                if (value instanceof Literal)
-                    box.setTopBorder(((Literal) value).intValue());
+                if (value instanceof URI)
+                {
+                    Border border = createBorder(borderModel, (URI) value);
+                    box.setBorderStyle(Side.TOP, border);
+                }
             }
             else if (BOX.hasText.equals(pred)) 
             {
@@ -243,6 +260,38 @@ public class BoxModelLoader
         box.setVisualBounds(new Rectangular(vx, vy, vx + vwidth - 1, vy + vheight - 1));
         
         return box;
+    }
+    
+    private Border createBorder(Model model, URI uri)
+    {
+        Border ret = new Border();
+        
+        for (Statement st : model.filter(uri, null, null))
+        {
+            final URI pred = st.getPredicate();
+            final Value value = st.getObject();
+            
+            if (BOX.borderColor.equals(pred)) 
+            {
+                ret.setColor(hex2Rgb(value.stringValue()));
+            }
+            else if (BOX.borderWidth.equals(pred))
+            {
+                if (value instanceof Literal)
+                    ret.setWidth(((Literal) value).intValue());
+            }
+            else if (BOX.borderStyle.equals(pred))
+            {
+                String style = value.stringValue();
+                try {
+                    ret.setStyle(Border.Style.valueOf(style));
+                } catch (IllegalArgumentException r) {
+                    log.error("Invalid style value: {}", style);
+                }
+            }
+        }
+        
+        return ret;
     }
     
     private Color hex2Rgb(String colorStr) 
