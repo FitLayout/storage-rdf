@@ -218,6 +218,8 @@ public class BoxModelLoader
             }
         }
         box.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
+        box.setVisualBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
+        box.setContentBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
         
         return box;
     }

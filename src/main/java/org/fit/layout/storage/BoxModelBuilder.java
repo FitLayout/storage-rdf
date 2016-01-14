@@ -85,11 +85,11 @@ public class BoxModelBuilder
 
 		// store position and size of element
 		// Rectangular rec = box.getContentBounds();
-		Rectangular rec = box.getBounds();
-		graph.add(individual, BOX.height, vf.createLiteral(rec.getHeight()));
-		graph.add(individual, BOX.width, vf.createLiteral(rec.getWidth()));
-		graph.add(individual, BOX.positionX, vf.createLiteral(rec.getX1()));
-		graph.add(individual, BOX.positionY, vf.createLiteral(rec.getY1()));
+		Rectangular content = box.getContentBounds();
+		graph.add(individual, BOX.height, vf.createLiteral(content.getHeight()));
+		graph.add(individual, BOX.width, vf.createLiteral(content.getWidth()));
+		graph.add(individual, BOX.positionX, vf.createLiteral(content.getX1()));
+		graph.add(individual, BOX.positionY, vf.createLiteral(content.getY1()));
 
 		if (box.getBackgroundColor() != null)
 		{
