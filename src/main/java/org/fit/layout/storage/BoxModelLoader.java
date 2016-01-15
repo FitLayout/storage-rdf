@@ -121,6 +121,7 @@ public class BoxModelLoader
     private RDFBox createBoxFromModel(Model model, URI uri)
     {
         RDFBox box = new RDFBox(uri);
+        box.setTagName("unknown");
         box.setType(Box.Type.ELEMENT);
         box.setDisplayType(Box.DisplayType.BLOCK);
         int x = 0, y = 0, width = 0, height = 0;
@@ -253,6 +254,10 @@ public class BoxModelLoader
             {
                 if (value instanceof Literal)
                     vy = ((Literal) value).intValue();
+            }
+            else if (BOX.htmlTagName.equals(pred)) 
+            {
+                box.setTagName(value.stringValue());
             }
         }
         box.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));

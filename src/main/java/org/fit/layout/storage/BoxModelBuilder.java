@@ -86,6 +86,10 @@ public class BoxModelBuilder
 		if (box.getParentBox() != null)
 		    graph.add(individual, BOX.isChildOf, getBoxUri(box.getParentBox()));
 
+		//tag properties
+		if (box.getTagName() != null)
+		    graph.add(individual, BOX.htmlTagName, vf.createLiteral(box.getTagName()));
+		
 		// store position and size of element
 		Rectangular content = box.getContentBounds();
 		graph.add(individual, BOX.height, vf.createLiteral(content.getHeight()));

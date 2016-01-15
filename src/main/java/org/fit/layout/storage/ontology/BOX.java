@@ -199,6 +199,13 @@ public class BOX {
 	public static final URI height;
 
 	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#htmlTagName}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#htmlTagName">htmlTagName</a>
+	 */
+	public static final URI htmlTagName;
+
+	/**
 	 * {@code http://fitlayout.github.io/ontology/render.owl#Image}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#Image">Image</a>
@@ -353,6 +360,7 @@ public class BOX {
 		hasText = factory.createURI(BOX.NAMESPACE, "hasText");
 		hasTopBorder = factory.createURI(BOX.NAMESPACE, "hasTopBorder");
 		height = factory.createURI(BOX.NAMESPACE, "height");
+		htmlTagName = factory.createURI(BOX.NAMESPACE, "htmlTagName");
 		Image = factory.createURI(BOX.NAMESPACE, "Image");
 		imageUrl = factory.createURI(BOX.NAMESPACE, "imageUrl");
 		isChildOf = factory.createURI(BOX.NAMESPACE, "isChildOf");
