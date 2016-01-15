@@ -126,22 +126,22 @@ public class BoxModelBuilder
                 box.getColor().getBlue());
         graph.add(individual, BOX.color, vf.createLiteral(col));
         
-        if (box.getBorderStyle(Side.TOP) != null)
+        if (box.getBorderStyle(Side.TOP) != null && box.hasTopBorder())
         {
             URI btop = insertBorder(box.getBorderStyle(Side.TOP), individual, "top");
             graph.add(individual, BOX.hasTopBorder, btop);
         }
-        if (box.getBorderStyle(Side.RIGHT) != null)
+        if (box.getBorderStyle(Side.RIGHT) != null && box.hasRightBorder())
         {
             URI bright = insertBorder(box.getBorderStyle(Side.RIGHT), individual, "right");
             graph.add(individual, BOX.hasRightBorder, bright);
         }
-        if (box.getBorderStyle(Side.BOTTOM) != null)
+        if (box.getBorderStyle(Side.BOTTOM) != null && box.hasBottomBorder())
         {
             URI bbottom = insertBorder(box.getBorderStyle(Side.BOTTOM), individual, "bottom");
             graph.add(individual, BOX.hasBottomBorder, bbottom);
         }
-        if (box.getBorderStyle(Side.LEFT) != null)
+        if (box.getBorderStyle(Side.LEFT) != null && box.hasLeftBorder())
         {
             URI bleft = insertBorder(box.getBorderStyle(Side.LEFT), individual, "left");
             graph.add(individual, BOX.hasLeftBorder, bleft);
