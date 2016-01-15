@@ -6,6 +6,7 @@
 package org.fit.layout.storage.model;
 
 import org.fit.layout.impl.DefaultBox;
+import org.fit.layout.model.Box;
 import org.openrdf.model.URI;
 
 /**
@@ -19,7 +20,7 @@ public class RDFBox extends DefaultBox implements RDFResource
     public RDFBox(URI uri)
     {
         super();
-        this.uri = uri;
+        setUri(uri);
     }
 
     @Override
@@ -31,6 +32,31 @@ public class RDFBox extends DefaultBox implements RDFResource
     public void setUri(URI uri)
     {
         this.uri = uri;
+        setId(Integer.parseInt(uri.getLocalName()));
+    }
+
+    @Override
+    public String toString()
+    {
+        String ret = getId() + " ";
+        if (getType() == Box.Type.TEXT_CONTENT)
+        {
+            ret += getText();
+        }
+        else if (getType() == Box.Type.REPLACED_CONTENT)
+        {
+            ret += "OBJECT";
+        }
+        else
+        {
+            ret += "<" + getTagName();
+            if (getAttribute("id") != null)
+                ret += " id=" + getAttribute("id");
+            if (getAttribute("class") != null)
+                ret += " class=" + getAttribute("class");
+            ret += ">";
+        }
+        return ret;
     }
     
 }
