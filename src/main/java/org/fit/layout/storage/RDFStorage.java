@@ -12,6 +12,7 @@ import org.fit.layout.api.PageSet;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
+import org.fit.layout.storage.model.RDFAreaTree;
 import org.fit.layout.storage.model.RDFPage;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.LAYOUT;
@@ -326,16 +327,19 @@ public class RDFStorage
 	 * Adds an area tree to a specific pageId
 	 * @param atree
 	 * @param pageId
+	 * @return 
 	 * @throws RepositoryException 
 	 */
-	public void insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageId) throws RepositoryException
+	public RDFAreaTree insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageId) throws RepositoryException
 	{
-	    String actualUrl = pageId.toString();
-	    if (actualUrl.lastIndexOf("#") != -1) //TODO what's this?
-	        actualUrl = actualUrl.substring(0, actualUrl.lastIndexOf("#"));
-		
-		AreaModelBuilder buildingModel = new AreaModelBuilder(atree, ltree, pageId, actualUrl);
-		insertGraph(buildingModel.getGraph());
+        long seq = getNextSequenceValue("areatree");
+        URI pageUri = RESOURCE.createAreaTreeURI(seq);
+        AreaModelBuilder pgb = new AreaModelBuilder(atree, ltree, pageId, pageUri);
+        insertGraph(pgb.getGraph());
+        if (atree instanceof RDFAreaTree)
+            return (RDFAreaTree) atree;
+        else
+            return new RDFAreaTree(atree, pageUri);
 	}
 	
 	//others =========================================================================

@@ -45,6 +45,11 @@ public class RESOURCE
         return factory.createURI(boxUri.getNamespace(), name);
     }
     
+    public static URI createAreaTreeURI(long seq)
+    {
+        return factory.createURI(NAMESPACE, "atree" + seq);
+    }
+    
     /**
      * Creates a sequence URI from its name.
      * @param name the name of the sequence (alphabetical characters only)

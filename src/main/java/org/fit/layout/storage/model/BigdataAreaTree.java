@@ -13,6 +13,7 @@ import org.fit.layout.impl.DefaultPage;
 import org.fit.layout.impl.GenericTreeNode;
 import org.fit.layout.model.Area;
 import org.fit.layout.model.AreaTree;
+import org.fit.layout.model.Page;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
@@ -254,6 +255,15 @@ public class BigdataAreaTree  implements AreaTree {
     {
         // TODO Auto-generated method stub
         System.err.println("Update topologies not implemented in BigdataAreaTree");
+    }
+
+
+
+    @Override
+    public Page getPage()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 	
 }
