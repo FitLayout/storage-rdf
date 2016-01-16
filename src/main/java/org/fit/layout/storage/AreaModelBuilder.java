@@ -1,5 +1,6 @@
 package org.fit.layout.storage;
 
+import java.awt.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -130,11 +131,7 @@ public class AreaModelBuilder {
 		
         if (area.getBackgroundColor() != null)
         {
-            final String bgcol = String.format("#%02x%02x%02x", 
-                    area.getBackgroundColor().getRed(),
-                    area.getBackgroundColor().getGreen(),
-                    area.getBackgroundColor().getBlue());
-            graph.add(individual, BOX.backgroundColor, vf.createLiteral(bgcol));
+            graph.add(individual, BOX.backgroundColor, vf.createLiteral(colorString(area.getBackgroundColor())));
         }
 
         // font attributes
@@ -209,5 +206,10 @@ public class AreaModelBuilder {
 		java.util.Date date = new java.util.Date();
 		return dateFormat.format(date);
 	}
-	
+
+    private String colorString(Color color)
+    {
+        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
 }

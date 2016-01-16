@@ -1,5 +1,7 @@
 package org.fit.layout.storage;
 
+import java.awt.Color;
+
 import org.fit.layout.model.Border;
 import org.fit.layout.model.Border.Side;
 import org.fit.layout.model.Box;
@@ -104,11 +106,7 @@ public class BoxModelBuilder
 
 		if (box.getBackgroundColor() != null)
 		{
-    		final String bgcol = String.format("#%02x%02x%02x", 
-    		        box.getBackgroundColor().getRed(),
-    		        box.getBackgroundColor().getGreen(),
-    		        box.getBackgroundColor().getBlue());
-            graph.add(individual, BOX.backgroundColor, vf.createLiteral(bgcol));
+            graph.add(individual, BOX.backgroundColor, vf.createLiteral(colorString(box.getBackgroundColor())));
 		}
 
 		// add text content into element
@@ -123,12 +121,7 @@ public class BoxModelBuilder
 		graph.add(individual, BOX.fontStyle, vf.createLiteral(box.getFontStyle()));
         graph.add(individual, BOX.underline, vf.createLiteral(box.getUnderline()));
         graph.add(individual, BOX.lineThrough, vf.createLiteral(box.getLineThrough()));
-		
-        final String col = String.format("#%02x%02x%02x", 
-                box.getColor().getRed(),
-                box.getColor().getGreen(),
-                box.getColor().getBlue());
-        graph.add(individual, BOX.color, vf.createLiteral(col));
+        graph.add(individual, BOX.color, vf.createLiteral(colorString(box.getColor())));
         
         if (box.getBorderStyle(Side.TOP) != null && box.hasTopBorder())
         {
@@ -159,11 +152,7 @@ public class BoxModelBuilder
 	    graph.add(uri, RDF.TYPE, BOX.Border);
 	    graph.add(uri, BOX.borderWidth, vf.createLiteral(border.getWidth()));
 	    graph.add(uri, BOX.borderStyle, vf.createLiteral(border.getStyle().toString()));
-        final String col = String.format("#%02x%02x%02x", 
-                border.getColor().getRed(),
-                border.getColor().getGreen(),
-                border.getColor().getBlue());
-        graph.add(uri, BOX.borderColor, vf.createLiteral(col));
+        graph.add(uri, BOX.borderColor, vf.createLiteral(colorString(border.getColor())));
 	    return uri;
 	}
 
@@ -180,6 +169,11 @@ public class BoxModelBuilder
 	public URI getBoxUri(Box box) 
 	{
 	    return vf.createURI(pageNode.toString() + '#' + box.getId());
+	}
+	
+	private String colorString(Color color)
+	{
+	    return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
 	}
 	
 }
