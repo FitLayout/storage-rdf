@@ -11,7 +11,6 @@ import java.net.URL;
 import org.fit.layout.impl.BaseBoxTreeProvider;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.ontology.RESOURCE;
-import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -113,11 +112,7 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
     {
     	try {
 			RDFStorage storage = new RDFStorage(urlDb.toString());
-			Model boxModel = storage.getBoxModelForPageId(pageId);
-			Model pageModel = storage.getPageInfo(pageId);
-			Model borderModel = storage.getBorderModelForPageId(pageId);
-			BoxModelLoader loader = new BoxModelLoader(pageModel, boxModel, borderModel);
-			return loader.getPage();
+			return storage.loadPage(pageId);
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}

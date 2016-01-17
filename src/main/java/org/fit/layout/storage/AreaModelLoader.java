@@ -196,7 +196,7 @@ public class AreaModelLoader extends ModelLoader
             }
             else if (SEGM.hasTag.equals(pred))
             {
-                //TODO
+                
             }
         }
         area.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));

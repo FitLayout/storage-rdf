@@ -235,19 +235,15 @@ public class RDFStorage
 	}
 
 	/**
-	 * Builds a Model for the given timestamp.
-	 * @param timestamp
-	 * @return
-	 * @throws RepositoryException 
+	 * Loads a page from the repository.
+	 * @param pageId The page URI
+	 * @return the corresponding Page or {@code null} when the page is not available in the repository.
+	 * @throws RepositoryException
 	 */
-	public Model getBoxModelForTimestamp(String timestamp) throws RepositoryException
+	public Page loadPage(URI pageId) throws RepositoryException
 	{
-		final String query = PREFIXES
-				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
-				+ "?s rdf:type app:Box . " + "?s ?b ?a . "
-				+ "?a box:launchDatetime \"" + timestamp + "\". "
-				+ "?a rdf:type box:Page  }";
-		return executeSafeQuery(query);
+        BoxModelLoader loader = new BoxModelLoader(this, pageId);
+        return loader.getPage();
 	}
 	
 	/**
@@ -256,7 +252,7 @@ public class RDFStorage
 	 * @return
 	 * @throws RepositoryException 
 	 */
-	public Model getBoxModelForPageId(URI pageId) throws RepositoryException
+	public Model getBoxModelForPage(URI pageId) throws RepositoryException
 	{
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
@@ -271,7 +267,7 @@ public class RDFStorage
      * @return
      * @throws RepositoryException 
      */
-    public Model getBorderModelForPageId(URI pageId) throws RepositoryException
+    public Model getBorderModelForPage(URI pageId) throws RepositoryException
     {
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . "

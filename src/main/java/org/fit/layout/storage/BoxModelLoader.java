@@ -26,6 +26,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,51 +38,58 @@ public class BoxModelLoader extends ModelLoader
 {
     private static Logger log = LoggerFactory.getLogger(BoxModelLoader.class);
     
-    private Model pageModel;
-    private Model boxTreeModel;
+    private RDFStorage storage;
+    private URI pageUri;
     private Model borderModel;
     private RDFPage page;
     
-    public BoxModelLoader(Model pageModel, Model boxTreeModel, Model borderModel)
+
+    public BoxModelLoader(RDFStorage storage, URI pageUri)
     {
-        this.pageModel = pageModel;
-        this.boxTreeModel = boxTreeModel;
-        this.borderModel = borderModel;
+        this.storage = storage;
+        this.pageUri = pageUri;
     }
-    
-    public RDFPage getPage()
+
+    public RDFPage getPage() throws RepositoryException
     {
         if (page == null)
-            page = constructPage(pageModel, boxTreeModel);
+            page = constructPage();
         return page;
     }
     
-    private RDFPage constructPage(Model pageModel, Model boxTreeModel)
+    private RDFPage constructPage() throws RepositoryException
     {
-        //create the page
-        PageInfo info = new PageInfo(pageModel);
-        URL srcURL;
-        try {
-            srcURL = new URL(info.getUrl());
-        } catch (MalformedURLException e) {
+        Model pageModel = storage.getPageInfo(pageUri);
+        if (pageModel.size() > 0)
+        {
+            //create the page
+            PageInfo info = new PageInfo(pageModel);
+            URL srcURL;
             try {
-                srcURL = new URL("http://no/url");
-            } catch (MalformedURLException e1) {
-                srcURL = null;
+                srcURL = new URL(info.getUrl());
+            } catch (MalformedURLException e) {
+                try {
+                    srcURL = new URL("http://no/url");
+                } catch (MalformedURLException e1) {
+                    srcURL = null;
+                }
             }
+            RDFPage page = new RDFPage(srcURL, info.getId(), info.getDate());
+            
+            //create the box tree
+            Model boxTreeModel = storage.getBoxModelForPage(pageUri);
+            RDFBox root = constructBoxTree(boxTreeModel); 
+            page.setRoot(root);
+            page.setWidth(root.getWidth());
+            page.setHeight(root.getHeight());
+            
+            return page;
         }
-        RDFPage page = new RDFPage(srcURL, info.getId(), info.getDate());
-        
-        //create the box tree
-        RDFBox root = constructBoxTree(boxTreeModel); 
-        page.setRoot(root);
-        page.setWidth(root.getWidth());
-        page.setHeight(root.getHeight());
-        
-        return page;
+        else
+            return null;
     }
     
-    private RDFBox constructBoxTree(Model model)
+    private RDFBox constructBoxTree(Model model) throws RepositoryException
     {
         Map<URI, RDFBox> boxes = new HashMap<URI, RDFBox>();
         //find all boxes
@@ -117,7 +125,7 @@ public class BoxModelLoader extends ModelLoader
         }
     }
     
-    private RDFBox createBoxFromModel(Model model, URI uri)
+    private RDFBox createBoxFromModel(Model model, URI uri) throws RepositoryException
     {
         RDFBox box = new RDFBox(uri);
         box.setTagName("unknown");
@@ -181,7 +189,7 @@ public class BoxModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     box.setBorderStyle(Side.BOTTOM, border);
                 }
             }
@@ -189,7 +197,7 @@ public class BoxModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     box.setBorderStyle(Side.LEFT, border);
                 }
             }
@@ -197,7 +205,7 @@ public class BoxModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     box.setBorderStyle(Side.RIGHT, border);
                 }
             }
@@ -205,7 +213,7 @@ public class BoxModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     box.setBorderStyle(Side.TOP, border);
                 }
             }
@@ -264,6 +272,13 @@ public class BoxModelLoader extends ModelLoader
         box.setVisualBounds(new Rectangular(vx, vy, vx + vwidth - 1, vy + vheight - 1));
         
         return box;
+    }
+
+    private Model getBorderModel() throws RepositoryException
+    {
+        if (borderModel == null)
+            return storage.getBorderModelForPage(pageUri);
+        return borderModel;
     }
     
 }
