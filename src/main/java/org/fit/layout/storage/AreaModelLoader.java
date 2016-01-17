@@ -24,49 +24,53 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ * This class implements creating a RDFAreaTree from the RDF models.
  * @author burgetr
  */
 public class AreaModelLoader extends ModelLoader
 {
     private static Logger log = LoggerFactory.getLogger(AreaModelLoader.class);
 
+    private RDFStorage storage;
     private URI areaTreeUri;
     private Page page;
-    private Model areaTreeModel;
     private Model borderModel;
-    private Model tagModel;
     private RDFAreaTree areaTree;
     
-    public AreaModelLoader(URI areaTreeUri, Page srcPage, Model areaTreeModel, Model borderModel, Model tagModel)
+    public AreaModelLoader(RDFStorage storage, URI areaTreeUri, Page srcPage)
     {
+        this.storage = storage;
         this.areaTreeUri = areaTreeUri;
         this.page = srcPage;
-        this.areaTreeModel = areaTreeModel;
-        this.borderModel = borderModel;
-        this.tagModel = tagModel;
     }
     
-    public RDFAreaTree getAreaTree()
+    public RDFAreaTree getAreaTree() throws RepositoryException
     {
         if (areaTree == null)
-            areaTree = constructAreaTree(areaTreeUri, page, areaTreeModel);
+            areaTree = constructAreaTree();
         return areaTree;
     }
 
-    private RDFAreaTree constructAreaTree(URI uri, Page page, Model model)
+    private RDFAreaTree constructAreaTree() throws RepositoryException
     {
-        RDFAreaTree atree = new RDFAreaTree(page, uri);
-        RDFArea root = constructVisualAreaTree(model);
-        atree.setRoot(root);
-        return atree;
+        Model model = storage.getAreaModelForAreaTree(areaTreeUri);
+        if (model.size() > 0)
+        {
+            RDFAreaTree atree = new RDFAreaTree(page, areaTreeUri);
+            RDFArea root = constructVisualAreaTree(model);
+            atree.setRoot(root);
+            return atree;
+        }
+        else
+            return null;
     }
     
-    private RDFArea constructVisualAreaTree(Model model)
+    private RDFArea constructVisualAreaTree(Model model) throws RepositoryException
     {
         Map<URI, RDFArea> areas = new HashMap<URI, RDFArea>();
         //find all areas
@@ -102,7 +106,7 @@ public class AreaModelLoader extends ModelLoader
         }
     }
     
-    private RDFArea createAreaFromModel(Model model, URI uri)
+    private RDFArea createAreaFromModel(Model model, URI uri) throws RepositoryException
     {
         RDFArea area = new RDFArea(new Rectangular(), uri);
         int x = 0, y = 0, width = 0, height = 0;
@@ -146,7 +150,7 @@ public class AreaModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     area.setBorderStyle(Side.BOTTOM, border);
                 }
             }
@@ -154,7 +158,7 @@ public class AreaModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     area.setBorderStyle(Side.LEFT, border);
                 }
             }
@@ -162,7 +166,7 @@ public class AreaModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     area.setBorderStyle(Side.RIGHT, border);
                 }
             }
@@ -170,7 +174,7 @@ public class AreaModelLoader extends ModelLoader
             {
                 if (value instanceof URI)
                 {
-                    Border border = createBorder(borderModel, (URI) value);
+                    Border border = createBorder(getBorderModel(), (URI) value);
                     area.setBorderStyle(Side.TOP, border);
                 }
             }
@@ -204,5 +208,11 @@ public class AreaModelLoader extends ModelLoader
         return area;
     }
     
+    private Model getBorderModel() throws RepositoryException
+    {
+        if (borderModel == null)
+            return storage.getBorderModelForAreaTree(areaTreeUri);
+        return borderModel;
+    }
 
 }

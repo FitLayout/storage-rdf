@@ -309,6 +309,22 @@ public class RDFStorage
 	}
 	
     /**
+     * Gets page border information for the given area tree.
+     * @param pageId
+     * @return
+     * @throws RepositoryException 
+     */
+    public Model getBorderModelForAreaTree(URI areaTreeUri) throws RepositoryException
+    {
+        final String query = PREFIXES
+                + "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . "
+                + "?b rdf:type segm:Area . " 
+                + "?b segm:belongsTo <" + areaTreeUri.toString() + "> . "
+                + "{?b box:hasTopBorder ?s} UNION {?b box:hasRightBorder ?s} UNION {?b box:hasBottomBorder ?s} UNION {?b box:hasLeftBorder ?s}}";
+        return executeSafeQuery(query);
+    }
+    
+    /**
      * Obtains the model of visual areas for the given area tree.
      * @param areaTreeUri
      * @return A Model containing the triplets for all tags of the visual areas contained in the given area tree.
