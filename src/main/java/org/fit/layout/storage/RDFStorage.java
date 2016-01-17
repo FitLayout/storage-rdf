@@ -298,23 +298,40 @@ public class RDFStorage
 	//AREA tree functions ===========================================================
 	
 	/**
-	 * it returns area model
-	 * @param areaTreeId
-	 * @return
+	 * Obtains the model of visual areas for the given area tree.
+	 * @param areaTreeUri
+	 * @return A Model containing the triplets for all the visual areas contained in the given area tree.
 	 * @throws RepositoryException 
 	 */
-	public Model getAreaModelForAreaTreeId(URI areaTreeId) throws RepositoryException
+	public Model getAreaModelForAreaTree(URI areaTreeUri) throws RepositoryException
 	{
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
 				+ "?s rdf:type segm:Area . "
-				+ "?s segm:belongsTo <" + areaTreeId.stringValue() + "> }";
+				+ "?s segm:belongsTo <" + areaTreeUri.stringValue() + "> }";
+        return executeSafeQuery(query);
+	}
+	
+    /**
+     * Obtains the model of visual areas for the given area tree.
+     * @param areaTreeUri
+     * @return A Model containing the triplets for all tags of the visual areas contained in the given area tree.
+     * @throws RepositoryException 
+     */
+	public Model getTagModelForAreaTree(URI areaTreeUri) throws RepositoryException
+	{
+        final String query = PREFIXES
+                + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
+                + "?a rdf:type segm:Area . "
+                + "?a segm:hasTag ?s . "
+                + "?a segm:belongsTo <" + areaTreeUri.stringValue() + "> }";
         return executeSafeQuery(query);
 	}
 	
 	/**
-	 * gets all area models for specific url
-	 * @param pageId
+	 * Obtains all the area trees for a page URI.
+	 * @param pageUri the URI of a Page
+	 * @return A set of AreaTree URIs that come from the specified page.
 	 * @throws RepositoryException 
 	 */
 	public Set<URI> getAreaTreeIdsForPageId(URI pageUri) throws RepositoryException 
@@ -466,7 +483,7 @@ public class RDFStorage
 		//removes all area trees
 		for(URI areaTreeId : areaTreeModels) 
 		{
-			Model mat = getAreaModelForAreaTreeId(areaTreeId);
+			Model mat = getAreaModelForAreaTree(areaTreeId);
 			getConnection().remove(mat);	
 		}
 	}

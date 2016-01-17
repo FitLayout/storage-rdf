@@ -453,7 +453,7 @@ public class StoragePlugin implements BrowserPlugin
 					if(cbx_areaTrees.getItemCount()>0) {
 						
 						try {
-							Model m = bdi.getAreaModelForAreaTreeId((URI) cbx_areaTrees.getSelectedItem());
+							Model m = bdi.getAreaModelForAreaTree((URI) cbx_areaTrees.getSelectedItem());
 							BigdataAreaTree bdAreaTree = new BigdataAreaTree(m, browser.getPage().getSourceURL().toString());
 							browser.setAreaTree(bdAreaTree);
 						} catch (Exception e) {
