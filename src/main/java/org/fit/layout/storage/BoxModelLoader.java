@@ -277,7 +277,7 @@ public class BoxModelLoader extends ModelLoader
     private Model getBorderModel() throws RepositoryException
     {
         if (borderModel == null)
-            return storage.getBorderModelForPage(pageUri);
+            borderModel = storage.getBorderModelForPage(pageUri);
         return borderModel;
     }
     

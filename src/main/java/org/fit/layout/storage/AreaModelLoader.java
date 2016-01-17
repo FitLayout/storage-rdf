@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.fit.layout.impl.DefaultTag;
 import org.fit.layout.model.Border;
 import org.fit.layout.model.Page;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.model.Border.Side;
+import org.fit.layout.model.Tag;
 import org.fit.layout.storage.model.RDFArea;
 import org.fit.layout.storage.model.RDFAreaTree;
 import org.fit.layout.storage.ontology.BOX;
@@ -39,7 +41,11 @@ public class AreaModelLoader extends ModelLoader
     private RDFStorage storage;
     private URI areaTreeUri;
     private Page page;
+    
     private Model borderModel;
+    private Model tagInfoModel;
+    private Model tagSupportModel;
+    
     private RDFAreaTree areaTree;
     
     public AreaModelLoader(RDFStorage storage, URI areaTreeUri, Page srcPage)
@@ -110,6 +116,7 @@ public class AreaModelLoader extends ModelLoader
     {
         RDFArea area = new RDFArea(new Rectangular(), uri);
         int x = 0, y = 0, width = 0, height = 0;
+        Map<URI, Float> tagSupport = new HashMap<URI, Float>(); //tagUri->support
         
         for (Statement st : model.filter(uri, null, null))
         {
@@ -200,7 +207,37 @@ public class AreaModelLoader extends ModelLoader
             }
             else if (SEGM.hasTag.equals(pred))
             {
-                
+                if (value instanceof URI)
+                {
+                    if (!tagSupport.containsKey(value))
+                    {
+                        Tag tag = createTag((URI) value);
+                        if (tag != null)
+                            area.addTag(tag, 1.0f); //spport is unkwnown (yet)
+                    }
+                }
+            }
+            else if (SEGM.tagSupport.equals(pred))
+            {
+                if (value instanceof URI)
+                {
+                    URI tsUri = (URI) value;
+                    URI tagUri = null;
+                    Float support = null;
+                    for (Statement sst : getTagSupportModel().filter(tsUri, null, null))
+                    {
+                        if (SEGM.hasTag.equals(sst.getPredicate()) && sst.getObject() instanceof URI)
+                            tagUri = (URI) sst.getObject();
+                        else if (SEGM.support.equals(sst.getPredicate()) && sst.getObject() instanceof Literal)
+                            support = ((Literal) sst.getObject()).floatValue();
+                    }
+                    if (tagUri != null && support != null)
+                    {
+                        Tag tag = createTag((URI) value);
+                        if (tag != null)
+                            area.addTag(tag, support);
+                    }
+                }
             }
         }
         area.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
@@ -208,11 +245,43 @@ public class AreaModelLoader extends ModelLoader
         return area;
     }
     
+    private Tag createTag(URI tagUri) throws RepositoryException
+    {
+        String name = null;
+        String type = null;
+        for (Statement st : getTagInfoModel().filter(tagUri, null, null))
+        {
+            URI pred = st.getPredicate();
+            if (SEGM.hasName.equals(pred))
+                name = st.getObject().stringValue();
+            else if (SEGM.hasType.equals(pred))
+                type = st.getObject().stringValue();
+        }
+        if (name != null && type != null)
+            return new DefaultTag(type, name);
+        else
+            return null;
+    }
+    
     private Model getBorderModel() throws RepositoryException
     {
         if (borderModel == null)
-            return storage.getBorderModelForAreaTree(areaTreeUri);
+            borderModel = storage.getBorderModelForAreaTree(areaTreeUri);
         return borderModel;
+    }
+    
+    private Model getTagInfoModel() throws RepositoryException
+    {
+        if (tagInfoModel == null)
+            tagInfoModel = storage.getTagModelForAreaTree(areaTreeUri);
+        return tagInfoModel;
+    }
+
+    private Model getTagSupportModel() throws RepositoryException
+    {
+        if (tagSupportModel == null)
+            tagSupportModel = storage.getTagModelForAreaTree(areaTreeUri);
+        return tagSupportModel;
     }
 
 }

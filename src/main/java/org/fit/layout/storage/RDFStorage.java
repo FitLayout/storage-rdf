@@ -340,6 +340,22 @@ public class RDFStorage
         return executeSafeQuery(query);
 	}
 	
+    /**
+     * Obtains the model of visual areas for the given area tree.
+     * @param areaTreeUri
+     * @return A Model containing the triplets for all tags of the visual areas contained in the given area tree.
+     * @throws RepositoryException 
+     */
+    public Model getTagSupportModelForAreaTree(URI areaTreeUri) throws RepositoryException
+    {
+        final String query = PREFIXES
+                + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
+                + "?a rdf:type segm:Area . "
+                + "?a segm:tagSupport ?s . "
+                + "?a segm:belongsTo <" + areaTreeUri.stringValue() + "> }";
+        return executeSafeQuery(query);
+    }
+    
 	/**
 	 * Obtains all the area trees for a page URI.
 	 * @param pageUri the URI of a Page
