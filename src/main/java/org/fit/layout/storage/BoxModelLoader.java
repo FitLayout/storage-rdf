@@ -5,7 +5,6 @@
  */
 package org.fit.layout.storage;
 
-import java.awt.Color;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * This class implements creating a RDFPage from the RDF models.
  * @author burgetr
  */
-public class BoxModelLoader
+public class BoxModelLoader extends ModelLoader
 {
     private static Logger log = LoggerFactory.getLogger(BoxModelLoader.class);
     
@@ -267,44 +266,4 @@ public class BoxModelLoader
         return box;
     }
     
-    private Border createBorder(Model model, URI uri)
-    {
-        Border ret = new Border();
-        
-        for (Statement st : model.filter(uri, null, null))
-        {
-            final URI pred = st.getPredicate();
-            final Value value = st.getObject();
-            
-            if (BOX.borderColor.equals(pred)) 
-            {
-                ret.setColor(hex2Rgb(value.stringValue()));
-            }
-            else if (BOX.borderWidth.equals(pred))
-            {
-                if (value instanceof Literal)
-                    ret.setWidth(((Literal) value).intValue());
-            }
-            else if (BOX.borderStyle.equals(pred))
-            {
-                String style = value.stringValue();
-                try {
-                    ret.setStyle(Border.Style.valueOf(style));
-                } catch (IllegalArgumentException r) {
-                    log.error("Invalid style value: {}", style);
-                }
-            }
-        }
-        
-        return ret;
-    }
-    
-    private Color hex2Rgb(String colorStr) 
-    {
-        return new Color(
-                Integer.valueOf( colorStr.substring( 1, 3 ), 16 ),
-                Integer.valueOf( colorStr.substring( 3, 5 ), 16 ),
-                Integer.valueOf( colorStr.substring( 5, 7 ), 16 ) );
-    } 
-
 }
