@@ -1,8 +1,10 @@
 package org.fit.layout.storage;
 
 import java.awt.Color;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fit.layout.model.Area;
 import org.fit.layout.model.AreaTree;
@@ -34,6 +36,7 @@ public class AreaModelBuilder
 	private URI pageNode;
 	private URI areaTreeNode;
 	private int logAreaCnt;
+	private Set<Tag> usedTags;
 
 	public AreaModelBuilder(AreaTree areaTree, LogicalAreaTree logicalTree, URI pageNode, URI uri)
 	{
@@ -41,7 +44,9 @@ public class AreaModelBuilder
 		vf = ValueFactoryImpl.getInstance();
 		this.pageNode = pageNode;
 		areaTreeNode = uri;
+		usedTags = new HashSet<Tag>();
 		createAreaTreeModel(pageNode, areaTree, logicalTree);
+		addUsedTags();
 	}
 
 	public Graph getGraph()
@@ -122,6 +127,7 @@ public class AreaModelBuilder
 				Float support = tags.get(t);
 				if (support != null && support > 0.0f)
 				{
+				    usedTags.add(t);
 				    final URI tagUri = RESOURCE.createTagURI(t);
 				    graph.add(individual, SEGM.hasTag, tagUri);
 				    final URI supUri = RESOURCE.createTagSupportURI(individual, t);
@@ -172,6 +178,16 @@ public class AreaModelBuilder
             graph.add(individual, SEGM.containsArea, areaUri);
         }
         return individual;
+    }
+    
+    private void addUsedTags()
+    {
+        for (Tag t : usedTags)
+        {
+            URI tagUri = RESOURCE.createTagURI(t);
+            graph.add(tagUri, SEGM.hasType, vf.createLiteral(t.getType()));
+            graph.add(tagUri, SEGM.hasName, vf.createLiteral(t.getValue()));
+        }
     }
     
     private String colorString(Color color)
