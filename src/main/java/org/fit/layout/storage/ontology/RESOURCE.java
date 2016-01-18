@@ -5,6 +5,9 @@
  */
 package org.fit.layout.storage.ontology;
 
+import org.fit.layout.model.Area;
+import org.fit.layout.model.Box;
+import org.fit.layout.model.Tag;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -39,6 +42,11 @@ public class RESOURCE
         return factory.createURI(NAMESPACE, "page" + seq);
     }
     
+    public static URI createBoxURI(URI pageUri, Box box)
+    {
+        return factory.createURI(pageUri.toString() + '#' + box.getId());
+    }
+    
     public static URI createBorderURI(URI boxUri, String side)
     {
         String name = boxUri.getLocalName() + "B" + side;
@@ -48,6 +56,31 @@ public class RESOURCE
     public static URI createAreaTreeURI(long seq)
     {
         return factory.createURI(NAMESPACE, "atree" + seq);
+    }
+    
+    public static URI createAreaURI(URI areaTreeNode, Area area) 
+    {
+        return factory.createURI(areaTreeNode.toString() + "#a" + area.getId());
+    }
+    
+    public static URI createLogicalAreaURI(URI areaTreeNode, int cnt) 
+    {
+        return factory.createURI(areaTreeNode.toString() + "#l" + cnt);
+    }
+    
+    public static URI createTagSupportURI(URI areaUri, Tag tag) 
+    {
+        return factory.createURI(areaUri.toString() + "-" + getTagDesc(tag));
+    }
+    
+    public static URI createTagURI(Tag tag) 
+    {
+        return factory.createURI(RESOURCE.NAMESPACE, "tag-" + getTagDesc(tag));
+    }
+    
+    private static String getTagDesc(Tag tag) 
+    {
+        return tag.getType().replaceAll("\\.", "-") + "--" + tag.getValue();
     }
     
     /**

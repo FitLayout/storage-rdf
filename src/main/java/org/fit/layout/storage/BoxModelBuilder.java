@@ -78,7 +78,7 @@ public class BoxModelBuilder
 	private void insertBox(Box box) 
 	{
 		// add BOX individual into graph
-		final URI individual = getBoxUri(box);
+		final URI individual = RESOURCE.createBoxURI(pageNode, box);
 		graph.add(individual, RDF.TYPE, BOX.Box);
 
 		// pin to launch node
@@ -86,7 +86,7 @@ public class BoxModelBuilder
 		
 		//parent
 		if (box.getParentBox() != null)
-		    graph.add(individual, BOX.isChildOf, getBoxUri(box.getParentBox()));
+		    graph.add(individual, BOX.isChildOf, RESOURCE.createBoxURI(pageNode, box.getParentBox()));
 
 		//tag properties
 		if (box.getTagName() != null)
@@ -166,11 +166,6 @@ public class BoxModelBuilder
 		return pageNode;
 	} 
 
-	public URI getBoxUri(Box box) 
-	{
-	    return vf.createURI(pageNode.toString() + '#' + box.getId());
-	}
-	
 	private String colorString(Color color)
 	{
 	    return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());

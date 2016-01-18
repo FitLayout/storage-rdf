@@ -95,12 +95,12 @@ public class AreaModelBuilder
 	 */
 	private void addArea(Area area) 
 	{
-		final URI individual = getAreaUri(area);
+		final URI individual = RESOURCE.createAreaURI(areaTreeNode, area);
 		graph.add(individual, RDF.TYPE, SEGM.Area);
         graph.add(individual, SEGM.belongsTo, this.areaTreeNode);
 
         if (area.getParentArea() != null)
-            graph.add(individual, SEGM.isChildOf, getAreaUri(area.getParentArea()));
+            graph.add(individual, SEGM.isChildOf, RESOURCE.createAreaURI(areaTreeNode, area.getParentArea()));
         
 		// appends geometry
 		Rectangular rec = area.getBounds();
@@ -118,9 +118,9 @@ public class AreaModelBuilder
 				Float support = tags.get(t);
 				if (support != null && support > 0.0f)
 				{
-				    final URI tagUri = getTagUri(t);
+				    final URI tagUri = RESOURCE.createTagURI(t);
 				    graph.add(individual, SEGM.hasTag, tagUri);
-				    final URI supUri = getTagSupportUri(area, t);
+				    final URI supUri = RESOURCE.createTagSupportURI(individual, t);
 				    graph.add(individual, SEGM.tagSupport, supUri);
 				    graph.add(supUri, SEGM.support, vf.createLiteral(support));
 				    graph.add(supUri, SEGM.hasTag, tagUri);
@@ -143,49 +143,15 @@ public class AreaModelBuilder
 
     private URI addLogicalArea(LogicalArea area, URI parent) 
     {
-        final URI individual = getLogicalAreaUri(logAreaCnt++);
+        final URI individual = RESOURCE.createLogicalAreaURI(areaTreeNode, logAreaCnt++);
         graph.add(individual, RDF.TYPE, SEGM.LogicalArea);
         graph.add(individual, SEGM.belongsTo, areaTreeNode);
         graph.add(individual, SEGM.hasText, vf.createLiteral(area.getText()));
         if (parent != null)
             graph.add(individual, SEGM.isSubordinateTo, parent);
         if (area.getMainTag() != null)
-            graph.add(individual, SEGM.hasTag, getTagUri(area.getMainTag()));
+            graph.add(individual, SEGM.hasTag, RESOURCE.createTagURI(area.getMainTag()));
         return individual;
-    }
-    
-	public void addTag(Tag tag) 
-	{
-	    URI tagNode = getTagUri(tag);
-	    graph.add(tagNode, RDF.TYPE, SEGM.Tag);
-	    graph.add(tagNode, SEGM.hasType, vf.createLiteral(tag.getType()));
-        graph.add(tagNode, SEGM.hasName, vf.createLiteral(tag.getValue()));
-	}
-	
-	public URI getAreaUri(Area area) 
-	{
-	    return vf.createURI(areaTreeNode.toString() + "#a" + area.getId());
-	}
-	
-    public URI getLogicalAreaUri(int cnt) 
-    {
-        return vf.createURI(areaTreeNode.toString() + "#l" + cnt);
-    }
-    
-	public URI getTagSupportUri(Area area, Tag tag) 
-	{
-        return vf.createURI(areaTreeNode.toString() + "#" + area.getId()
-                + "-" + getTagDesc(tag));
-	}
-	
-    public URI getTagUri(Tag tag) 
-    {
-        return vf.createURI(RESOURCE.NAMESPACE, "tag-" + getTagDesc(tag));
-    }
-    
-    private String getTagDesc(Tag tag) 
-    {
-        return tag.getType().replaceAll("\\.", "-") + "--" + tag.getValue();
     }
     
     private String colorString(Color color)
