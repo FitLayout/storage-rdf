@@ -11,6 +11,7 @@ import org.fit.layout.model.LogicalArea;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.model.Tag;
+import org.fit.layout.storage.model.RDFArea;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.RESOURCE;
 import org.fit.layout.storage.ontology.SEGM;
@@ -161,6 +162,15 @@ public class AreaModelBuilder
             graph.add(individual, SEGM.isSubordinateTo, parent);
         if (area.getMainTag() != null)
             graph.add(individual, SEGM.hasTag, RESOURCE.createTagURI(area.getMainTag()));
+        for (Area a : area.getAreas())
+        {
+            URI areaUri;
+            if (a instanceof RDFArea)
+                areaUri = ((RDFArea) a).getUri();
+            else
+                areaUri = RESOURCE.createAreaURI(areaTreeNode, a);
+            graph.add(individual, SEGM.containsArea, areaUri);
+        }
         return individual;
     }
     

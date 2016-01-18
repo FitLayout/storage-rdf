@@ -309,6 +309,21 @@ public class RDFStorage
 	}
 	
     /**
+     * Obtains the model of logical areas for the given area tree.
+     * @param areaTreeUri
+     * @return A Model containing the triplets for all the visual areas contained in the given area tree.
+     * @throws RepositoryException 
+     */
+    public Model getLogicalAreaModelForAreaTree(URI areaTreeUri) throws RepositoryException
+    {
+        final String query = PREFIXES
+                + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
+                + "?s rdf:type segm:LogicalArea . "
+                + "?s segm:belongsTo <" + areaTreeUri.stringValue() + "> }";
+        return executeSafeQuery(query);
+    }
+    
+    /**
      * Gets page border information for the given area tree.
      * @param pageId
      * @return
@@ -334,7 +349,7 @@ public class RDFStorage
 	{
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
-                + "?a rdf:type segm:Area . "
+                + "{?a rdf:type segm:Area} UNION {?a rdf:type segm:LogicalArea} . "
                 + "?a segm:hasTag ?s . "
                 + "?a segm:belongsTo <" + areaTreeUri.stringValue() + "> }";
         return executeSafeQuery(query);

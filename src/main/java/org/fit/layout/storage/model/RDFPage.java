@@ -75,6 +75,9 @@ public class RDFPage extends DefaultPage implements RDFResource
 
     public RDFBox findBoxByUri(URI uri)
     {
-        return boxUris.get(uri);
+        if (boxUris != null)
+            return boxUris.get(uri);
+        else
+            return null;
     }
 }

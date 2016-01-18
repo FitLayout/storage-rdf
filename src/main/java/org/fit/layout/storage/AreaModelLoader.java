@@ -10,14 +10,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.fit.layout.impl.DefaultLogicalAreaTree;
 import org.fit.layout.impl.DefaultTag;
+import org.fit.layout.model.Area;
 import org.fit.layout.model.Border;
+import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.model.Border.Side;
 import org.fit.layout.model.Tag;
 import org.fit.layout.storage.model.RDFArea;
 import org.fit.layout.storage.model.RDFAreaTree;
 import org.fit.layout.storage.model.RDFBox;
+import org.fit.layout.storage.model.RDFLogicalArea;
 import org.fit.layout.storage.model.RDFPage;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.SEGM;
@@ -48,6 +52,7 @@ public class AreaModelLoader extends ModelLoader
     private Model tagSupportModel;
     
     private RDFAreaTree areaTree;
+    private LogicalAreaTree logicalAreaTree;
     
     public AreaModelLoader(RDFStorage storage, URI areaTreeUri, RDFPage srcPage)
     {
@@ -63,23 +68,33 @@ public class AreaModelLoader extends ModelLoader
         return areaTree;
     }
 
+    public LogicalAreaTree getLogicalAreaTree() throws RepositoryException
+    {
+        if (logicalAreaTree == null)
+            logicalAreaTree = constructLogicalAreaTree();
+        return logicalAreaTree;
+    }
+    
+    //================================================================================================
+    
     private RDFAreaTree constructAreaTree() throws RepositoryException
     {
         Model model = storage.getAreaModelForAreaTree(areaTreeUri);
         if (model.size() > 0)
         {
             RDFAreaTree atree = new RDFAreaTree(page, areaTreeUri);
-            RDFArea root = constructVisualAreaTree(model);
+            Map<URI, RDFArea> areaUris = new HashMap<URI, RDFArea>();
+            RDFArea root = constructVisualAreaTree(model, areaUris);
             atree.setRoot(root);
+            atree.setAreaUris(areaUris);
             return atree;
         }
         else
             return null;
     }
     
-    private RDFArea constructVisualAreaTree(Model model) throws RepositoryException
+    private RDFArea constructVisualAreaTree(Model model, Map<URI, RDFArea> areas) throws RepositoryException
     {
-        Map<URI, RDFArea> areas = new HashMap<URI, RDFArea>();
         //find all areas
         for (Resource res : model.subjects())
         {
@@ -255,6 +270,97 @@ public class AreaModelLoader extends ModelLoader
         return area;
     }
     
+    //================================================================================================
+    
+    private LogicalAreaTree constructLogicalAreaTree() throws RepositoryException
+    {
+        Model model = storage.getLogicalAreaModelForAreaTree(areaTreeUri);
+        if (model.size() > 0)
+        {
+            DefaultLogicalAreaTree atree = new DefaultLogicalAreaTree(areaTree);
+            Map<URI, RDFLogicalArea> areaUris = new HashMap<URI, RDFLogicalArea>();
+            RDFLogicalArea root = constructLogicalAreaTree(model, areaUris);
+            atree.setRoot(root);
+            return atree;
+        }
+        else
+            return null;
+    }
+    
+    private RDFLogicalArea constructLogicalAreaTree(Model model, Map<URI, RDFLogicalArea> areas) throws RepositoryException
+    {
+        //find all areas
+        for (Resource res : model.subjects())
+        {
+            if (res instanceof URI)
+            {
+                RDFLogicalArea area = createLogicalAreaFromModel(model, (URI) res);
+                areas.put((URI) res, area);
+            }
+        }
+        List<RDFLogicalArea> rootAreas = new ArrayList<RDFLogicalArea>(areas.values());
+        //construct the tree
+        for (Statement st : model.filter(null, SEGM.isSubordinateTo, null))
+        {
+            if (st.getSubject() instanceof URI && st.getObject() instanceof URI)
+            {
+                RDFLogicalArea parent = areas.get(st.getObject());
+                RDFLogicalArea child = areas.get(st.getSubject());
+                if (parent != null && child != null)
+                {
+                    parent.add(child);
+                    rootAreas.remove(child);
+                }
+            }
+        }
+        if (rootAreas.size() == 1)
+            return rootAreas.get(0);
+        else
+        {
+            log.error("Strange number of root logical areas: {}", rootAreas.toString());
+            return null; //strange number of root nodes
+        }
+        
+    }
+    
+    private RDFLogicalArea createLogicalAreaFromModel(Model model, URI uri) throws RepositoryException
+    {
+        RDFLogicalArea area = new RDFLogicalArea(uri);
+        
+        for (Statement st : model.filter(uri, null, null))
+        {
+            final URI pred = st.getPredicate();
+            final Value value = st.getObject();
+            
+            if (SEGM.hasText.equals(pred)) 
+            {
+                area.setText(value.stringValue());
+            }
+            else if (SEGM.hasTag.equals(pred))
+            {
+                if (value instanceof URI)
+                {
+                    Tag tag = createTag((URI) value);
+                    if (tag != null)
+                        area.setMainTag(tag);
+                }
+            }
+            else if (SEGM.containsArea.equals(pred))
+            {
+                if (value instanceof URI)
+                {
+                    Area a = areaTree.findAreaByUri((URI) value);
+                    if (a != null)
+                        area.addArea(a);
+                }
+            }
+        }
+        
+        return area;
+    }
+    
+    //================================================================================================
+    
     private Tag createTag(URI tagUri) throws RepositoryException
     {
         String name = null;
@@ -272,6 +378,8 @@ public class AreaModelLoader extends ModelLoader
         else
             return null;
     }
+    
+    //================================================================================================
     
     private Model getBorderModel() throws RepositoryException
     {
