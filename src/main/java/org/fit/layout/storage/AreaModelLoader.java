@@ -206,7 +206,7 @@ public class AreaModelLoader extends ModelLoader
                 if (value instanceof Literal)
                     y = ((Literal) value).intValue();
             }
-            else if (SEGM.contains.equals(pred))
+            else if (SEGM.containsBox.equals(pred))
             {
                 if (value instanceof URI)
                 {

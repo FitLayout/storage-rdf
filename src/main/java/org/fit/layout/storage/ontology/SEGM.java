@@ -38,11 +38,18 @@ public class SEGM {
 	public static final URI belongsTo;
 
 	/**
-	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#contains}.
+	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#containsArea}.
 	 *
-	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#contains">contains</a>
+	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#containsArea">containsArea</a>
 	 */
-	public static final URI contains;
+	public static final URI containsArea;
+
+	/**
+	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#containsBox}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#containsBox">containsBox</a>
+	 */
+	public static final URI containsBox;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#hasName}.
@@ -127,7 +134,8 @@ public class SEGM {
 		Area = factory.createURI(SEGM.NAMESPACE, "Area");
 		AreaTree = factory.createURI(SEGM.NAMESPACE, "AreaTree");
 		belongsTo = factory.createURI(SEGM.NAMESPACE, "belongsTo");
-		contains = factory.createURI(SEGM.NAMESPACE, "contains");
+		containsArea = factory.createURI(SEGM.NAMESPACE, "containsArea");
+		containsBox = factory.createURI(SEGM.NAMESPACE, "containsBox");
 		hasName = factory.createURI(SEGM.NAMESPACE, "hasName");
 		hasTag = factory.createURI(SEGM.NAMESPACE, "hasTag");
 		hasText = factory.createURI(SEGM.NAMESPACE, "hasText");

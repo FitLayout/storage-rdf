@@ -147,7 +147,7 @@ public class AreaModelBuilder
         for (Box box : area.getBoxes())
         {
             URI boxUri = RESOURCE.createBoxURI(pageNode, box);
-            graph.add(individual, SEGM.contains, boxUri);
+            graph.add(individual, SEGM.containsBox, boxUri);
         }
 	}
 
