@@ -32,7 +32,7 @@ public class RDFArea extends DefaultArea implements RDFResource
     public void setUri(URI uri)
     {
         this.uri = uri;
-        setId(Integer.parseInt(uri.getLocalName()));
+        setId(Integer.parseInt(uri.getLocalName().substring(1))); //skip 'a' prefix
     }
 
 
