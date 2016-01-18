@@ -293,6 +293,36 @@ public class RDFStorage
 	
 	//AREA tree functions ===========================================================
 	
+    /**
+     * Loads an area tree from the repository.
+     * @param areaTreeId The area tree URI
+     * @return the corresponding Page or {@code null} when the page is not available in the repository.
+     * @throws RepositoryException
+     */
+    public AreaTree loadAreaTree(URI areaTreeId, RDFPage srcPage) throws RepositoryException
+    {
+        AreaModelLoader loader = new AreaModelLoader(this, areaTreeId, srcPage);
+        return loader.getAreaTree();
+    }
+    
+    /**
+     * Obtains the the URI of the source page given an AreaTree URI
+     * @param areaTreeUri the URI of the area tree
+     * @return the source Page URI or {@code null} when not specified
+     * @throws RepositoryException 
+     */
+    public URI getSourcePageForAreaTree(URI areaTreeUri) throws RepositoryException 
+    {
+        RepositoryResult<Statement> result = getConnection().getStatements(areaTreeUri, SEGM.sourcePage, null, true); 
+        while (result.hasNext())
+        {
+            Value val = result.next().getObject();
+            if (val instanceof URI)
+                return (URI) val;
+        }
+        return null;
+    }
+    
 	/**
 	 * Obtains the model of visual areas for the given area tree.
 	 * @param areaTreeUri

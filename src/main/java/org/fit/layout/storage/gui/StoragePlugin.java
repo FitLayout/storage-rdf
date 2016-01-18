@@ -45,6 +45,7 @@ import java.awt.FlowLayout;
 /**
  * 
  * @author imilicka
+ * @author burgetr
  */
 public class StoragePlugin implements BrowserPlugin
 {
@@ -296,11 +297,8 @@ public class StoragePlugin implements BrowserPlugin
 					
 			        try {
 			        	URI pageId = (URI) cbx_pages.getSelectedItem();
-			        	Model modelStatements = bdi.getBoxModelForPage(pageId);
-			        	//TODO
-						//Page page = new BigdataPage(modelStatements, pageId.substring(0, pageId.lastIndexOf("#")) );
-						//browser.setPage(page);
-						
+			        	Page page = bdi.loadPage(pageId);
+			        	browser.setPage(page);
 					} catch (Exception e1) {
 						
 						JOptionPane.showMessageDialog((Component)browser,
