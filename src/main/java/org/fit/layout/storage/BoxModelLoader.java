@@ -78,8 +78,10 @@ public class BoxModelLoader extends ModelLoader
             
             //create the box tree
             Model boxTreeModel = storage.getBoxModelForPage(pageUri);
-            RDFBox root = constructBoxTree(boxTreeModel); 
+            Map<URI, RDFBox> boxes = new HashMap<URI, RDFBox>();
+            RDFBox root = constructBoxTree(boxTreeModel, boxes); 
             page.setRoot(root);
+            page.setBoxUris(boxes);
             page.setWidth(root.getWidth());
             page.setHeight(root.getHeight());
             
@@ -89,9 +91,16 @@ public class BoxModelLoader extends ModelLoader
             return null;
     }
     
-    private RDFBox constructBoxTree(Model model) throws RepositoryException
+    /**
+     * Constructs a tree of boxes based on the given model. The URIs of the created boxes are put to
+     * a map that allows to later obtain a box by its URI.
+     * @param model the source model
+     * @param boxes the destination map of URIs
+     * @return the root box or {@code null} if the provided model does not have a tree structure
+     * @throws RepositoryException
+     */
+    private RDFBox constructBoxTree(Model model, Map<URI, RDFBox> boxes) throws RepositoryException
     {
-        Map<URI, RDFBox> boxes = new HashMap<URI, RDFBox>();
         //find all boxes
         for (Resource res : model.subjects())
         {

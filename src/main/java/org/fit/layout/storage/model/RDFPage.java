@@ -7,6 +7,7 @@ package org.fit.layout.storage.model;
 
 import java.net.URL;
 import java.util.Date;
+import java.util.Map;
 
 import org.fit.layout.impl.DefaultPage;
 import org.fit.layout.model.Page;
@@ -20,6 +21,8 @@ public class RDFPage extends DefaultPage implements RDFResource
 {
     protected URI uri;
     protected Date createdOn;
+    protected Map<URI, RDFBox> boxUris;
+    
 
     public RDFPage(URL url)
     {
@@ -60,4 +63,18 @@ public class RDFPage extends DefaultPage implements RDFResource
         this.createdOn = createdOn;
     }
 
+    public Map<URI, RDFBox> getBoxUris()
+    {
+        return boxUris;
+    }
+
+    public void setBoxUris(Map<URI, RDFBox> boxUris)
+    {
+        this.boxUris = boxUris;
+    }
+
+    public RDFBox findBoxByUri(URI uri)
+    {
+        return boxUris.get(uri);
+    }
 }
