@@ -27,10 +27,9 @@ import org.fit.layout.gui.BrowserPlugin;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
+import org.fit.layout.storage.AreaModelLoader;
 import org.fit.layout.storage.RDFStorage;
-import org.fit.layout.storage.model.BigdataAreaTree;
-import org.fit.layout.storage.model.BigdataPage;
-import org.openrdf.model.Model;
+import org.fit.layout.storage.model.RDFPage;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.repository.RepositoryException;
@@ -451,9 +450,20 @@ public class StoragePlugin implements BrowserPlugin
 					if(cbx_areaTrees.getItemCount()>0) {
 						
 						try {
-							Model m = bdi.getAreaModelForAreaTree((URI) cbx_areaTrees.getSelectedItem());
-							BigdataAreaTree bdAreaTree = new BigdataAreaTree(m, browser.getPage().getSourceURL().toString());
-							browser.setAreaTree(bdAreaTree);
+						    Page curPage = browser.getPage();
+						    if (curPage instanceof RDFPage)
+						    {
+    						    URI atreeUri = (URI) cbx_areaTrees.getSelectedItem();
+    						    AreaModelLoader loader = bdi.loadAreaTrees(atreeUri, (RDFPage) browser.getPage());
+    						    AreaTree atree = loader.getAreaTree();
+    						    if (atree != null)
+    						        browser.setAreaTree(atree);
+    						    LogicalAreaTree ltree = loader.getLogicalAreaTree();
+    						    if (ltree != null)
+    						        browser.setLogicalTree(ltree);
+						    }
+						    else
+						        System.err.println("No RDF page loaded");
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

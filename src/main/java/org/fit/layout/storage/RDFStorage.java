@@ -296,13 +296,13 @@ public class RDFStorage
     /**
      * Loads an area tree from the repository.
      * @param areaTreeId The area tree URI
-     * @return the corresponding Page or {@code null} when the page is not available in the repository.
+     * @return a create model loader. Use its {@code getAreaTree} and {@code getLogicalAreaTree}
+     * methods for obtaining the trees.
      * @throws RepositoryException
      */
-    public AreaTree loadAreaTree(URI areaTreeId, RDFPage srcPage) throws RepositoryException
+    public AreaModelLoader loadAreaTrees(URI areaTreeId, RDFPage srcPage) throws RepositoryException
     {
-        AreaModelLoader loader = new AreaModelLoader(this, areaTreeId, srcPage);
-        return loader.getAreaTree();
+        return new AreaModelLoader(this, areaTreeId, srcPage);
     }
     
     /**
