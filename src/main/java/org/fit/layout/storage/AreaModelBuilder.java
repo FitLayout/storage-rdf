@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.fit.layout.model.Area;
 import org.fit.layout.model.AreaTree;
+import org.fit.layout.model.Box;
 import org.fit.layout.model.LogicalArea;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Rectangular;
@@ -29,6 +30,7 @@ public class AreaModelBuilder
 {
 	private Graph graph = null;
 	private ValueFactoryImpl vf;
+	private URI pageNode;
 	private URI areaTreeNode;
 	private int logAreaCnt;
 
@@ -36,6 +38,7 @@ public class AreaModelBuilder
 	{
 		graph = new LinkedHashModel();
 		vf = ValueFactoryImpl.getInstance();
+		this.pageNode = pageNode;
 		areaTreeNode = uri;
 		createAreaTreeModel(pageNode, areaTree, logicalTree);
 	}
@@ -139,6 +142,13 @@ public class AreaModelBuilder
         graph.add(individual, BOX.fontStyle, vf.createLiteral(area.getFontStyle()));
         graph.add(individual, BOX.underline, vf.createLiteral(area.getUnderline()));
         graph.add(individual, BOX.lineThrough, vf.createLiteral(area.getLineThrough()));
+        
+        //dump boxes
+        for (Box box : area.getBoxes())
+        {
+            URI boxUri = RESOURCE.createBoxURI(pageNode, box);
+            graph.add(individual, SEGM.contains, boxUri);
+        }
 	}
 
     private URI addLogicalArea(LogicalArea area, URI parent) 

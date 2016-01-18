@@ -38,11 +38,11 @@ public class SEGM {
 	public static final URI belongsTo;
 
 	/**
-	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#establishes}.
+	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#contains}.
 	 *
-	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#establishes">establishes</a>
+	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#contains">contains</a>
 	 */
-	public static final URI establishes;
+	public static final URI contains;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#hasName}.
@@ -127,7 +127,7 @@ public class SEGM {
 		Area = factory.createURI(SEGM.NAMESPACE, "Area");
 		AreaTree = factory.createURI(SEGM.NAMESPACE, "AreaTree");
 		belongsTo = factory.createURI(SEGM.NAMESPACE, "belongsTo");
-		establishes = factory.createURI(SEGM.NAMESPACE, "establishes");
+		contains = factory.createURI(SEGM.NAMESPACE, "contains");
 		hasName = factory.createURI(SEGM.NAMESPACE, "hasName");
 		hasTag = factory.createURI(SEGM.NAMESPACE, "hasTag");
 		hasText = factory.createURI(SEGM.NAMESPACE, "hasText");

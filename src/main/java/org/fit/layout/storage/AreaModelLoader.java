@@ -12,12 +12,13 @@ import java.util.Map;
 
 import org.fit.layout.impl.DefaultTag;
 import org.fit.layout.model.Border;
-import org.fit.layout.model.Page;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.model.Border.Side;
 import org.fit.layout.model.Tag;
 import org.fit.layout.storage.model.RDFArea;
 import org.fit.layout.storage.model.RDFAreaTree;
+import org.fit.layout.storage.model.RDFBox;
+import org.fit.layout.storage.model.RDFPage;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.SEGM;
 import org.openrdf.model.Literal;
@@ -40,7 +41,7 @@ public class AreaModelLoader extends ModelLoader
 
     private RDFStorage storage;
     private URI areaTreeUri;
-    private Page page;
+    private RDFPage page;
     
     private Model borderModel;
     private Model tagInfoModel;
@@ -48,7 +49,7 @@ public class AreaModelLoader extends ModelLoader
     
     private RDFAreaTree areaTree;
     
-    public AreaModelLoader(RDFStorage storage, URI areaTreeUri, Page srcPage)
+    public AreaModelLoader(RDFStorage storage, URI areaTreeUri, RDFPage srcPage)
     {
         this.storage = storage;
         this.areaTreeUri = areaTreeUri;
@@ -204,6 +205,15 @@ public class AreaModelLoader extends ModelLoader
             {
                 if (value instanceof Literal)
                     y = ((Literal) value).intValue();
+            }
+            else if (SEGM.contains.equals(pred))
+            {
+                if (value instanceof URI)
+                {
+                    RDFBox box = page.findBoxByUri((URI) value);
+                    if (box != null)
+                        area.addBox(box);
+                }
             }
             else if (SEGM.hasTag.equals(pred))
             {
