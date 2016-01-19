@@ -19,8 +19,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import org.fit.layout.gui.Browser;
 import org.fit.layout.gui.BrowserPlugin;
@@ -53,9 +51,7 @@ public class StoragePlugin implements BrowserPlugin
     
     private JPanel pnl_main;
     private JPanel tbr_connection;
-    private JTextField tfl_urlRDFDB;
-    private JLabel lbl_rdfDb;
-    private JButton btn_loadDBData;
+    private JLabel lbl_status;
     private JPanel tbr_storageSelection;
     private JLabel lbl_urls;
     private JComboBox<URI> cbx_pages;
@@ -74,6 +70,7 @@ public class StoragePlugin implements BrowserPlugin
     private JButton btnEdit;
     private JScrollPane pageSourceScroll;
     private JButton btnDelete;
+    private JButton btnConnect;
     
     
 	//=============================
@@ -88,10 +85,8 @@ public class StoragePlugin implements BrowserPlugin
         return true;
     }
     
-    private void connect()
+    private void connect(String DBConnectionUrl)
     {
-        String DBConnectionUrl = tfl_urlRDFDB.getText();
-        
         cbx_pages.removeAllItems();
         
         try {
@@ -187,45 +182,18 @@ public class StoragePlugin implements BrowserPlugin
 			tbr_connection = new JPanel();
 			FlowLayout flowLayout = (FlowLayout) tbr_connection.getLayout();
 			flowLayout.setAlignment(FlowLayout.LEFT);
+			tbr_connection.add(getBtnConnect());
 			tbr_connection.add(getLbl_RdfDb());
-			tbr_connection.add(getTfl_urlRDFDB());
-			tbr_connection.add(getBtn_loadDBData());
 		}
 		return tbr_connection;
 	}
 	
-    private JTextField getTfl_urlRDFDB() 
-    {
-		if (tfl_urlRDFDB == null) {
-			tfl_urlRDFDB = new JTextField();
-			//tfl_urlRDFDB.setMinimumSize(new Dimension(12, 20));
-			tfl_urlRDFDB.setHorizontalAlignment(SwingConstants.LEFT);
-			tfl_urlRDFDB.setText("http://localhost:8080/openrdf-sesame/repositories/user");
-			//tfl_urlRDFDB.setColumns(30);
-		}
-		return tfl_urlRDFDB;
-	}
-	
 	private JLabel getLbl_RdfDb() 
 	{
-		if (lbl_rdfDb == null) {
-			lbl_rdfDb = new JLabel("Server");
+		if (lbl_status == null) {
+			lbl_status = new JLabel("Server");
 		}
-		return lbl_rdfDb;
-	}
-	
-	private JButton getBtn_loadDBData() 
-	{
-		if (btn_loadDBData == null) {
-			btn_loadDBData = new JButton("Connect");
-			btn_loadDBData.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-				    connect();
-					loadAllPages();
-				}
-			});
-		}
-		return btn_loadDBData;
+		return lbl_status;
 	}
 	
 	
@@ -557,5 +525,21 @@ public class StoragePlugin implements BrowserPlugin
         	btnDelete = new JButton("Delete");
         }
         return btnDelete;
+    }
+    private JButton getBtnConnect() {
+        if (btnConnect == null) {
+        	btnConnect = new JButton("Connect...");
+        	btnConnect.addActionListener(new ActionListener() {
+        	    public void actionPerformed(ActionEvent e) {
+        	        String urlstring = ConnectDialog.show("http://localhost:8080/openrdf-sesame/repositories/user");
+        	        if (urlstring != null)
+        	        {
+                        connect(urlstring);
+                        loadAllPages();
+        	        }
+        	    }
+        	});
+        }
+        return btnConnect;
     }
 }
