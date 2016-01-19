@@ -143,6 +143,7 @@ public class RDFStorage
             }
             
         }
+        result.close();
         return ret;
     }
 	
@@ -163,7 +164,8 @@ public class RDFStorage
 			String url = bindingSet.getObject().stringValue();
 			output.add(url);
 		}
-
+		result.close();
+		
 		return output;
 	}
 
@@ -175,7 +177,9 @@ public class RDFStorage
 	public Set<URI> getAllPageIds() throws RepositoryException 
 	{
 		RepositoryResult<Statement> result = getConnection().getStatements(null, RDF.TYPE, BOX.Page, true);
-		return getSubjectsFromResult(result);
+		Set<URI> ret = getSubjectsFromResult(result);
+		result.close();
+		return ret;
 	}
 		
 	/**
@@ -188,7 +192,9 @@ public class RDFStorage
 	{
 		ValueFactoryImpl vf = ValueFactoryImpl.getInstance(); 
 		RepositoryResult<Statement> result = getConnection().getStatements(null, BOX.sourceUrl, vf.createLiteral(url), true); 
-        return getSubjectsFromResult(result);
+		Set<URI> ret = getSubjectsFromResult(result);
+		result.close();
+		return ret;
 	}
 	
 	/**
@@ -287,7 +293,9 @@ public class RDFStorage
 	{
 		RepositoryResult<Statement> result = null;
 		result = getConnection().getStatements(pageUri, null, null, true);
-		return createModel(result);
+		Model ret = createModel(result);
+		result.close();
+		return ret;
 	}
 
 	
@@ -313,14 +321,19 @@ public class RDFStorage
      */
     public URI getSourcePageForAreaTree(URI areaTreeUri) throws RepositoryException 
     {
+        URI ret = null;
         RepositoryResult<Statement> result = getConnection().getStatements(areaTreeUri, SEGM.sourcePage, null, true); 
         while (result.hasNext())
         {
             Value val = result.next().getObject();
             if (val instanceof URI)
-                return (URI) val;
+            {
+                ret = (URI) val;
+                break;
+            }
         }
-        return null;
+        result.close();
+        return ret;
     }
     
 	/**
@@ -410,7 +423,9 @@ public class RDFStorage
 	public Set<URI> getAreaTreeIdsForPageId(URI pageUri) throws RepositoryException 
 	{
 		RepositoryResult<Statement> result = getConnection().getStatements(null, SEGM.sourcePage, pageUri, true);
-        return getSubjectsFromResult(result);
+        Set<URI> ret = getSubjectsFromResult(result);
+        result.close();
+        return ret;
 	}
 	
 	/**
@@ -455,7 +470,10 @@ public class RDFStorage
 	 */
 	public Model getSubjectModel(Resource subject) throws RepositoryException 
 	{
-		return createModel(getSubjectStatements(subject));
+	    RepositoryResult<Statement> result = getSubjectStatements(subject); 
+		Model ret = createModel(result);
+		result.close();
+		return ret;
 	}
 
 	/**
@@ -505,17 +523,21 @@ public class RDFStorage
     public long getLastSequenceValue(String name) throws RepositoryException
     {
         URI sequence = RESOURCE.createSequenceURI(name);
-        RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false); 
+        RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false);
         if (result.hasNext())
         {
             Value val = result.next().getObject();
+            result.close();
             if (val instanceof Literal)
                 return ((Literal) val).longValue();
             else
                 return 0;
         }
         else
+        {
+            result.close();
             return 0;
+        }
     }
     
     public long getNextSequenceValue(String name) throws RepositoryException
@@ -532,6 +554,7 @@ public class RDFStorage
                 val = ((Literal) vval).longValue();
             getConnection().remove(statement);
         }
+        result.close();
         val++;
         ValueFactory vf = ValueFactoryImpl.getInstance();
         getConnection().add(sequence, RDF.VALUE, vf.createLiteral(val));
@@ -584,7 +607,9 @@ public class RDFStorage
         {
             GraphQuery pgq = getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);
             GraphQueryResult gqr = pgq.evaluate();
-            return createModel(gqr);
+            Model ret = createModel(gqr);
+            gqr.close();
+            return ret;
         } catch (MalformedQueryException e) {
             e.printStackTrace();
         } catch (QueryEvaluationException e) {
