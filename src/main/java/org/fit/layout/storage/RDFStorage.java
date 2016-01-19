@@ -35,6 +35,7 @@ import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.Update;
 import org.openrdf.query.UpdateExecutionException;
@@ -146,6 +147,27 @@ public class RDFStorage
         result.close();
         return ret;
     }
+	
+	/**
+	 * Obtains the tabular data about the available segmented pages in the repository.
+	 * @param pageSetUri the selected page set or {@code null} for all the available pages
+	 * @return
+	 * @throws RepositoryException
+	 */
+	public TupleQueryResult getAvailableTrees(URI pageSetUri) throws RepositoryException
+	{
+	    String contClause = "";
+	    if (pageSetUri != null)
+	        contClause = " . <" + pageSetUri.toString() + "> layout:containsPage ?page";
+	    final String query = PREFIXES
+	            + "SELECT ?page ?tree ?date ?url" 
+                + "WHERE {"
+                +     "?tree segm:sourcePage ?page ." 
+                +     "?page box:launchDatetime ?date ."
+                +     "?page box:sourceUrl ?url" + contClause
+                + "}";
+	    return executeSafeTupleQuery(query);
+	}
 	
 	//box tree functions ===========================================================	
 	
@@ -618,6 +640,27 @@ public class RDFStorage
         return new LinkedHashModel(); //this should not happen
 	}
 	
+    /**
+     * Executes an internal (safe) tuple query
+     * @param query
+     * @return a TupleQueryResult object representing the result
+     * @throws RepositoryException
+     */
+	private TupleQueryResult executeSafeTupleQuery(String query) throws RepositoryException
+    {
+        try
+        {
+            TupleQuery pgq = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query);
+            TupleQueryResult gqr = pgq.evaluate();
+            return gqr;
+        } catch (MalformedQueryException e) {
+            e.printStackTrace();
+        } catch (QueryEvaluationException e) {
+            e.printStackTrace();
+        }
+        return null; //this should not happen
+    }
+    
 	/**
 	 * Creates a Model from the RepositoryResult
 	 * @param result
