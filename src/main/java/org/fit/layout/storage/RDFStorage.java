@@ -57,7 +57,8 @@ public class RDFStorage
     private static final String PREFIXES =
             "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
             "PREFIX box: <" + BOX.NAMESPACE + "> " +        
-            "PREFIX segm: <" + SEGM.NAMESPACE + "> ";        
+            "PREFIX segm: <" + SEGM.NAMESPACE + "> " +
+            "PREFIX layout: <" + LAYOUT.NAMESPACE + ">";
     
 	private RDFConnector db;
 
