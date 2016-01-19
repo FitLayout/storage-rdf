@@ -461,6 +461,7 @@ public class StoragePlugin implements BrowserPlugin
     						    LogicalAreaTree ltree = loader.getLogicalAreaTree();
     						    if (ltree != null)
     						        browser.setLogicalTree(ltree);
+    						    browser.refreshView();
 						    }
 						    else
 						        System.err.println("No RDF page loaded");
