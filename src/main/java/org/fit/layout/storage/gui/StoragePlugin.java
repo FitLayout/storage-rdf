@@ -47,11 +47,12 @@ import java.awt.FlowLayout;
 public class StoragePlugin implements BrowserPlugin
 {
     private Browser browser;
-    RDFStorage bdi = null;	
+    private RDFStorage bdi = null;
+    private boolean connected = false;
     
     private JPanel pnl_main;
     private JPanel tbr_connection;
-    private JLabel lbl_status;
+    private JLabel lblStatus;
     private JPanel tbr_storageSelection;
     private JLabel lbl_urls;
     private JComboBox<URI> cbx_pages;
@@ -91,6 +92,41 @@ public class StoragePlugin implements BrowserPlugin
         
         try {
             bdi = new RDFStorage(DBConnectionUrl);
+            bdi.getLastSequenceValue("box"); //just for checking the connection
+            connected = true;
+        }
+        catch (Exception e) {
+            connected = false;
+            JOptionPane.showMessageDialog(getPnl_main(),
+                    "Couldn't connect the repository: "+e.getMessage(),
+                    "Connection Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        updateGUIState();
+    }
+    
+    public void disconnect()
+    {
+        if (connected)
+        {
+            try
+            {
+                bdi.getConnection().close();
+            } catch (RepositoryException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        connected = false;
+        updateGUIState();
+    }
+    
+    private void updateGUIState()
+    {
+        if (connected)
+        {
+            getBtnConnect().setText("Disconnect");
+            getLblStatus().setText("Connected");
             
             getBtn_loadBoxModel().setEnabled(true);
             getBtn_loadAreaTreeModel().setEnabled(true);
@@ -100,13 +136,10 @@ public class StoragePlugin implements BrowserPlugin
             getBtn_clearDB().setEnabled(true);
             getBtn_saveAreaTreeModel().setEnabled(true);
         }
-        catch (Exception e) {
-
-            /*JOptionPane.showMessageDialog((Component) browser,
-                    "There is a problem with DB connection: "+e.getMessage(),
-                    "Connection Error",
-                    JOptionPane.ERROR_MESSAGE);*/
-            e.printStackTrace();
+        else
+        {
+            getBtnConnect().setText("Connect...");
+            getLblStatus().setText("Not connected");
         }
     }
     
@@ -183,17 +216,17 @@ public class StoragePlugin implements BrowserPlugin
 			FlowLayout flowLayout = (FlowLayout) tbr_connection.getLayout();
 			flowLayout.setAlignment(FlowLayout.LEFT);
 			tbr_connection.add(getBtnConnect());
-			tbr_connection.add(getLbl_RdfDb());
+			tbr_connection.add(getLblStatus());
 		}
 		return tbr_connection;
 	}
 	
-	private JLabel getLbl_RdfDb() 
+	private JLabel getLblStatus() 
 	{
-		if (lbl_status == null) {
-			lbl_status = new JLabel("Server");
+		if (lblStatus == null) {
+			lblStatus = new JLabel("Not connected");
 		}
-		return lbl_status;
+		return lblStatus;
 	}
 	
 	
@@ -531,11 +564,18 @@ public class StoragePlugin implements BrowserPlugin
         	btnConnect = new JButton("Connect...");
         	btnConnect.addActionListener(new ActionListener() {
         	    public void actionPerformed(ActionEvent e) {
-        	        String urlstring = ConnectDialog.show("http://localhost:8080/openrdf-sesame/repositories/user");
-        	        if (urlstring != null)
+        	        if (!connected)
         	        {
-                        connect(urlstring);
-                        loadAllPages();
+            	        String urlstring = ConnectDialog.show("http://localhost:8080/openrdf-sesame/repositories/user");
+            	        if (urlstring != null)
+            	        {
+                            connect(urlstring);
+                            loadAllPages();
+            	        }
+        	        }
+        	        else
+        	        {
+        	            disconnect();
         	        }
         	    }
         	});
