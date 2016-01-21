@@ -75,6 +75,8 @@ public class BoxModelLoader extends ModelLoader
                 }
             }
             RDFPage page = new RDFPage(srcURL, info.getId(), info.getDate());
+            if (info.getTitle() != null)
+                page.setTitle(info.getTitle());
             
             //create the box tree
             Model boxTreeModel = storage.getBoxModelForPage(pageUri);

@@ -25,12 +25,14 @@ import org.openrdf.model.vocabulary.RDF;
 public class BoxModelBuilder 
 {
 	private Graph graph;
+	private Page page;
 	private String baseUrl;
 	private ValueFactoryImpl vf;
 	private URI pageNode;
 
 	public BoxModelBuilder(Page page, URI uri) 
 	{
+	    this.page = page;
 		baseUrl = page.getSourceURL().toString();
 		pageNode = uri;
 		initializeGraph();
@@ -53,6 +55,8 @@ public class BoxModelBuilder
 		graph.add(pageNode, RDF.TYPE, BOX.Page);
 		graph.add(pageNode,	BOX.launchDatetime,	vf.createLiteral(new java.util.Date()));
 		graph.add(pageNode, BOX.sourceUrl, vf.createLiteral(baseUrl));
+		if (page.getTitle() != null)
+		    graph.add(pageNode, BOX.hasTitle, vf.createLiteral(page.getTitle()));
 
 		return this.pageNode;
 	}
