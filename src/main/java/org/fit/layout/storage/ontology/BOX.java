@@ -185,6 +185,15 @@ public class BOX {
 	public static final URI hasText;
 
 	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#hasTitle}.
+	 * <p>
+	 * Page title
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#hasTitle">hasTitle</a>
+	 */
+	public static final URI hasTitle;
+
+	/**
 	 * {@code http://fitlayout.github.io/ontology/render.owl#hasTopBorder}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#hasTopBorder">hasTopBorder</a>
@@ -358,6 +367,7 @@ public class BOX {
 		hasLeftBorder = factory.createURI(BOX.NAMESPACE, "hasLeftBorder");
 		hasRightBorder = factory.createURI(BOX.NAMESPACE, "hasRightBorder");
 		hasText = factory.createURI(BOX.NAMESPACE, "hasText");
+		hasTitle = factory.createURI(BOX.NAMESPACE, "hasTitle");
 		hasTopBorder = factory.createURI(BOX.NAMESPACE, "hasTopBorder");
 		height = factory.createURI(BOX.NAMESPACE, "height");
 		htmlTagName = factory.createURI(BOX.NAMESPACE, "htmlTagName");
