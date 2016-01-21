@@ -161,10 +161,11 @@ public class RDFStorage
 	    if (pageSetUri != null)
 	        contClause = " . <" + pageSetUri.toString() + "> layout:containsPage ?page";
 	    final String query = PREFIXES
-	            + " SELECT ?page ?tree ?date ?url " 
+	            + " SELECT ?page ?tree ?date ?url ?title " 
                 + "WHERE {"
                 +     "?tree segm:sourcePage ?page . " 
                 +     "?page box:launchDatetime ?date . "
+                +     "?page box:hasTitle ?title . "
                 +     "?page box:sourceUrl ?url" + contClause
                 + "}";
 	    System.out.println("QUERY: " + query);

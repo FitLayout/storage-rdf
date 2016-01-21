@@ -27,6 +27,7 @@ import org.fit.layout.storage.AreaModelLoader;
 import org.fit.layout.storage.RDFStorage;
 import org.fit.layout.storage.model.RDFAreaTree;
 import org.fit.layout.storage.model.RDFPage;
+import org.fit.layout.storage.ontology.RESOURCE;
 import org.openrdf.model.URI;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
@@ -202,11 +203,11 @@ public class StoragePlugin implements BrowserPlugin
                     listTreeURIs.add((URI) tuple.getBinding("tree").getValue());
                     
                     Vector<String> row = new Vector<String>(listColumns.size());
-                    row.add(tuple.getBinding("page").getValue().stringValue());
+                    row.add(formatURI(tuple.getBinding("page").getValue().stringValue()));
                     row.add(tuple.getBinding("date").getValue().stringValue());
-                    row.add(""); //TODO title
+                    row.add(tuple.getBinding("title").getValue().stringValue());
                     row.add(tuple.getBinding("url").getValue().stringValue());
-                    row.add(tuple.getBinding("tree").getValue().stringValue());
+                    row.add(formatURI(tuple.getBinding("tree").getValue().stringValue()));
                     listData.add(row);
                 }
             }
@@ -217,6 +218,14 @@ public class StoragePlugin implements BrowserPlugin
             e.printStackTrace();
         }
         updatePageTable();
+    }
+    
+    private String formatURI(String src)
+    {
+        if (src.startsWith(RESOURCE.NAMESPACE))
+            return src.substring(RESOURCE.NAMESPACE.length());
+        else
+            return src;
     }
     
     private URI getSelectedPageURI()
