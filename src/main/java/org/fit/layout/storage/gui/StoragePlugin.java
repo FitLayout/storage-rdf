@@ -19,8 +19,12 @@ import javax.swing.JPanel;
 
 import org.fit.layout.gui.Browser;
 import org.fit.layout.gui.BrowserPlugin;
+import org.fit.layout.model.AreaTree;
+import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.RDFStorage;
+import org.fit.layout.storage.model.RDFPage;
+import org.openrdf.model.URI;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResult;
@@ -49,6 +53,7 @@ public class StoragePlugin implements BrowserPlugin
     private boolean connected = false;
     private Vector<String> listColumns;
     private Vector<Vector<String>> listData;
+    private Vector<URI> listURIs;
     
     private JPanel pnl_main;
     private JPanel tbr_connection;
@@ -88,6 +93,7 @@ public class StoragePlugin implements BrowserPlugin
         listColumns.add("URL");
         listColumns.add("TreeID");
         listData = new Vector<Vector<String>>();
+        listURIs = new Vector<URI>();
         updatePageTable();
         
         return true;
@@ -133,7 +139,7 @@ public class StoragePlugin implements BrowserPlugin
             getBtnConnect().setText("Disconnect");
             getLblStatus().setText("Connected");
             
-            getBtn_saveBoxTreeModel().setEnabled(true);
+            getBtn_saveAsNew().setEnabled(true);
             getBtn_removePage().setEnabled(true);
             getBtn_clearDB().setEnabled(true);
             getBtn_saveAreaTreeModel().setEnabled(true);
@@ -147,34 +153,47 @@ public class StoragePlugin implements BrowserPlugin
     
     private void updatePageTable()
     {
-        DefaultTableModel model = new DefaultTableModel(listData, listColumns);
+        DefaultTableModel model = new DefaultTableModel(listData, listColumns) {
+            private static final long serialVersionUID = 1L;
+            public boolean isCellEditable(int row, int column) 
+            {
+                return false;
+            };
+        };
         pageTable.setModel(model);
+        if (listData.size() > 0)
+            pageTable.getSelectionModel().setSelectionInterval(0, 0);
     }
     
     private void clearPageTable()
     {
         listData.removeAllElements();
+        listURIs.removeAllElements();
         updatePageTable();
     }
     
     private void fillPageTable()
     {
         listData.removeAllElements();
+        listURIs.removeAllElements();
         try
         {
             TupleQueryResult data = bdi.getAvailableTrees(null);
             while (data.hasNext())
             {
                 BindingSet tuple = data.next();
-                System.out.println(tuple);
-                
-                Vector<String> row = new Vector<String>(listColumns.size());
-                row.add(tuple.getBinding("page").getValue().stringValue());
-                row.add(tuple.getBinding("date").getValue().stringValue());
-                row.add(""); //TODO title
-                row.add(tuple.getBinding("url").getValue().stringValue());
-                row.add(tuple.getBinding("tree").getValue().stringValue());
-                listData.add(row);
+                if (tuple.getBinding("tree").getValue() instanceof URI)
+                {
+                    listURIs.add((URI) tuple.getBinding("tree").getValue());
+                    
+                    Vector<String> row = new Vector<String>(listColumns.size());
+                    row.add(tuple.getBinding("page").getValue().stringValue());
+                    row.add(tuple.getBinding("date").getValue().stringValue());
+                    row.add(""); //TODO title
+                    row.add(tuple.getBinding("url").getValue().stringValue());
+                    row.add(tuple.getBinding("tree").getValue().stringValue());
+                    listData.add(row);
+                }
             }
             
         } catch (RepositoryException e) {
@@ -183,6 +202,15 @@ public class StoragePlugin implements BrowserPlugin
             e.printStackTrace();
         }
         updatePageTable();
+    }
+    
+    private URI getSelectedURI()
+    {
+        int sel = getPageTable().getSelectedRow();
+        if (sel != -1)
+            return listURIs.elementAt(sel);
+        else
+            return null;
     }
     
     private JPanel getPnl_main() 
@@ -292,7 +320,7 @@ public class StoragePlugin implements BrowserPlugin
 			gbc_btn_saveBoxTreeModel.insets = new Insets(0, 0, 5, 0);
 			gbc_btn_saveBoxTreeModel.gridx = 0;
 			gbc_btn_saveBoxTreeModel.gridy = 0;
-			tbr_control.add(getBtn_saveBoxTreeModel(), gbc_btn_saveBoxTreeModel);
+			tbr_control.add(getBtn_saveAsNew(), gbc_btn_saveBoxTreeModel);
 			GridBagConstraints gbc_btn_saveAreaTreeModel = new GridBagConstraints();
 			gbc_btn_saveAreaTreeModel.anchor = GridBagConstraints.NORTHWEST;
 			gbc_btn_saveAreaTreeModel.insets = new Insets(0, 0, 5, 0);
@@ -315,33 +343,50 @@ public class StoragePlugin implements BrowserPlugin
 		return tbr_control;
 	}
 	
-	private JButton getBtn_saveBoxTreeModel() 
+	private JButton getBtn_saveAsNew() 
 	{
 		if (btn_saveBoxTreeModel == null) {
-			btn_saveBoxTreeModel = new JButton("Save Box Tree to DB");
+			btn_saveBoxTreeModel = new JButton("Add new");
 			btn_saveBoxTreeModel.setEnabled(false);
 			btn_saveBoxTreeModel.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					
-					Page page = browser.getPage();
-					
-					if(page!=null) {
-						try
-                        {
-                            bdi.insertPageBoxModel(page);
-                        } catch (RepositoryException e) {
-                            e.printStackTrace();
-                        }
+				public void actionPerformed(ActionEvent arg0) 
+				{
+                    Page page = browser.getPage();
+                    AreaTree atree = browser.getAreaTree();
+                    LogicalAreaTree ltree = browser.getLogicalTree();
+                    if (page != null && atree != null) 
+                    {
+    					RDFPage rdfpage = null;
+    					if (page instanceof RDFPage)
+    					    rdfpage = (RDFPage) page; //page already saved
+    					else
+    					{ //page not yet saved
+    						try
+                            {
+                                rdfpage = bdi.insertPageBoxModel(page);
+                            } catch (RepositoryException e) {
+                                e.printStackTrace();
+                            }
+    					}
 						
+    					if (rdfpage != null)
+    					{
+                            try
+                            {
+                                bdi.insertAreaTree(atree, ltree, rdfpage.getUri());
+                            } catch (RepositoryException e1) {
+                                e1.printStackTrace();
+                            }
+    					}
+    					
 						fillPageTable();
 					}
-					else {
-						/*
-						JOptionPane.showMessageDialog(mainWindow,
-							    "There is not loaded web page! You have to load some before saving it into RDF DB!",
-							    "Info",
+					else 
+					{
+						JOptionPane.showMessageDialog(getPnl_main(),
+							    "No area tree found. The page segmentation should be performed first.",
+							    "Error",
 							    JOptionPane.ERROR_MESSAGE);
-							    */
 					}
 				}
 			});
