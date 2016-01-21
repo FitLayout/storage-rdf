@@ -270,7 +270,7 @@ public class RDFStorage
 	 * @return the corresponding Page or {@code null} when the page is not available in the repository.
 	 * @throws RepositoryException
 	 */
-	public Page loadPage(URI pageId) throws RepositoryException
+	public RDFPage loadPage(URI pageId) throws RepositoryException
 	{
         BoxModelLoader loader = new BoxModelLoader(this, pageId);
         return loader.getPage();
@@ -470,6 +470,17 @@ public class RDFStorage
         else
             return new RDFAreaTree(atree, pageUri);
 	}
+
+	/**
+	 * Removes the area tree from the repository. 
+	 * @param areaTreeUri the URI of the area tree
+	 * @throws RepositoryException
+	 */
+	public void removeAreaTree(URI areaTreeUri) throws RepositoryException
+	{
+        Model mat = getAreaModelForAreaTree(areaTreeUri);
+        getConnection().remove(mat);    
+	}
 	
 	//others =========================================================================
 	
@@ -599,13 +610,9 @@ public class RDFStorage
 	{
 		//load all area trees
 		Set<URI> areaTreeModels = getAreaTreeIdsForPageId(pageUri);
-		
 		//removes all area trees
-		for(URI areaTreeId : areaTreeModels) 
-		{
-			Model mat = getAreaModelForAreaTree(areaTreeId);
-			getConnection().remove(mat);	
-		}
+		for(URI areaTreeId : areaTreeModels)
+		    removeAreaTree(areaTreeId);
 	}
 
 	/**
