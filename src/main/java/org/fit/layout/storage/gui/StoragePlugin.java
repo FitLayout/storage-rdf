@@ -538,9 +538,9 @@ public class StoragePlugin implements BrowserPlugin
                             RDFPage rdfpage = (RDFPage) page;
                             try
                             {
-                                bdi.removePage(rdfpage.getUri());
-                                bdi.insertPageBoxModel(page);
-                                bdi.insertAreaTree(atree, ltree, rdfpage.getUri());
+                                URI atreeUri = ((RDFAreaTree) atree).getUri();
+                                bdi.removeAreaTree(atreeUri);
+                                bdi.insertAreaTree(atreeUri, atree, ltree, rdfpage.getUri());
                             } catch (RepositoryException e1) {
                                 e1.printStackTrace();
                             }

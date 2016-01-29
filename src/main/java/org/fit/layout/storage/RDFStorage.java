@@ -459,25 +459,43 @@ public class RDFStorage
         return ret;
 	}
 	
-	/**
-	 * Adds an area tree to a specific pageId
-	 * @param atree
-	 * @param pageId
-	 * @return 
-	 * @throws RepositoryException 
-	 */
-	public RDFAreaTree insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageId) throws RepositoryException
+    /**
+     * Adds an area tree to the repository. The tree is assigned to a given page that must be
+     * already stored in the repository. The URI of the tree is generated automatically.
+     * @param targetUri the URI of the new area tree
+     * @param atree the area tree to be stored
+     * @param ltree the logical area tree to be stored or {@code null} when there is no logical area tree.
+     * @param pageUri the URI of the source page model (rendered page)
+     * @return the RDFAreaTree version of the given area tree
+     * @throws RepositoryException 
+     */
+	public RDFAreaTree insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageUri) throws RepositoryException
 	{
         long seq = getNextSequenceValue("areatree");
-        URI pageUri = RESOURCE.createAreaTreeURI(seq);
-        AreaModelBuilder pgb = new AreaModelBuilder(atree, ltree, pageId, pageUri);
+        URI targetUri = RESOURCE.createAreaTreeURI(seq);
+        return insertAreaTree(targetUri, atree, ltree, pageUri);
+	}
+
+    /**
+     * Adds an area tree to the repository. The tree is assigned to a given page that must be
+     * already stored in the repository.
+     * @param targetUri the URI of the new area tree
+     * @param atree the area tree to be stored
+     * @param ltree the logical area tree to be stored or {@code null} when there is no logical area tree.
+     * @param pageUri the URI of the source page model (rendered page)
+     * @return the RDFAreaTree version of the given area tree
+     * @throws RepositoryException 
+     */
+    public RDFAreaTree insertAreaTree(URI targetUri, AreaTree atree, LogicalAreaTree ltree, URI pageUri) throws RepositoryException
+    {
+        AreaModelBuilder pgb = new AreaModelBuilder(atree, ltree, pageUri, targetUri);
         insertGraph(pgb.getGraph());
         if (atree instanceof RDFAreaTree)
             return (RDFAreaTree) atree;
         else
-            return new RDFAreaTree(atree, pageUri);
-	}
-
+            return new RDFAreaTree(atree, targetUri);
+    }
+    
 	/**
 	 * Removes the area tree from the repository. 
 	 * @param areaTreeUri the URI of the area tree
@@ -485,8 +503,10 @@ public class RDFStorage
 	 */
 	public void removeAreaTree(URI areaTreeUri) throws RepositoryException
 	{
+        Model matl = getLogicalAreaModelForAreaTree(areaTreeUri);
+        getConnection().remove(matl);
         Model mat = getAreaModelForAreaTree(areaTreeUri);
-        getConnection().remove(mat);    
+        getConnection().remove(mat);
 	}
 	
 	//others =========================================================================
