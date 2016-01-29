@@ -192,6 +192,7 @@ public class StoragePlugin implements BrowserPlugin
         listTreeURIs.removeAllElements();
         try
         {
+            String prevPageUri = "";
             TupleQueryResult data = bdi.getAvailableTrees(null);
             while (data.hasNext())
             {
@@ -203,12 +204,24 @@ public class StoragePlugin implements BrowserPlugin
                     listTreeURIs.add((URI) tuple.getBinding("tree").getValue());
                     
                     Vector<String> row = new Vector<String>(listColumns.size());
-                    row.add(formatURI(tuple.getBinding("page").getValue().stringValue()));
-                    row.add(tuple.getBinding("date").getValue().stringValue());
-                    row.add(tuple.getBinding("title").getValue().stringValue());
-                    row.add(tuple.getBinding("url").getValue().stringValue());
+                    String pageUri = tuple.getBinding("page").getValue().stringValue();
+                    if (pageUri.equals(prevPageUri)) //do not repeat the same page URIs in the table
+                    {
+                        row.add("");
+                        row.add("");
+                        row.add("");
+                        row.add("");
+                    }
+                    else
+                    {
+                        row.add(formatURI(pageUri));
+                        row.add(tuple.getBinding("date").getValue().stringValue());
+                        row.add(tuple.getBinding("title").getValue().stringValue());
+                        row.add(tuple.getBinding("url").getValue().stringValue());
+                    }
                     row.add(formatURI(tuple.getBinding("tree").getValue().stringValue()));
                     listData.add(row);
+                    prevPageUri = pageUri;
                 }
             }
             

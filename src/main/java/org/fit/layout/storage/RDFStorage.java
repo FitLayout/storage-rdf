@@ -167,7 +167,7 @@ public class RDFStorage
                 +     "?page box:launchDatetime ?date . "
                 +     "?page box:hasTitle ?title . "
                 +     "?page box:sourceUrl ?url" + contClause
-                + "}";
+                + "} ORDER BY ?date ?page ?tree";
 	    System.out.println("QUERY: " + query);
 	    return executeSafeTupleQuery(query);
 	}
