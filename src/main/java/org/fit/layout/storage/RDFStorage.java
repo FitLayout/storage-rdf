@@ -503,9 +503,14 @@ public class RDFStorage
 	 */
 	public void removeAreaTree(URI areaTreeUri) throws RepositoryException
 	{
-        Model matl = getLogicalAreaModelForAreaTree(areaTreeUri);
-        getConnection().remove(matl);
         Model mat = getAreaModelForAreaTree(areaTreeUri);
+        mat.addAll(getLogicalAreaModelForAreaTree(areaTreeUri));
+        mat.addAll(getBorderModelForAreaTree(areaTreeUri));
+        //mat.addAll(getTagModelForAreaTree(areaTreeUri)); //tags probably should not be deleted
+        mat.addAll(getTagSupportModelForAreaTree(areaTreeUri));
+        RepositoryResult<Statement> result = getConnection().getStatements(areaTreeUri, null, null, false);
+        while (result.hasNext())
+            mat.add(result.next());
         getConnection().remove(mat);
 	}
 	

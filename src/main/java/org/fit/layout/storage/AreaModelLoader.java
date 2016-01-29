@@ -404,7 +404,7 @@ public class AreaModelLoader extends ModelLoader
     private Model getTagSupportModel() throws RepositoryException
     {
         if (tagSupportModel == null)
-            tagSupportModel = storage.getTagModelForAreaTree(areaTreeUri);
+            tagSupportModel = storage.getTagSupportModelForAreaTree(areaTreeUri);
         return tagSupportModel;
     }
 
