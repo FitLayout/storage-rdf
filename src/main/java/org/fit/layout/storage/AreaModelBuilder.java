@@ -37,6 +37,8 @@ public class AreaModelBuilder
 	private URI areaTreeNode;
 	private int logAreaCnt;
 	private Set<Tag> usedTags;
+	
+	private int next_order;
 
 	public AreaModelBuilder(AreaTree areaTree, LogicalAreaTree logicalTree, URI pageNode, URI uri)
 	{
@@ -60,6 +62,7 @@ public class AreaModelBuilder
 	{
 		graph.add(areaTreeNode, RDF.TYPE, SEGM.AreaTree);
 		graph.add(areaTreeNode, SEGM.sourcePage, pageNode);
+		next_order = 0;
 		
 		addArea(areaTree.getRoot());
 		insertAllAreas(areaTree.getRoot().getChildAreas());
@@ -106,6 +109,7 @@ public class AreaModelBuilder
 	{
 		final URI individual = RESOURCE.createAreaURI(areaTreeNode, area);
 		graph.add(individual, RDF.TYPE, SEGM.Area);
+		graph.add(individual, BOX.documentOrder, vf.createLiteral(next_order++));
         graph.add(individual, SEGM.belongsTo, this.areaTreeNode);
 
         if (area.getParentArea() != null)
@@ -162,6 +166,7 @@ public class AreaModelBuilder
     {
         final URI individual = RESOURCE.createLogicalAreaURI(areaTreeNode, logAreaCnt++);
         graph.add(individual, RDF.TYPE, SEGM.LogicalArea);
+        graph.add(individual, BOX.documentOrder, vf.createLiteral(next_order++));
         graph.add(individual, SEGM.belongsTo, areaTreeNode);
         graph.add(individual, SEGM.hasText, vf.createLiteral(area.getText()));
         if (parent != null)

@@ -29,6 +29,8 @@ public class BoxModelBuilder
 	private String baseUrl;
 	private ValueFactoryImpl vf;
 	private URI pageNode;
+	
+	private int next_order; //order counter
 
 	public BoxModelBuilder(Page page, URI uri) 
 	{
@@ -50,6 +52,7 @@ public class BoxModelBuilder
 	{
 		graph = new LinkedHashModel(); // it holds whole model
 		vf = ValueFactoryImpl.getInstance();
+		next_order = 0;
 		
 		// inicialization with launch node
 		graph.add(pageNode, RDF.TYPE, BOX.Page);
@@ -84,8 +87,9 @@ public class BoxModelBuilder
 		// add BOX individual into graph
 		final URI individual = RESOURCE.createBoxURI(pageNode, box);
 		graph.add(individual, RDF.TYPE, BOX.Box);
+		graph.add(individual, BOX.documentOrder, vf.createLiteral(next_order++));
 
-		// pin to launch node
+		// pin to page node
 		graph.add(individual, BOX.belongsTo, pageNode);
 		
 		//parent

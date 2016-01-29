@@ -122,6 +122,15 @@ public class BOX {
 	public static final URI ContentObject;
 
 	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#documentOrder}.
+	 * <p>
+	 * The order of a rectangle within its page
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#documentOrder">documentOrder</a>
+	 */
+	public static final URI documentOrder;
+
+	/**
 	 * {@code http://fitlayout.github.io/ontology/render.owl#fontFamily}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#fontFamily">fontFamily</a>
@@ -358,6 +367,7 @@ public class BOX {
 		containsObject = factory.createURI(BOX.NAMESPACE, "containsObject");
 		ContentBox = factory.createURI(BOX.NAMESPACE, "ContentBox");
 		ContentObject = factory.createURI(BOX.NAMESPACE, "ContentObject");
+		documentOrder = factory.createURI(BOX.NAMESPACE, "documentOrder");
 		fontFamily = factory.createURI(BOX.NAMESPACE, "fontFamily");
 		fontSize = factory.createURI(BOX.NAMESPACE, "fontSize");
 		fontStyle = factory.createURI(BOX.NAMESPACE, "fontStyle");

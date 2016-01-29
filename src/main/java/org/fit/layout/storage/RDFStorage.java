@@ -287,8 +287,10 @@ public class RDFStorage
 	{
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
-				+ "?s rdf:type box:Box . " 
-				+ "?s box:belongsTo <" + pageId.toString() + ">}";
+				+ "?s rdf:type box:Box . "
+				+ "?s box:documentOrder ?ord . "
+				+ "?s box:belongsTo <" + pageId.toString() + ">}"
+				+ " ORDER BY ?ord";
         return executeSafeQuery(query);
 	}
 	
@@ -372,7 +374,9 @@ public class RDFStorage
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
 				+ "?s rdf:type segm:Area . "
-				+ "?s segm:belongsTo <" + areaTreeUri.stringValue() + "> }";
+                + "?s rdf:documentOrder ?ord . "
+				+ "?s segm:belongsTo <" + areaTreeUri.stringValue() + "> }"
+				+ " ORDER BY ?ord";
         return executeSafeQuery(query);
 	}
 	
@@ -387,7 +391,9 @@ public class RDFStorage
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
                 + "?s rdf:type segm:LogicalArea . "
-                + "?s segm:belongsTo <" + areaTreeUri.stringValue() + "> }";
+                + "?s box:documentOrder ?ord . "
+                + "?s segm:belongsTo <" + areaTreeUri.stringValue() + "> }"
+                + " ORDER BY ?ord";
         return executeSafeQuery(query);
     }
     

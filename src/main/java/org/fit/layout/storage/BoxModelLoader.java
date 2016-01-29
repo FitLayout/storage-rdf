@@ -8,7 +8,7 @@ package org.fit.layout.storage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +80,7 @@ public class BoxModelLoader extends ModelLoader
             
             //create the box tree
             Model boxTreeModel = storage.getBoxModelForPage(pageUri);
-            Map<URI, RDFBox> boxes = new HashMap<URI, RDFBox>();
+            Map<URI, RDFBox> boxes = new LinkedHashMap<URI, RDFBox>();
             RDFBox root = constructBoxTree(boxTreeModel, boxes); 
             page.setRoot(root);
             page.setBoxUris(boxes);

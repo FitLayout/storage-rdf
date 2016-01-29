@@ -7,6 +7,7 @@ package org.fit.layout.storage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +84,7 @@ public class AreaModelLoader extends ModelLoader
         if (model.size() > 0)
         {
             RDFAreaTree atree = new RDFAreaTree(page, areaTreeUri);
-            Map<URI, RDFArea> areaUris = new HashMap<URI, RDFArea>();
+            Map<URI, RDFArea> areaUris = new LinkedHashMap<URI, RDFArea>();
             RDFArea root = constructVisualAreaTree(model, areaUris);
             atree.setRoot(root);
             atree.setAreaUris(areaUris);
@@ -278,7 +279,7 @@ public class AreaModelLoader extends ModelLoader
         if (model.size() > 0)
         {
             DefaultLogicalAreaTree atree = new DefaultLogicalAreaTree(areaTree);
-            Map<URI, RDFLogicalArea> areaUris = new HashMap<URI, RDFLogicalArea>();
+            Map<URI, RDFLogicalArea> areaUris = new LinkedHashMap<URI, RDFLogicalArea>();
             RDFLogicalArea root = constructLogicalAreaTree(model, areaUris);
             atree.setRoot(root);
             return atree;
