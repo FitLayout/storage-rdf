@@ -71,9 +71,14 @@ public class AreaModelLoader extends ModelLoader
 
     public LogicalAreaTree getLogicalAreaTree() throws RepositoryException
     {
-        if (logicalAreaTree == null)
-            logicalAreaTree = constructLogicalAreaTree();
-        return logicalAreaTree;
+        if (areaTree != null)
+        {
+            if (logicalAreaTree == null)
+                logicalAreaTree = constructLogicalAreaTree();
+            return logicalAreaTree;
+        }
+        else
+            return null;
     }
     
     //================================================================================================

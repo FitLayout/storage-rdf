@@ -482,8 +482,11 @@ public class StoragePlugin implements BrowserPlugin
                             }
                         }
                     } catch (Exception e) {
+                        String msg = e.getMessage();
+                        if (msg == null || msg.isEmpty())
+                            msg = "Exception occured: " + e.toString();
                         JOptionPane.showMessageDialog(getPnl_main(),
-                                e.getMessage(),
+                                msg,
                                 "Loading Error",
                                 JOptionPane.ERROR_MESSAGE);
                     }

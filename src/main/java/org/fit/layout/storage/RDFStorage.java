@@ -374,7 +374,7 @@ public class RDFStorage
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
 				+ "?s rdf:type segm:Area . "
-                + "?s rdf:documentOrder ?ord . "
+                + "?s box:documentOrder ?ord . "
 				+ "?s segm:belongsTo <" + areaTreeUri.stringValue() + "> }"
 				+ " ORDER BY ?ord";
         return executeSafeQuery(query);
