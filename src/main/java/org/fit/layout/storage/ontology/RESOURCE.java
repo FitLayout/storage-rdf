@@ -34,7 +34,7 @@ public class RESOURCE
     {
         String res = name.replace(' ', '_');
         res = UriEscape.escapeUriPathSegment(res);
-        return factory.createURI(NAMESPACE, res);
+        return factory.createURI(NAMESPACE, "pset-" + res);
     }
     
     public static URI createPageURI(long seq)

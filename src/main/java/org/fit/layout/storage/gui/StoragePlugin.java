@@ -10,14 +10,17 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.fit.layout.api.PageSet;
 import org.fit.layout.gui.Browser;
 import org.fit.layout.gui.BrowserPlugin;
 import org.fit.layout.model.AreaTree;
@@ -42,6 +45,8 @@ import java.awt.FlowLayout;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 
 
@@ -71,9 +76,8 @@ public class StoragePlugin implements BrowserPlugin
     private JButton btn_updateModel;
     private JPanel tbr_pageset;
     private JLabel lblPageSets;
-    private JList pageSetList;
+    private JList<PageSet> pageSetList;
     private JButton btnNew;
-    private JButton btnEdit;
     private JScrollPane pageSourceScroll;
     private JButton btnDelete;
     private JButton btnConnect;
@@ -89,7 +93,7 @@ public class StoragePlugin implements BrowserPlugin
     public boolean init(Browser browser)
     {
         this.browser = browser;
-        this.browser.addToolPanel("RDF Storage", getPnl_main()  );
+        this.browser.addToolPanel("RDF Storage", getPnl_main());
         
         listColumns = new Vector<String>();
         listColumns.add("PageID");
@@ -101,6 +105,8 @@ public class StoragePlugin implements BrowserPlugin
         listPageURIs = new Vector<URI>();
         listTreeURIs = new Vector<URI>();
         updatePageTable();
+        updatePageSets();
+        updateGUIState();
         
         return true;
     }
@@ -152,6 +158,8 @@ public class StoragePlugin implements BrowserPlugin
             getBtn_saveAsNew().setEnabled(true);
             getBtn_removeModel().setEnabled(true);
             getBtn_updateModel().setEnabled(loaded);
+            getBtnNew().setEnabled(true);
+            getBtnDelete().setEnabled(getPageSetList().getSelectedIndex() != -1);
         }
         else
         {
@@ -162,6 +170,8 @@ public class StoragePlugin implements BrowserPlugin
             getBtn_saveAsNew().setEnabled(false);
             getBtn_removeModel().setEnabled(false);
             getBtn_updateModel().setEnabled(false);
+            getBtnNew().setEnabled(false);
+            getBtnDelete().setEnabled(false);
         }
     }
     
@@ -257,6 +267,23 @@ public class StoragePlugin implements BrowserPlugin
             return listTreeURIs.elementAt(sel);
         else
             return null;
+    }
+    
+    private void updatePageSets()
+    {
+        DefaultListModel<PageSet> model = (DefaultListModel<PageSet>) getPageSetList().getModel();
+        model.removeAllElements();
+        if (connected)
+        {
+            try
+            {
+                List<PageSet> sets = bdi.getPageSets();
+                for (PageSet pset : sets)
+                    model.addElement(pset);
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     private JPanel getPnl_main() 
@@ -598,11 +625,6 @@ public class StoragePlugin implements BrowserPlugin
         	gbc_btnNew.gridx = 1;
         	gbc_btnNew.gridy = 2;
         	tbr_pageset.add(getBtnNew(), gbc_btnNew);
-        	GridBagConstraints gbc_btnEdit = new GridBagConstraints();
-        	gbc_btnEdit.insets = new Insets(0, 0, 5, 5);
-        	gbc_btnEdit.gridx = 2;
-        	gbc_btnEdit.gridy = 2;
-        	tbr_pageset.add(getBtnEdit(), gbc_btnEdit);
         	GridBagConstraints gbc_btnDelete = new GridBagConstraints();
         	gbc_btnDelete.insets = new Insets(0, 0, 5, 5);
         	gbc_btnDelete.gridx = 3;
@@ -617,9 +639,15 @@ public class StoragePlugin implements BrowserPlugin
         }
         return lblPageSets;
     }
-    private JList getPageSetList() {
+    private JList<PageSet> getPageSetList() {
         if (pageSetList == null) {
-        	pageSetList = new JList();
+        	pageSetList = new JList<PageSet>();
+        	pageSetList.addListSelectionListener(new ListSelectionListener() {
+        	    public void valueChanged(ListSelectionEvent arg0) {
+        	        updateGUIState();
+        	    }
+        	});
+        	pageSetList.setModel(new DefaultListModel<PageSet>());
         }
         return pageSetList;
     }
@@ -627,17 +655,26 @@ public class StoragePlugin implements BrowserPlugin
         if (btnNew == null) {
         	btnNew = new JButton("New...");
         	btnNew.addActionListener(new ActionListener() {
-        	    public void actionPerformed(ActionEvent e) {
+        	    public void actionPerformed(ActionEvent e) 
+        	    {
+        	        String name = JOptionPane.showInputDialog(btnNew,
+        	                "New page set name",
+        	                "New page set",
+        	                JOptionPane.QUESTION_MESSAGE);
+        	        if (name != null && !name.trim().isEmpty())
+        	        {
+        	            try
+                        {
+                            bdi.createPageSet(name);
+                        } catch (RepositoryException e1) {
+                            e1.printStackTrace();
+                        }
+        	            updatePageSets();
+        	        }
         	    }
         	});
         }
         return btnNew;
-    }
-    private JButton getBtnEdit() {
-        if (btnEdit == null) {
-        	btnEdit = new JButton("Edit...");
-        }
-        return btnEdit;
     }
     private JScrollPane getPageSourceScroll() {
         if (pageSourceScroll == null) {
@@ -649,6 +686,22 @@ public class StoragePlugin implements BrowserPlugin
     private JButton getBtnDelete() {
         if (btnDelete == null) {
         	btnDelete = new JButton("Delete");
+        	btnDelete.addActionListener(new ActionListener() {
+        	    public void actionPerformed(ActionEvent arg0) 
+        	    {
+        	        PageSet pset = getPageSetList().getSelectedValue();
+        	        if (pset != null)
+        	        {
+        	            try
+                        {
+                            bdi.deletePageSet(pset.getName());
+                        } catch (RepositoryException e) {
+                            e.printStackTrace();
+                        }
+        	            updatePageSets();
+        	        }
+        	    }
+        	});
         }
         return btnDelete;
     }
@@ -664,12 +717,14 @@ public class StoragePlugin implements BrowserPlugin
             	        {
                             connect(urlstring);
                             fillPageTable();
+                            updatePageSets();
             	        }
         	        }
         	        else
         	        {
         	            disconnect();
         	            clearPageTable();
+        	            updatePageSets();
         	        }
         	    }
         	});

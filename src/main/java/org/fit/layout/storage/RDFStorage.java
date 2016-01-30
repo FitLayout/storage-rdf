@@ -94,6 +94,12 @@ public class RDFStorage
 	    insertGraph(graph);
 	}
 	
+	public void deletePageSet(String name) throws RepositoryException
+	{
+	    URI uri = RESOURCE.createPageSetURI(name);
+	    getConnection().remove(uri, null, null);
+	}
+	
     public PageSet getPageSet(String name) throws RepositoryException
     {
         return getPageSet(RESOURCE.createPageSetURI(name));
