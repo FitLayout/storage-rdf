@@ -16,6 +16,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -151,15 +152,17 @@ public class StoragePlugin implements BrowserPlugin
             getBtnConnect().setText("Disconnect");
             getLblStatus().setText("Connected");
 
+            boolean psetAvail = (getPageSetList().getSelectedIndex() != -1);
             boolean loaded = (browser.getPage() != null && browser.getPage() instanceof RDFPage
-                    && browser.getAreaTree() != null && browser.getAreaTree() instanceof RDFAreaTree); 
+                    && browser.getAreaTree() != null && browser.getAreaTree() instanceof RDFAreaTree);
+            boolean pageSelected = (getSelectedPageURI() != null);
             
-            getBtn_load().setEnabled(true);
-            getBtn_saveAsNew().setEnabled(true);
-            getBtn_removeModel().setEnabled(true);
-            getBtn_updateModel().setEnabled(loaded);
+            getBtn_load().setEnabled(pageSelected);
+            getBtn_saveAsNew().setEnabled(psetAvail);
+            getBtn_removeModel().setEnabled(pageSelected);
+            getBtn_updateModel().setEnabled(psetAvail && loaded);
             getBtnNew().setEnabled(true);
-            getBtnDelete().setEnabled(getPageSetList().getSelectedIndex() != -1);
+            getBtnDelete().setEnabled(psetAvail);
         }
         else
         {
@@ -200,45 +203,49 @@ public class StoragePlugin implements BrowserPlugin
     {
         listData.removeAllElements();
         listTreeURIs.removeAllElements();
-        try
+        PageSet pset = getSelectedPageSet();
+        if (pset != null)
         {
-            String prevPageUri = "";
-            TupleQueryResult data = bdi.getAvailableTrees(null);
-            while (data.hasNext())
+            try
             {
-                BindingSet tuple = data.next();
-                if (tuple.getBinding("tree").getValue() instanceof URI
-                        && tuple.getBinding("page").getValue() instanceof URI)
+                String prevPageUri = "";
+                TupleQueryResult data = bdi.getAvailableTrees(pset.getName());
+                while (data.hasNext())
                 {
-                    listPageURIs.add((URI) tuple.getBinding("page").getValue());
-                    listTreeURIs.add((URI) tuple.getBinding("tree").getValue());
-                    
-                    Vector<String> row = new Vector<String>(listColumns.size());
-                    String pageUri = tuple.getBinding("page").getValue().stringValue();
-                    if (pageUri.equals(prevPageUri)) //do not repeat the same page URIs in the table
+                    BindingSet tuple = data.next();
+                    if (tuple.getBinding("tree").getValue() instanceof URI
+                            && tuple.getBinding("page").getValue() instanceof URI)
                     {
-                        row.add("");
-                        row.add("");
-                        row.add("");
-                        row.add("");
+                        listPageURIs.add((URI) tuple.getBinding("page").getValue());
+                        listTreeURIs.add((URI) tuple.getBinding("tree").getValue());
+                        
+                        Vector<String> row = new Vector<String>(listColumns.size());
+                        String pageUri = tuple.getBinding("page").getValue().stringValue();
+                        if (pageUri.equals(prevPageUri)) //do not repeat the same page URIs in the table
+                        {
+                            row.add("");
+                            row.add("");
+                            row.add("");
+                            row.add("");
+                        }
+                        else
+                        {
+                            row.add(formatURI(pageUri));
+                            row.add(tuple.getBinding("date").getValue().stringValue());
+                            row.add(tuple.getBinding("title").getValue().stringValue());
+                            row.add(tuple.getBinding("url").getValue().stringValue());
+                        }
+                        row.add(formatURI(tuple.getBinding("tree").getValue().stringValue()));
+                        listData.add(row);
+                        prevPageUri = pageUri;
                     }
-                    else
-                    {
-                        row.add(formatURI(pageUri));
-                        row.add(tuple.getBinding("date").getValue().stringValue());
-                        row.add(tuple.getBinding("title").getValue().stringValue());
-                        row.add(tuple.getBinding("url").getValue().stringValue());
-                    }
-                    row.add(formatURI(tuple.getBinding("tree").getValue().stringValue()));
-                    listData.add(row);
-                    prevPageUri = pageUri;
                 }
+                
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            } catch (QueryEvaluationException e) {
+                e.printStackTrace();
             }
-            
-        } catch (RepositoryException e) {
-            e.printStackTrace();
-        } catch (QueryEvaluationException e) {
-            e.printStackTrace();
         }
         updatePageTable();
     }
@@ -269,8 +276,14 @@ public class StoragePlugin implements BrowserPlugin
             return null;
     }
     
+    public PageSet getSelectedPageSet()
+    {
+        return getPageSetList().getSelectedValue();
+    }
+    
     private void updatePageSets()
     {
+        PageSet current = getSelectedPageSet();
         DefaultListModel<PageSet> model = (DefaultListModel<PageSet>) getPageSetList().getModel();
         model.removeAllElements();
         if (connected)
@@ -284,6 +297,10 @@ public class StoragePlugin implements BrowserPlugin
                 e.printStackTrace();
             }
         }
+        if (current == null)
+            getPageSetList().setSelectedIndex(0);
+        else
+            getPageSetList().setSelectedValue(current, true);
     }
     
     private JPanel getPnl_main() 
@@ -442,6 +459,9 @@ public class StoragePlugin implements BrowserPlugin
     					{
                             try
                             {
+                                PageSet currentPset = getSelectedPageSet();
+                                if (currentPset != null)
+                                    bdi.addPageToPageSet(rdfpage.getUri(), currentPset.getName());
                                 bdi.insertAreaTree(atree, ltree, rdfpage.getUri());
                             } catch (RepositoryException e1) {
                                 e1.printStackTrace();
@@ -645,6 +665,7 @@ public class StoragePlugin implements BrowserPlugin
         	pageSetList.addListSelectionListener(new ListSelectionListener() {
         	    public void valueChanged(ListSelectionEvent arg0) {
         	        updateGUIState();
+        	        fillPageTable();
         	    }
         	});
         	pageSetList.setModel(new DefaultListModel<PageSet>());
@@ -689,16 +710,29 @@ public class StoragePlugin implements BrowserPlugin
         	btnDelete.addActionListener(new ActionListener() {
         	    public void actionPerformed(ActionEvent arg0) 
         	    {
-        	        PageSet pset = getPageSetList().getSelectedValue();
+        	        PageSet pset = getSelectedPageSet();
         	        if (pset != null)
         	        {
-        	            try
+        	            String message = "Do you want to remove the selected page set?";
+        	            JCheckBox cbox = new JCheckBox("Also delete orpganed pages", true);
+        	            if (listPageURIs.size() == 0)
+        	            {
+        	                cbox.setEnabled(false);
+        	                cbox.setSelected(false);
+        	            }
+        	            Object[] params = { message, cbox };
+                        int response = JOptionPane.showConfirmDialog(getPnl_main(), params, "Confirm",
+                                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                        if (response == JOptionPane.YES_OPTION)
                         {
-                            bdi.deletePageSet(pset.getName());
-                        } catch (RepositoryException e) {
-                            e.printStackTrace();
+            	            try
+                            {
+                                bdi.deletePageSet(pset.getName());
+                            } catch (RepositoryException e) {
+                                e.printStackTrace();
+                            }
+            	            updatePageSets();
                         }
-        	            updatePageSets();
         	        }
         	    }
         	});

@@ -155,17 +155,26 @@ public class RDFStorage
         return ret;
     }
 	
+	public void addPageToPageSet(URI pageUri, String psetName) throws RepositoryException
+	{
+	    URI psetUri = RESOURCE.createPageSetURI(psetName);
+	    getConnection().add(psetUri, LAYOUT.containsPage, pageUri);
+	}
+	
 	/**
 	 * Obtains the tabular data about the available segmented pages in the repository.
-	 * @param pageSetUri the selected page set or {@code null} for all the available pages
+	 * @param psetName the selected page set or {@code null} for all the available pages
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public TupleQueryResult getAvailableTrees(URI pageSetUri) throws RepositoryException
+	public TupleQueryResult getAvailableTrees(String psetName) throws RepositoryException
 	{
 	    String contClause = "";
-	    if (pageSetUri != null)
+	    if (psetName != null)
+	    {
+	        URI pageSetUri = RESOURCE.createPageSetURI(psetName);
 	        contClause = " . <" + pageSetUri.toString() + "> layout:containsPage ?page";
+	    }
 	    final String query = PREFIXES
 	            + " SELECT ?page ?tree ?date ?url ?title " 
                 + "WHERE {"
