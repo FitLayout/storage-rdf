@@ -14,6 +14,7 @@ import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.model.RDFAreaTree;
 import org.fit.layout.storage.model.RDFPage;
+import org.fit.layout.storage.model.RDFPageSet;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.LAYOUT;
 import org.fit.layout.storage.ontology.RESOURCE;
@@ -108,7 +109,7 @@ public class RDFStorage
 	public PageSet getPageSet(URI uri) throws RepositoryException
 	{
         RepositoryResult<Statement> result = getConnection().getStatements(uri, null, null, false);
-        PageSet ret = new PageSet(null);
+        RDFPageSet ret = new RDFPageSet(null, uri, this);
         while (result.hasNext()) 
         {
             Statement st = result.next();
@@ -129,6 +130,19 @@ public class RDFStorage
             return null; //not found
         else
             return ret;
+	}
+	
+	public List<URI> getPagesForPageSet(URI pageSetUri) throws RepositoryException
+	{
+	    List<URI> ret = new ArrayList<URI>();
+        RepositoryResult<Statement> result = getConnection().getStatements(pageSetUri, LAYOUT.containsPage, null, false);
+        while (result.hasNext()) 
+        {
+            Value obj = result.next().getObject();
+            if (obj instanceof URI)
+                ret.add((URI) obj);
+        }
+        return ret;
 	}
 	
     /**
