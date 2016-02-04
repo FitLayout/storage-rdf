@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,8 @@ import org.fit.layout.api.PageStorage;
 import org.fit.layout.api.ServiceManager;
 import org.fit.layout.gui.Browser;
 import org.fit.layout.gui.BrowserPlugin;
+import org.fit.layout.gui.GUIUpdateListener;
+import org.fit.layout.gui.GUIUpdateSource;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
@@ -60,9 +63,10 @@ import javax.swing.event.ListSelectionEvent;
  * @author imilicka
  * @author burgetr
  */
-public class StoragePlugin implements BrowserPlugin
+public class StoragePlugin implements BrowserPlugin, GUIUpdateSource
 {
     private Browser browser;
+    private List<GUIUpdateListener> updateListeners;
     private RDFStorage bdi = null;
     private boolean connected = false;
     private int loadedPageIndex = -1;
@@ -100,6 +104,7 @@ public class StoragePlugin implements BrowserPlugin
     {
         this.browser = browser;
         this.browser.addToolPanel("RDF Storage", getPnl_main());
+        updateListeners = new ArrayList<GUIUpdateListener>();
         
         initStorageServices();
         
@@ -127,6 +132,12 @@ public class StoragePlugin implements BrowserPlugin
             if (storage instanceof RDFStorageService)
                 ((RDFStorageService) storage).setPlugin(this);
         }
+    }
+    
+    @Override
+    public void registerGUIUpdateListener(GUIUpdateListener listener)
+    {
+        updateListeners.add(listener);
     }
     
     private void connect(String DBConnectionUrl)
@@ -203,6 +214,8 @@ public class StoragePlugin implements BrowserPlugin
             getBtnNew().setEnabled(false);
             getBtnDelete().setEnabled(false);
         }
+        for (GUIUpdateListener listener : updateListeners)
+            listener.updateGUI();
     }
     
     private void updatePageTable()

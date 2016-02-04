@@ -5,8 +5,12 @@
  */
 package org.fit.layout.storage.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.fit.layout.api.PageSetStorage;
 import org.fit.layout.api.PageStorage;
+import org.fit.layout.gui.GUIUpdateListener;
 import org.fit.layout.storage.gui.StoragePlugin;
 
 /**
@@ -18,10 +22,18 @@ import org.fit.layout.storage.gui.StoragePlugin;
 public class RDFStorageService implements PageStorage, PageSetStorage
 {
     private StoragePlugin plugin;
+    private List<GUIUpdateListener> updateListeners;
+    
+    public RDFStorageService()
+    {
+        updateListeners = new ArrayList<GUIUpdateListener>();
+    }
     
     public void setPlugin(StoragePlugin plugin)
     {
         this.plugin = plugin;
+        for (GUIUpdateListener listener : updateListeners)
+            plugin.registerGUIUpdateListener(listener);
     }
 
     @Override
@@ -40,6 +52,14 @@ public class RDFStorageService implements PageStorage, PageSetStorage
     public String getDescription()
     {
         return "Stores the page data in a RDF repository";
+    }
+
+    @Override
+    public void registerGUIUpdateListener(GUIUpdateListener listener)
+    {
+        updateListeners.add(listener);
+        if (plugin != null)
+            plugin.registerGUIUpdateListener(listener);
     }
 
     @Override
