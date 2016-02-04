@@ -11,6 +11,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -22,6 +23,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.fit.layout.api.PageSet;
+import org.fit.layout.api.PageStorage;
+import org.fit.layout.api.ServiceManager;
 import org.fit.layout.gui.Browser;
 import org.fit.layout.gui.BrowserPlugin;
 import org.fit.layout.model.AreaTree;
@@ -32,6 +35,7 @@ import org.fit.layout.storage.RDFStorage;
 import org.fit.layout.storage.model.RDFAreaTree;
 import org.fit.layout.storage.model.RDFPage;
 import org.fit.layout.storage.ontology.RESOURCE;
+import org.fit.layout.storage.service.RDFStorageService;
 import org.openrdf.model.URI;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
@@ -61,6 +65,7 @@ public class StoragePlugin implements BrowserPlugin
     private Browser browser;
     private RDFStorage bdi = null;
     private boolean connected = false;
+    private int loadedPageIndex = -1;
     private Vector<String> listColumns;
     private Vector<Vector<String>> listData;
     private Vector<URI> listPageURIs;
@@ -96,6 +101,8 @@ public class StoragePlugin implements BrowserPlugin
         this.browser = browser;
         this.browser.addToolPanel("RDF Storage", getPnl_main());
         
+        initStorageServices();
+        
         listColumns = new Vector<String>();
         listColumns.add("PageID");
         listColumns.add("Date");
@@ -110,6 +117,16 @@ public class StoragePlugin implements BrowserPlugin
         updateGUIState();
         
         return true;
+    }
+    
+    private void initStorageServices()
+    {
+        Map<String, PageStorage> services = ServiceManager.findPageStorages();
+        for (PageStorage storage : services.values())
+        {
+            if (storage instanceof RDFStorageService)
+                ((RDFStorageService) storage).setPlugin(this);
+        }
     }
     
     private void connect(String DBConnectionUrl)
@@ -143,6 +160,16 @@ public class StoragePlugin implements BrowserPlugin
         }
         connected = false;
         updateGUIState();
+    }
+    
+    public boolean isConnected()
+    {
+        return connected;
+    }
+
+    public Vector<Vector<String>> getPageListData()
+    {
+        return listData;
     }
     
     private void updateGUIState()
@@ -258,6 +285,16 @@ public class StoragePlugin implements BrowserPlugin
             return src;
     }
     
+    public int getLoadedPageIndex()
+    {
+        return loadedPageIndex;
+    }
+    
+    public void setSelectedPageIndex(int index)
+    {
+        getPageTable().setRowSelectionInterval(index, index);
+    }
+    
     private URI getSelectedPageURI()
     {
         int sel = getPageTable().getSelectedRow();
@@ -265,6 +302,46 @@ public class StoragePlugin implements BrowserPlugin
             return listPageURIs.elementAt(sel);
         else
             return null;
+    }
+
+    public void loadSelectedPage()
+    {
+        RDFPage page = null;
+        AreaTree atree = null;
+        LogicalAreaTree ltree = null;
+        try {
+            URI pageId = getSelectedPageURI();
+            if (pageId != null)
+            {
+                //load the box model
+                page = bdi.loadPage(pageId);
+                //load the trees
+                if (page != null)
+                {
+                    URI atreeUri = getSelectedTreeURI();
+                    AreaModelLoader loader = bdi.loadAreaTrees(atreeUri, page);
+                    atree = loader.getAreaTree();
+                    ltree = loader.getLogicalAreaTree();
+                    loadedPageIndex = getPageTable().getSelectedRow(); 
+                }
+            }
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            if (msg == null || msg.isEmpty())
+                msg = "Exception occured: " + e.toString();
+            JOptionPane.showMessageDialog(getPnl_main(),
+                    msg,
+                    "Loading Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        if (page != null)
+            browser.setPage(page);
+        if (atree != null)
+            browser.setAreaTree(atree);
+        if (ltree != null)
+            browser.setLogicalTree(ltree);
+        browser.refreshView();
+        updateGUIState();
     }
     
     private URI getSelectedTreeURI()
@@ -523,41 +600,7 @@ public class StoragePlugin implements BrowserPlugin
 			btn_load.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) 
 				{
-				    RDFPage page = null;
-				    AreaTree atree = null;
-				    LogicalAreaTree ltree = null;
-                    try {
-                        URI pageId = getSelectedPageURI();
-                        if (pageId != null)
-                        {
-                            //load the box model
-                            page = bdi.loadPage(pageId);
-                            //load the trees
-                            if (page != null)
-                            {
-                                URI atreeUri = getSelectedTreeURI();
-                                AreaModelLoader loader = bdi.loadAreaTrees(atreeUri, page);
-                                atree = loader.getAreaTree();
-                                ltree = loader.getLogicalAreaTree();
-                            }
-                        }
-                    } catch (Exception e) {
-                        String msg = e.getMessage();
-                        if (msg == null || msg.isEmpty())
-                            msg = "Exception occured: " + e.toString();
-                        JOptionPane.showMessageDialog(getPnl_main(),
-                                msg,
-                                "Loading Error",
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-                    if (page != null)
-                        browser.setPage(page);
-                    if (atree != null)
-                        browser.setAreaTree(atree);
-                    if (ltree != null)
-                        browser.setLogicalTree(ltree);
-                    browser.refreshView();
-                    updateGUIState();
+				    loadSelectedPage();
                 }
 			});
 		}
