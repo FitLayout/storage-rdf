@@ -128,29 +128,31 @@ public class RDFStorageService implements PageStorage, PageSetStorage
     @Override
     public boolean saveAvailable()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return (plugin != null && plugin.isSaveAvailable());
     }
 
     @Override
     public void saveCurrentPage()
     {
-        // TODO Auto-generated method stub
-        
+        if (plugin != null && plugin.isSaveAvailable())
+        {
+            plugin.saveCurrentPage();
+        }        
     }
 
     @Override
     public boolean updateAvailable()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return (plugin != null && plugin.isUpdateAvailable());
     }
 
     @Override
     public void updateCurrentPage()
     {
-        // TODO Auto-generated method stub
-        
+        if (plugin != null && plugin.isUpdateAvailable())
+        {
+            plugin.updateCurrentPage();
+        }        
     }
 
 }

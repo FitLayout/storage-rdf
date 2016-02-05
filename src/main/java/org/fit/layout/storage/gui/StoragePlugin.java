@@ -357,6 +357,103 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource
         updateGUIState();
     }
     
+    public boolean isSaveAvailable()
+    {
+        Page page = browser.getPage();
+        AreaTree atree = browser.getAreaTree();
+        return (connected && page != null && atree != null);
+    }
+    
+    public void saveCurrentPage()
+    {
+        Page page = browser.getPage();
+        AreaTree atree = browser.getAreaTree();
+        LogicalAreaTree ltree = browser.getLogicalTree();
+        if (page != null && atree != null) 
+        {
+            RDFPage rdfpage = null;
+            if (page instanceof RDFPage)
+                rdfpage = (RDFPage) page; //page already saved
+            else
+            { //page not yet saved
+                try
+                {
+                    rdfpage = bdi.insertPageBoxModel(page);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            if (rdfpage != null)
+            {
+                try
+                {
+                    PageSet currentPset = getSelectedPageSet();
+                    if (currentPset != null)
+                        bdi.addPageToPageSet(rdfpage.getUri(), currentPset.getName());
+                    bdi.insertAreaTree(atree, ltree, rdfpage.getUri());
+                } catch (RepositoryException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            
+            fillPageTable();
+        }
+        else 
+        {
+            JOptionPane.showMessageDialog(getPnl_main(),
+                    "No area tree found. The page segmentation should be performed first.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public boolean isUpdateAvailable()
+    {
+        Page page = browser.getPage();
+        AreaTree atree = browser.getAreaTree();
+        return (connected && page != null && page instanceof RDFPage && atree != null && atree instanceof RDFAreaTree);
+    }
+    
+    public void updateCurrentPage()
+    {
+        Page page = browser.getPage();
+        AreaTree atree = browser.getAreaTree();
+        LogicalAreaTree ltree = browser.getLogicalTree();
+        if (page != null && atree != null) 
+        {
+            if (page instanceof RDFPage && atree instanceof RDFAreaTree)
+            {
+                RDFPage rdfpage = (RDFPage) page;
+                try
+                {
+                    URI atreeUri = ((RDFAreaTree) atree).getUri();
+                    bdi.removeAreaTree(atreeUri);
+                    bdi.insertAreaTree(atreeUri, atree, ltree, rdfpage.getUri());
+                } catch (RepositoryException e1) {
+                    e1.printStackTrace();
+                }
+                fillPageTable();
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(getPnl_main(),
+                        "The page or area tree have not been stored. Cannot update.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        else 
+        {
+            JOptionPane.showMessageDialog(getPnl_main(),
+                    "No area tree found. The page segmentation should be performed first.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        
+        fillPageTable();
+    }
+    
     private URI getSelectedTreeURI()
     {
         int sel = getPageTable().getSelectedRow();
@@ -527,46 +624,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource
 			btn_saveAsNew.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) 
 				{
-                    Page page = browser.getPage();
-                    AreaTree atree = browser.getAreaTree();
-                    LogicalAreaTree ltree = browser.getLogicalTree();
-                    if (page != null && atree != null) 
-                    {
-    					RDFPage rdfpage = null;
-    					if (page instanceof RDFPage)
-    					    rdfpage = (RDFPage) page; //page already saved
-    					else
-    					{ //page not yet saved
-    						try
-                            {
-                                rdfpage = bdi.insertPageBoxModel(page);
-                            } catch (RepositoryException e) {
-                                e.printStackTrace();
-                            }
-    					}
-						
-    					if (rdfpage != null)
-    					{
-                            try
-                            {
-                                PageSet currentPset = getSelectedPageSet();
-                                if (currentPset != null)
-                                    bdi.addPageToPageSet(rdfpage.getUri(), currentPset.getName());
-                                bdi.insertAreaTree(atree, ltree, rdfpage.getUri());
-                            } catch (RepositoryException e1) {
-                                e1.printStackTrace();
-                            }
-    					}
-    					
-						fillPageTable();
-					}
-					else 
-					{
-						JOptionPane.showMessageDialog(getPnl_main(),
-							    "No area tree found. The page segmentation should be performed first.",
-							    "Error",
-							    JOptionPane.ERROR_MESSAGE);
-					}
+                    saveCurrentPage();
 				}
 			});
 		}
@@ -631,41 +689,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource
 			btn_updateModel.setEnabled(false);
 			btn_updateModel.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-                    Page page = browser.getPage();
-                    AreaTree atree = browser.getAreaTree();
-                    LogicalAreaTree ltree = browser.getLogicalTree();
-                    if (page != null && atree != null) 
-                    {
-                        if (page instanceof RDFPage && atree instanceof RDFAreaTree)
-                        {
-                            RDFPage rdfpage = (RDFPage) page;
-                            try
-                            {
-                                URI atreeUri = ((RDFAreaTree) atree).getUri();
-                                bdi.removeAreaTree(atreeUri);
-                                bdi.insertAreaTree(atreeUri, atree, ltree, rdfpage.getUri());
-                            } catch (RepositoryException e1) {
-                                e1.printStackTrace();
-                            }
-                            fillPageTable();
-                        }
-                        else
-                        {
-                            JOptionPane.showMessageDialog(getPnl_main(),
-                                    "The page or area tree have not been stored. Cannot update.",
-                                    "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                    else 
-                    {
-                        JOptionPane.showMessageDialog(getPnl_main(),
-                                "No area tree found. The page segmentation should be performed first.",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-					
-                    fillPageTable();
+                    updateCurrentPage();
 				}
 			});
 			
