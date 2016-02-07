@@ -30,6 +30,7 @@ import org.fit.layout.gui.Browser;
 import org.fit.layout.gui.BrowserPlugin;
 import org.fit.layout.gui.GUIUpdateListener;
 import org.fit.layout.gui.GUIUpdateSource;
+import org.fit.layout.gui.TreeListener;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
@@ -63,7 +64,7 @@ import javax.swing.event.ListSelectionEvent;
  * @author imilicka
  * @author burgetr
  */
-public class StoragePlugin implements BrowserPlugin, GUIUpdateSource
+public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListener
 {
     private Browser browser;
     private List<GUIUpdateListener> updateListeners;
@@ -104,6 +105,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource
     {
         this.browser = browser;
         this.browser.addToolPanel("RDF Storage", getPnl_main());
+        this.browser.addTreeListener(this);
         updateListeners = new ArrayList<GUIUpdateListener>();
         
         initStorageServices();
@@ -134,6 +136,24 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource
         }
     }
     
+    @Override
+    public void pageRendered(Page page)
+    {
+        updateGUIState();
+    }
+
+    @Override
+    public void areaTreeUpdated(AreaTree tree)
+    {
+        updateGUIState();
+    }
+
+    @Override
+    public void logicalAreaTreeUpdated(LogicalAreaTree tree)
+    {
+        updateGUIState();
+    }
+
     @Override
     public void registerGUIUpdateListener(GUIUpdateListener listener)
     {
