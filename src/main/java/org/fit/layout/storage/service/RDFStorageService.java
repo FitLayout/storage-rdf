@@ -8,6 +8,7 @@ package org.fit.layout.storage.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.fit.layout.api.PageSet;
 import org.fit.layout.api.PageSetStorage;
 import org.fit.layout.api.PageStorage;
 import org.fit.layout.gui.GUIUpdateListener;
@@ -60,6 +61,15 @@ public class RDFStorageService implements PageStorage, PageSetStorage
         updateListeners.add(listener);
         if (plugin != null)
             plugin.registerGUIUpdateListener(listener);
+    }
+
+    @Override
+    public PageSet getCurrentPageSet()
+    {
+        if (plugin != null && plugin.isConnected())
+            return plugin.getSelectedPageSet();
+        else
+            return null;
     }
 
     @Override
