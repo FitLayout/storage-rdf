@@ -91,6 +91,7 @@ public class AreaModelLoader extends ModelLoader
             RDFAreaTree atree = new RDFAreaTree(page, areaTreeUri);
             Map<URI, RDFArea> areaUris = new LinkedHashMap<URI, RDFArea>();
             RDFArea root = constructVisualAreaTree(model, areaUris);
+            recursiveUpdateTopologies(root);
             atree.setRoot(root);
             atree.setAreaUris(areaUris);
             return atree;
@@ -274,6 +275,13 @@ public class AreaModelLoader extends ModelLoader
         area.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
         
         return area;
+    }
+    
+    private void recursiveUpdateTopologies(Area root)
+    {
+        for (int i = 0; i < root.getChildCount(); i++)
+            recursiveUpdateTopologies(root.getChildArea(i));
+        root.updateTopologies();
     }
     
     //================================================================================================
