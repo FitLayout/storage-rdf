@@ -814,20 +814,22 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         	        if (pset != null)
         	        {
         	            String message = "Do you want to remove the selected page set?";
-        	            JCheckBox cbox = new JCheckBox("Also delete orpganed pages", true);
+        	            JCheckBox cbox = new JCheckBox("Also delete orphaned pages", true);
         	            if (listPageURIs.size() == 0)
         	            {
         	                cbox.setEnabled(false);
         	                cbox.setSelected(false);
         	            }
         	            Object[] params = { message, cbox };
-                        int response = JOptionPane.showConfirmDialog(getPnl_main(), params, "Confirm",
+                        int response = JOptionPane.showConfirmDialog(btnDelete, params, "Confirm",
                                 JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                         if (response == JOptionPane.YES_OPTION)
                         {
             	            try
                             {
                                 bdi.deletePageSet(pset.getName());
+                                if (cbox.isSelected())
+                                    bdi.removeOrphanedPages();
                             } catch (RepositoryException e) {
                                 e.printStackTrace();
                             }

@@ -31,6 +31,8 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.Binding;
+import org.openrdf.query.BindingSet;
 import org.openrdf.query.GraphQuery;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
@@ -173,6 +175,54 @@ public class RDFStorage
 	{
 	    URI psetUri = RESOURCE.createPageSetURI(psetName);
 	    getConnection().add(psetUri, LAYOUT.containsPage, pageUri);
+	}
+	
+	/**
+	 * Finds all the pages that do not belong to any page set.
+	 * @return a set of page URIs
+	 * @throws RepositoryException 
+	 */
+	public Set<URI> getOrphanedPages() throws RepositoryException
+	{
+        final String query = PREFIXES
+                + "SELECT ?pg "
+                + "WHERE {"
+                + "  ?pg rdf:type box:Page "
+                + "  OPTIONAL { ?set layout:containsPage ?pg } "
+                + "  FILTER ( !BOUND(?set) ) "
+                + "}";
+        
+        System.out.println("QUERY: " + query);
+        TupleQueryResult data = executeSafeTupleQuery(query);
+        Set<URI> ret = new HashSet<URI>();
+        try
+        {
+            while (data.hasNext())
+            {
+                BindingSet binding = data.next();
+                Binding b = binding.getBinding("pg");
+                ret.add((URI) b.getValue());
+            }
+        } catch (QueryEvaluationException e) {
+            e.printStackTrace();
+        }
+	    return ret;
+	}
+	
+	/**
+	 * Removes all the pages that do not belong to any page set. Also removes the corresponding area trees.
+	 * @throws RepositoryException
+	 */
+	public void removeOrphanedPages() throws RepositoryException
+	{
+	    Set<URI> pages = getOrphanedPages();
+	    for (URI page : pages)
+	    {
+	        Set<URI> atrees = getAreaTreeIdsForPageId(page);
+	        for (URI atree : atrees)
+	            removeAreaTree(atree);
+	        removePage(page);
+	    }
 	}
 	
 	/**
