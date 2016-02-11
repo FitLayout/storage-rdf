@@ -217,12 +217,7 @@ public class RDFStorage
 	{
 	    Set<URI> pages = getOrphanedPages();
 	    for (URI page : pages)
-	    {
-	        Set<URI> atrees = getAreaTreeIdsForPageId(page);
-	        for (URI atree : atrees)
-	            removeAreaTree(atree);
 	        removePage(page);
-	    }
 	}
 	
 	/**
@@ -335,13 +330,14 @@ public class RDFStorage
 
 	/**
 	 * Removes a page from the storage. 
-	 * @param pageId
+	 * @param pageUri the page URI
 	 * @throws RepositoryException 
 	 */
-	public void removePage(URI pageId) throws RepositoryException 
+	public void removePage(URI pageUri) throws RepositoryException 
 	{
-		removePageModel(pageId);
-		removePageInfo(pageId);
+	    removeAreaTreesForPage(pageUri);
+		removePageModel(pageUri);
+		removePageInfo(pageUri);
 	}
 
 	/**
@@ -713,19 +709,31 @@ public class RDFStorage
 	//PRIVATE =========================================
 	
 	/**
-	 * Removes the page model together with its area trees.
+	 * Removes the page contents.
 	 * @param pageId
 	 * @throws RepositoryException 
 	 */
 	private void removePageModel(URI pageUri) throws RepositoryException 
 	{
-		//load all area trees
-		Set<URI> areaTreeModels = getAreaTreeIdsForPageId(pageUri);
-		//removes all area trees
-		for(URI areaTreeId : areaTreeModels)
-		    removeAreaTree(areaTreeId);
+        Model mat = getBoxModelForPage(pageUri);
+        mat.addAll(getBorderModelForPage(pageUri));
+        getConnection().remove(mat);
 	}
 
+	/**
+	 * Removes all the area trees that belong to the given page
+	 * @param pageUri
+	 * @throws RepositoryException
+	 */
+	private void removeAreaTreesForPage(URI pageUri) throws RepositoryException
+	{
+        //load all area trees
+        Set<URI> areaTreeModels = getAreaTreeIdsForPageId(pageUri);
+        //removes all area trees
+        for(URI areaTreeId : areaTreeModels)
+            removeAreaTree(areaTreeId);
+	}
+	
 	/**
 	 * Removes the page record.
 	 * @param pageId
