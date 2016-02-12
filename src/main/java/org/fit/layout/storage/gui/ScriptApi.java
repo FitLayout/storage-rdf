@@ -83,6 +83,30 @@ public class ScriptApi implements ScriptObject
         }
     }
     
+    public void removePageSet(String name)
+    {
+        try
+        {
+            bdi.deletePageSet(name);
+        } 
+        catch (RepositoryException e)
+        {
+            werr.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void removeOrphanedPages()
+    {
+        try
+        {
+            bdi.removeOrphanedPages();
+        } 
+        catch (RepositoryException e)
+        {
+            werr.println("Error: " + e.getMessage());
+        }
+    }
+
     public PageSet getPageSet(String name)
     {
         try
@@ -93,6 +117,21 @@ public class ScriptApi implements ScriptObject
         {
             werr.println("Error: " + e.getMessage());
             return null;
+        }
+    }
+    
+    public void addPageToPageSet(Page page, String name)
+    {
+        try
+        {
+            if (page instanceof RDFPage)
+                bdi.addPageToPageSet(((RDFPage) page).getUri(), name);
+            else
+                werr.println("Error: The saved instance of the page is required.");
+        } 
+        catch (RepositoryException e)
+        {
+            werr.println("Error: " + e.getMessage());
         }
     }
     
