@@ -21,7 +21,7 @@ public class RDFConnectorSesame extends RDFConnector
     }
 
     @Override
-    protected void createConnection() throws RepositoryException
+    protected void initRepository() throws RepositoryException
     {
         //analyse the endpoint url in order to obtain the server url and the repository name
         //the expected format is <sevrer_url>/repositories/<repository_ID>

@@ -183,7 +183,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         {
             try
             {
-                bdi.getConnection().close();
+                bdi.closeConnection();
             } catch (RepositoryException e)
             {
                 e.printStackTrace();

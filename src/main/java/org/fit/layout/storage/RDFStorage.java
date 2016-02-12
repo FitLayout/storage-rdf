@@ -78,10 +78,16 @@ public class RDFStorage
 	/**
 	 * Obtains a connection to the current repository.
 	 * @return the repository connection.
+	 * @throws RepositoryException 
 	 */
-	public RepositoryConnection getConnection() 
+	public RepositoryConnection getConnection() throws RepositoryException 
 	{
 		return db.getConnection();
+	}
+	
+	public void closeConnection() throws RepositoryException
+	{
+	    db.closeConnection();
 	}
 	
 	//==============================================================================

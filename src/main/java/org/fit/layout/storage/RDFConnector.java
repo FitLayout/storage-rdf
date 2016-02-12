@@ -24,7 +24,7 @@ import org.openrdf.repository.sparql.SPARQLRepository;
  * @author milicka
  * @author burgetr
  */
-public class RDFConnector 
+public class RDFConnector
 {
 	protected String endpointUrl;
 	protected RepositoryConnection connection;
@@ -38,28 +38,43 @@ public class RDFConnector
 	public RDFConnector(String endpoint) throws RepositoryException 
 	{
 		endpointUrl = endpoint;
-		createConnection();
+		connection = null;
+		initRepository();
 	}
 	
     /**
-     * Obtains current connection to the repository.
-     * @return
+     * Obtains current connection to the repository or opens a new one when no connection
+     * has been opened.
+     * @return the connection object
+     * @throws RepositoryException 
      */
-    public RepositoryConnection getConnection() 
+    public RepositoryConnection getConnection() throws RepositoryException 
     {
+        if (connection == null)
+            connection = repo.getConnection();
         return connection;
     }
 
+    /**
+     * Closes the current connection.
+     * @throws RepositoryException
+     */
+    public void closeConnection() throws RepositoryException
+    {
+        if (connection != null)
+            connection.close();
+        connection = null;
+    }
+    
     /**
      * Creates a new connection.
      * @throws RepositoryException
      * @throws RepositoryConfigException 
      */
-    protected void createConnection() throws RepositoryException
+    protected void initRepository() throws RepositoryException
     {
         repo = new SPARQLRepository(endpointUrl);
         repo.initialize();
-        connection = repo.getConnection();
     }
     
 	/**
