@@ -107,6 +107,7 @@ public class RDFStorage
 	{
 	    URI uri = RESOURCE.createPageSetURI(name);
 	    getConnection().remove(uri, null, null);
+	    closeConnection();
 	}
 	
     public PageSet getPageSet(String name) throws RepositoryException
@@ -134,6 +135,7 @@ public class RDFStorage
             }
         }
         result.close();
+        closeConnection();
         if (ret.getName() == null)
             return null; //not found
         else
@@ -150,6 +152,7 @@ public class RDFStorage
             if (obj instanceof URI)
                 ret.add((URI) obj);
         }
+        closeConnection();
         return ret;
 	}
 	
@@ -174,6 +177,7 @@ public class RDFStorage
             
         }
         result.close();
+        closeConnection();
         return ret;
     }
 	
@@ -181,6 +185,7 @@ public class RDFStorage
 	{
 	    URI psetUri = RESOURCE.createPageSetURI(psetName);
 	    getConnection().add(psetUri, LAYOUT.containsPage, pageUri);
+	    closeConnection();
 	}
 	
 	/**
@@ -270,6 +275,7 @@ public class RDFStorage
 			output.add(url);
 		}
 		result.close();
+		closeConnection();
 		
 		return output;
 	}
@@ -284,6 +290,7 @@ public class RDFStorage
 		RepositoryResult<Statement> result = getConnection().getStatements(null, RDF.TYPE, BOX.Page, true);
 		Set<URI> ret = getSubjectsFromResult(result);
 		result.close();
+		closeConnection();
 		return ret;
 	}
 		
@@ -299,6 +306,7 @@ public class RDFStorage
 		RepositoryResult<Statement> result = getConnection().getStatements(null, BOX.sourceUrl, vf.createLiteral(url), true); 
 		Set<URI> ret = getSubjectsFromResult(result);
 		result.close();
+		closeConnection();
 		return ret;
 	}
 	
@@ -403,6 +411,7 @@ public class RDFStorage
 		result = getConnection().getStatements(pageUri, null, null, true);
 		Model ret = createModel(result);
 		result.close();
+		closeConnection();
 		return ret;
 	}
 
@@ -441,6 +450,7 @@ public class RDFStorage
             }
         }
         result.close();
+        closeConnection();
         return ret;
     }
     
@@ -537,6 +547,7 @@ public class RDFStorage
 		RepositoryResult<Statement> result = getConnection().getStatements(null, SEGM.sourcePage, pageUri, true);
         Set<URI> ret = getSubjectsFromResult(result);
         result.close();
+        closeConnection();
         return ret;
 	}
 	
@@ -593,6 +604,7 @@ public class RDFStorage
         while (result.hasNext())
             mat.add(result.next());
         getConnection().remove(mat);
+        closeConnection();
 	}
 	
 	//others =========================================================================
@@ -621,6 +633,7 @@ public class RDFStorage
 	    RepositoryResult<Statement> result = getSubjectStatements(subject); 
 		Model ret = createModel(result);
 		result.close();
+		closeConnection();
 		return ret;
 	}
 
@@ -644,6 +657,7 @@ public class RDFStorage
 		try {
 			Update upd = getConnection().prepareUpdate(QueryLanguage.SPARQL, "DELETE WHERE { ?s ?p ?o }");
 			upd.execute();
+			closeConnection();
 		} catch (MalformedQueryException | RepositoryException | UpdateExecutionException e) {
 			e.printStackTrace();
 		}
@@ -653,11 +667,13 @@ public class RDFStorage
 	{
         Update upd = getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
         upd.execute();
+        closeConnection();
 	}
 	
     public void importTurtle(String query) throws RDFParseException, RepositoryException, IOException 
     {
         getConnection().add(new StringReader(query), null, RDFFormat.TURTLE);
+        closeConnection();
     }
 
     //sequences ==================================================================
@@ -676,6 +692,7 @@ public class RDFStorage
         {
             Value val = result.next().getObject();
             result.close();
+            closeConnection();
             if (val instanceof Literal)
                 return ((Literal) val).longValue();
             else
@@ -684,6 +701,7 @@ public class RDFStorage
         else
         {
             result.close();
+            closeConnection();
             return 0;
         }
     }
@@ -707,6 +725,7 @@ public class RDFStorage
         ValueFactory vf = ValueFactoryImpl.getInstance();
         getConnection().add(sequence, RDF.VALUE, vf.createLiteral(val));
         getConnection().commit();
+        closeConnection();
         return val;
     }
     
@@ -724,6 +743,7 @@ public class RDFStorage
         Model mat = getBoxModelForPage(pageUri);
         mat.addAll(getBorderModelForPage(pageUri));
         getConnection().remove(mat);
+        closeConnection();
 	}
 
 	/**
@@ -749,6 +769,7 @@ public class RDFStorage
 	{
 		Model m = getPageInfo(pageUri);
 		getConnection().remove(m);
+		closeConnection();
 	}
 	
 	/**
@@ -765,6 +786,7 @@ public class RDFStorage
             GraphQueryResult gqr = pgq.evaluate();
             Model ret = createModel(gqr);
             gqr.close();
+            closeConnection();
             return ret;
         } catch (MalformedQueryException e) {
             e.printStackTrace();
@@ -851,6 +873,7 @@ public class RDFStorage
         getConnection().begin();
 		getConnection().add(graph);
 		getConnection().commit();
+		closeConnection();
 	}
 
 }
