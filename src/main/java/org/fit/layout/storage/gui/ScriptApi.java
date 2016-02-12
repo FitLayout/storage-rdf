@@ -19,7 +19,6 @@ import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.RDFStorage;
 import org.fit.layout.storage.model.RDFPage;
-import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.RepositoryException;
@@ -68,6 +67,18 @@ public class ScriptApi implements ScriptObject
         catch (RepositoryException e)
         {
             werr.println("Couldn't connect: " + e.getMessage());
+        }
+    }
+    
+    public void close()
+    {
+        try
+        {
+            bdi.closeConnection();
+        } 
+        catch (RepositoryException e)
+        {
+            werr.println("Error: " + e.getMessage());
         }
     }
     
@@ -163,13 +174,16 @@ public class ScriptApi implements ScriptObject
         return null;
     }
     
-    public void saveAreaTree(AreaTree atree, LogicalAreaTree ltree, String pageUri)
+    public void saveAreaTree(AreaTree atree, LogicalAreaTree ltree, Page sourcePage)
     {
         if (atree != null) 
         {
             try
             {
-                bdi.insertAreaTree(atree, ltree, new URIImpl(pageUri+"#something"));  //TODO the #suffix is required by bdi implementation
+                if (sourcePage instanceof RDFPage)
+                    bdi.insertAreaTree(atree, ltree, ((RDFPage) sourcePage).getUri());
+                else
+                    werr.println("Error: The saved instance of the page is required.");
             } catch (RepositoryException e) {
                 e.printStackTrace();
             }
