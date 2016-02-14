@@ -46,6 +46,14 @@ public class RDFAreaTree extends DefaultAreaTree implements RDFResource
         this.uri = uri;
     }
 
+    public URI getPageUri()
+    {
+        if (getPage() != null && getPage() instanceof RDFPage)
+            return ((RDFPage) getPage()).getUri();
+        else
+            return null;
+    }
+    
     public Map<URI, RDFArea> getAreaUris()
     {
         return areaUris;

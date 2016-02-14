@@ -11,14 +11,19 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.fit.layout.api.PageSet;
 import org.fit.layout.api.ScriptObject;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.LogicalAreaTree;
 import org.fit.layout.model.Page;
+import org.fit.layout.storage.AreaModelLoader;
 import org.fit.layout.storage.RDFStorage;
 import org.fit.layout.storage.model.RDFPage;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.RepositoryException;
@@ -190,6 +195,48 @@ public class ScriptApi implements ScriptObject
         }
     }
 
+    public Page loadPage(String pageUri)
+    {
+        try
+        {
+            ValueFactory vf = ValueFactoryImpl.getInstance();
+            URI uri = vf.createURI(pageUri);
+            return bdi.loadPage(uri);
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public AreaTree loadAreaTree(String treeUri, RDFPage page)
+    {
+        try
+        {
+            ValueFactory vf = ValueFactoryImpl.getInstance();
+            URI uri = vf.createURI(treeUri);
+            AreaModelLoader loader = bdi.loadAreaTrees(uri, page);
+            return loader.getAreaTree();
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public String[] getAreaTreeURIs(RDFPage page)
+    {
+        try
+        {
+            Set<URI> uris = bdi.getAreaTreeIdsForPageId(page.getUri());
+            String[] ret = new String[uris.size()];
+            int i = 0;
+            for (URI uri : uris)
+                ret[i++] = uri.toString();
+            return ret;
+        } catch (RepositoryException e) {
+            return new String[0];
+        }
+    }
+    
     public void clearDB()
     {
         bdi.clearRDFDatabase();
