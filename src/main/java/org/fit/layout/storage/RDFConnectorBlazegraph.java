@@ -7,7 +7,7 @@ package org.fit.layout.storage;
 
 import org.openrdf.repository.RepositoryException;
 
-//import com.bigdata.rdf.sail.webapp.client.RemoteRepositoryManager;
+import com.bigdata.rdf.sail.webapp.client.RemoteRepositoryManager;
 
 /**
  * 
@@ -25,15 +25,15 @@ public class RDFConnectorBlazegraph extends RDFConnector
     protected void initRepository() throws RepositoryException
     {
         //TODO not supported yet
-        super.initRepository();
-        /*RemoteRepositoryManager mgr = new RemoteRepositoryManager(endpointUrl, true);
-        repo = mgr.getRepositoryForNamespace("user").getBigdataSailRemoteRepository();
+        //super.initRepository();
+        RemoteRepositoryManager mgr = new RemoteRepositoryManager(endpointUrl, false);
+        repo = mgr.getRepositoryForDefaultNamespace().getBigdataSailRemoteRepository();
         try
         {
             mgr.close();
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
     }
     
 }

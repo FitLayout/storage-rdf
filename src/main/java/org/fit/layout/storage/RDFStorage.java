@@ -19,7 +19,6 @@ import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.LAYOUT;
 import org.fit.layout.storage.ontology.RESOURCE;
 import org.fit.layout.storage.ontology.SEGM;
-import org.openrdf.IsolationLevels;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
@@ -720,7 +719,7 @@ public class RDFStorage
     
     public long getNextSequenceValue(String name) throws RepositoryException
     {
-        getConnection().begin(IsolationLevels.SERIALIZABLE);
+        getConnection().begin(); //TODO should be IsolationLevels.SERIALIZABLE but not supported by Sesame 2.7
         URI sequence = RESOURCE.createSequenceURI(name);
         RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false); 
         long val = 0;
