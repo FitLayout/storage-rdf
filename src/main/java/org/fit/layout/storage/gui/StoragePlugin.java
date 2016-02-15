@@ -854,6 +854,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
                             connect(urlstring);
                             fillPageTable();
                             updatePageSets();
+                            updateGUIState();
             	        }
         	        }
         	        else
@@ -861,6 +862,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         	            disconnect();
         	            clearPageTable();
         	            updatePageSets();
+                        updateGUIState();
         	        }
         	    }
         	});
