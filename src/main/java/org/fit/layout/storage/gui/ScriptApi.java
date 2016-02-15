@@ -74,12 +74,18 @@ public class ScriptApi implements ScriptObject
             werr.println("Couldn't connect: " + e.getMessage());
         }
     }
+
+    public boolean isConnected()
+    {
+        return (bdi != null);
+    }
     
     public void close()
     {
         try
         {
             bdi.closeConnection();
+            bdi = null;
         } 
         catch (RepositoryException e)
         {
