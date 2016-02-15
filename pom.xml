@@ -55,6 +55,13 @@
 	</build>
 
 	<dependencies>
+		<!-- blazegraph not supported now because of dependency confilicts and client api bugs -->
+		<!-- <dependency> 
+			<groupId>com.blazegraph</groupId>
+			<artifactId>bigdata-core</artifactId>
+			<version>2.0.0</version>
+		</dependency>  -->
+
 		<dependency>
 			<groupId>org.openrdf.sesame</groupId>
 			<artifactId>sesame-model</artifactId>

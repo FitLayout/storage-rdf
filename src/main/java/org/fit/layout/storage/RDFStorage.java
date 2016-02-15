@@ -47,6 +47,8 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -57,6 +59,8 @@ import org.openrdf.rio.RDFParseException;
  */
 public class RDFStorage 
 {
+    private static Logger log = LoggerFactory.getLogger(RDFStorage.class);
+    
     private static final String PREFIXES =
             "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
             "PREFIX box: <" + BOX.NAMESPACE + "> " +        
@@ -72,7 +76,15 @@ public class RDFStorage
 	 */
 	public RDFStorage(String url) throws RepositoryException
 	{
-		db = new RDFConnectorSesame(url);
+	    if (url.startsWith("sesame:"))
+	        db = new RDFConnectorSesame(url.substring(7));
+	    else if (url.startsWith("blazegraph:"))
+	        db = new RDFConnectorBlazegraph(url.substring(11));
+	    else
+	    {
+	        log.warn("RDFStorage: no provider specified, using generic SPARQL endpoint: {}", url);
+	        db = new RDFConnector(url);
+	    }
 	}
 
 	/**

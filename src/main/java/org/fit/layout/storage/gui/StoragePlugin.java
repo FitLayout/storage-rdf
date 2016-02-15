@@ -169,6 +169,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         }
         catch (Exception e) {
             connected = false;
+            e.printStackTrace();
             JOptionPane.showMessageDialog(getPnl_main(),
                     "Couldn't connect the repository: "+e.getMessage(),
                     "Connection Error",
@@ -848,7 +849,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         	    public void actionPerformed(ActionEvent e) {
         	        if (!connected)
         	        {
-            	        String urlstring = ConnectDialog.show("http://localhost:8080/openrdf-sesame/repositories/user");
+            	        String urlstring = ConnectDialog.show("sesame:http://localhost:8080/openrdf-sesame/repositories/user");
             	        if (urlstring != null)
             	        {
                             connect(urlstring);
