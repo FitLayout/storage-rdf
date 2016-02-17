@@ -50,7 +50,7 @@ public class ScriptApi implements ScriptObject
     }
     
     @Override
-    public String getName()
+    public String getVarName()
     {
         return "storage";
     }
