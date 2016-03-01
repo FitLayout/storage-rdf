@@ -251,7 +251,9 @@ public class ScriptApi implements ScriptObject
     public void execQueryFromResource(String res)
     {
         try {
-            Scanner scan = new Scanner(ClassLoader.getSystemResourceAsStream(res));
+            if (!res.startsWith("/"))
+                res = "/" + res;
+            Scanner scan = new Scanner(ScriptApi.class.getResourceAsStream(res));
             String query = scan.useDelimiter("\\Z").next();
             scan.close();
             bdi.execSparqlUpdate(query);
@@ -271,7 +273,9 @@ public class ScriptApi implements ScriptObject
     
     public void importTurtleFromResource(String res)
     {
-        Scanner scan = new Scanner(ClassLoader.getSystemResourceAsStream(res));
+        if (!res.startsWith("/"))
+            res = "/" + res;
+        Scanner scan = new Scanner(ScriptApi.class.getResourceAsStream(res));
         String turtle = scan.useDelimiter("\\Z").next();
         scan.close();
         try {
