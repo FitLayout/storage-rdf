@@ -256,6 +256,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
     private void clearPageTable()
     {
         listData.removeAllElements();
+        listPageURIs.removeAllElements();
         listTreeURIs.removeAllElements();
         updatePageTable();
     }
@@ -263,6 +264,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
     private void fillPageTable()
     {
         listData.removeAllElements();
+        listPageURIs.removeAllElements();
         listTreeURIs.removeAllElements();
         PageSet pset = getSelectedPageSet();
         if (pset != null)
