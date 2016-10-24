@@ -32,6 +32,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,12 @@ public class AreaModelLoader extends ModelLoader
             final URI pred = st.getPredicate();
             final Value value = st.getObject();
             
-            if (BOX.backgroundColor.equals(pred)) 
+            if (RDFS.LABEL.equals(pred))
+            {
+                String name = value.stringValue();
+                area.setName(name);
+            }
+            else if (BOX.backgroundColor.equals(pred)) 
             {
                 String bgColor = value.stringValue();
                 area.setBackgroundColor( hex2Rgb( bgColor ) );

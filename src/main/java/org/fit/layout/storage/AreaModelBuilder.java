@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.fit.layout.impl.DefaultArea;
 import org.fit.layout.model.Area;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.Box;
@@ -22,6 +23,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 
 /**
  * Implements an RDF graph construction from an area tree. 
@@ -109,6 +111,8 @@ public class AreaModelBuilder
 	{
 		final URI individual = RESOURCE.createAreaURI(areaTreeNode, area);
 		graph.add(individual, RDF.TYPE, SEGM.Area);
+		if (area instanceof DefaultArea && ((DefaultArea) area).getName() != null)
+		    graph.add(individual, RDFS.LABEL, vf.createLiteral(((DefaultArea) area).getName()));
 		graph.add(individual, BOX.documentOrder, vf.createLiteral(next_order++));
         graph.add(individual, SEGM.belongsTo, this.areaTreeNode);
 
