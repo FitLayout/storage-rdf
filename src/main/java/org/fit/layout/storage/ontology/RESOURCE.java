@@ -49,8 +49,14 @@ public class RESOURCE
     
     public static URI createBorderURI(URI boxUri, String side)
     {
-        String name = boxUri.getLocalName() + "B" + side;
-        return factory.createURI(boxUri.getNamespace(), name);
+        String localName = boxUri.getLocalName() + "B" + side;
+        return factory.createURI(boxUri.getNamespace(), localName);
+    }
+    
+    public static URI createAttributeURI(URI boxUri, String name)
+    {
+        String localName = boxUri.getLocalName() + "-attr-" + name;
+        return factory.createURI(boxUri.getNamespace(), localName);
     }
     
     public static URI createAreaTreeURI(long seq)

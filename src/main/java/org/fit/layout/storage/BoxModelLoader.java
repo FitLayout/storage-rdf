@@ -41,6 +41,7 @@ public class BoxModelLoader extends ModelLoader
     private RDFStorage storage;
     private URI pageUri;
     private Model borderModel;
+    private Model attributeModel;
     private RDFPage page;
     
 
@@ -277,6 +278,15 @@ public class BoxModelLoader extends ModelLoader
             {
                 box.setTagName(value.stringValue());
             }
+            else if (BOX.hasAttribute.equals(pred))
+            {
+                if (value instanceof URI)
+                {
+                    Map.Entry<String, String> attr = createAttribute(getAttributeModel(), (URI) value);
+                    if (attr != null)
+                        box.setAttribute(attr.getKey(), attr.getValue());
+                }
+            }
         }
         box.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
         box.setContentBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
@@ -290,6 +300,13 @@ public class BoxModelLoader extends ModelLoader
         if (borderModel == null)
             borderModel = storage.getBorderModelForPage(pageUri);
         return borderModel;
+    }
+    
+    private Model getAttributeModel() throws RepositoryException
+    {
+        if (attributeModel == null)
+            attributeModel = storage.getAttributeModelForPage(pageUri);
+        return attributeModel;
     }
     
 }

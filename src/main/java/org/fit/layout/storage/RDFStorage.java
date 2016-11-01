@@ -410,6 +410,22 @@ public class RDFStorage
         return executeSafeQuery(query);
     }
     
+    /**
+     * Gets page attribute model from the unique page ID.
+     * @param pageId
+     * @return
+     * @throws RepositoryException 
+     */
+    public Model getAttributeModelForPage(URI pageId) throws RepositoryException
+    {
+        final String query = PREFIXES
+                + "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . "
+                + "?b rdf:type box:Box . " 
+                + "?b box:belongsTo <" + pageId.toString() + "> . "
+                + "?b box:hasAttribute ?s}";
+        return executeSafeQuery(query);
+    }
+    
 	/**
 	 * Loads the page info - sourceUrl, launchDateTime, ...
 	 * @param pageId

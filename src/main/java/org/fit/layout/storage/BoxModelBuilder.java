@@ -1,6 +1,7 @@
 package org.fit.layout.storage;
 
 import java.awt.Color;
+import java.util.Map;
 
 import org.fit.layout.model.Border;
 import org.fit.layout.model.Border.Side;
@@ -15,6 +16,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 
 /**
  * Implements an RDF graph construction from a page box model. 
@@ -100,6 +102,14 @@ public class BoxModelBuilder
 		if (box.getTagName() != null)
 		    graph.add(individual, BOX.htmlTagName, vf.createLiteral(box.getTagName()));
 		
+		//attributes
+		Map<String, String> attrs = box.getAttributes();
+		for (Map.Entry<String, String> attr : attrs.entrySet())
+		{
+		    URI attrUri = insertAttribute(individual, attr.getKey(), attr.getValue());
+		    graph.add(individual, BOX.hasAttribute, attrUri);
+		}
+		
 		// store position and size of element
 		Rectangular content = box.getContentBounds();
 		graph.add(individual, BOX.height, vf.createLiteral(content.getHeight()));
@@ -161,6 +171,14 @@ public class BoxModelBuilder
 	    graph.add(uri, BOX.borderWidth, vf.createLiteral(border.getWidth()));
 	    graph.add(uri, BOX.borderStyle, vf.createLiteral(border.getStyle().toString()));
         graph.add(uri, BOX.borderColor, vf.createLiteral(colorString(border.getColor())));
+	    return uri;
+	}
+	
+	private URI insertAttribute(URI boxUri, String name, String value)
+	{
+	    URI uri = RESOURCE.createAttributeURI(boxUri, name);
+	    graph.add(uri, RDFS.LABEL, vf.createLiteral(name));
+	    graph.add(uri, RDF.VALUE, vf.createLiteral(value));
 	    return uri;
 	}
 
