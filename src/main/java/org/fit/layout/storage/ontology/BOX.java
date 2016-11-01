@@ -166,6 +166,13 @@ public class BOX {
 	public static final URI fontWeight;
 
 	/**
+	 * {@code http://fitlayout.github.io/ontology/render.owl#hasAttribute}.
+	 *
+	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#hasAttribute">hasAttribute</a>
+	 */
+	public static final URI hasAttribute;
+
+	/**
 	 * {@code http://fitlayout.github.io/ontology/render.owl#hasBottomBorder}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/render.owl#hasBottomBorder">hasBottomBorder</a>
@@ -373,6 +380,7 @@ public class BOX {
 		fontStyle = factory.createURI(BOX.NAMESPACE, "fontStyle");
 		fontVariant = factory.createURI(BOX.NAMESPACE, "fontVariant");
 		fontWeight = factory.createURI(BOX.NAMESPACE, "fontWeight");
+		hasAttribute = factory.createURI(BOX.NAMESPACE, "hasAttribute");
 		hasBottomBorder = factory.createURI(BOX.NAMESPACE, "hasBottomBorder");
 		hasLeftBorder = factory.createURI(BOX.NAMESPACE, "hasLeftBorder");
 		hasRightBorder = factory.createURI(BOX.NAMESPACE, "hasRightBorder");
