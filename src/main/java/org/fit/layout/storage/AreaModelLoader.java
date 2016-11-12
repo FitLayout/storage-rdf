@@ -152,6 +152,11 @@ public class AreaModelLoader extends ModelLoader
                 String name = value.stringValue();
                 area.setName(name);
             }
+            else if (BOX.documentOrder.equals(pred))
+            {
+                if (value instanceof Literal)
+                    area.setDocumentOrder(((Literal) value).intValue());
+            }
             else if (BOX.backgroundColor.equals(pred)) 
             {
                 String bgColor = value.stringValue();
@@ -279,6 +284,7 @@ public class AreaModelLoader extends ModelLoader
             }
         }
         area.setBounds(new Rectangular(x, y, x + width - 1, y + height - 1));
+        area.sortBoxes();
         
         return area;
     }

@@ -16,6 +16,7 @@ import org.openrdf.model.URI;
 public class RDFBox extends DefaultBox implements RDFResource
 {
     protected URI uri;
+    protected int documentOrder;
 
     public RDFBox(URI uri)
     {
@@ -33,6 +34,16 @@ public class RDFBox extends DefaultBox implements RDFResource
     {
         this.uri = uri;
         setId(Integer.parseInt(uri.getLocalName()));
+    }
+
+    public int getDocumentOrder()
+    {
+        return documentOrder;
+    }
+
+    public void setDocumentOrder(int documentOrder)
+    {
+        this.documentOrder = documentOrder;
     }
 
     @Override

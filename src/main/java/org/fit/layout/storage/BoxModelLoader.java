@@ -151,7 +151,12 @@ public class BoxModelLoader extends ModelLoader
             final URI pred = st.getPredicate();
             final Value value = st.getObject();
             
-            if (BOX.backgroundColor.equals(pred)) 
+            if (BOX.documentOrder.equals(pred))
+            {
+                if (value instanceof Literal)
+                    box.setDocumentOrder(((Literal) value).intValue());
+            }
+            else if (BOX.backgroundColor.equals(pred)) 
             {
                 String bgColor = value.stringValue();
                 //bgColor = bgColor.substring(1,bgColor.length());
