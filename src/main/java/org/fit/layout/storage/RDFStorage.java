@@ -155,15 +155,26 @@ public class RDFStorage
 	
 	public List<URI> getPagesForPageSet(URI pageSetUri) throws RepositoryException
 	{
-	    List<URI> ret = new ArrayList<URI>();
-        RepositoryResult<Statement> result = getConnection().getStatements(pageSetUri, LAYOUT.containsPage, null, false);
-        while (result.hasNext()) 
+        final String query = PREFIXES
+                + "SELECT ?uri "
+                + "WHERE {"
+                + "  <" + pageSetUri.toString() + "> layout:containsPage ?uri . "
+                + "  ?uri rdf:type box:Page "
+                + "}";
+        System.out.println("QUERY: " + query);
+        TupleQueryResult data = executeSafeTupleQuery(query);
+        List<URI> ret = new ArrayList<URI>();
+        try
         {
-            Value obj = result.next().getObject();
-            if (obj instanceof URI)
-                ret.add((URI) obj);
+            while (data.hasNext())
+            {
+                BindingSet binding = data.next();
+                Binding b = binding.getBinding("uri");
+                ret.add((URI) b.getValue());
+            }
+        } catch (QueryEvaluationException e) {
+            e.printStackTrace();
         }
-        closeConnection();
         return ret;
 	}
 	
