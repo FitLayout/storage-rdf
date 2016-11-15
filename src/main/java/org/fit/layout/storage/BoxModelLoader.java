@@ -18,6 +18,8 @@ import org.fit.layout.model.Border.Side;
 import org.fit.layout.model.Box.Type;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.storage.model.RDFBox;
+import org.fit.layout.storage.model.RDFContentImage;
+import org.fit.layout.storage.model.RDFContentObject;
 import org.fit.layout.storage.model.RDFPage;
 import org.fit.layout.storage.ontology.BOX;
 import org.openrdf.model.Literal;
@@ -236,8 +238,36 @@ public class BoxModelLoader extends ModelLoader
             }
             else if (BOX.hasText.equals(pred)) 
             {
-                box.setType(Type.TEXT_CONTENT);
+                if (box.getType() != Type.REPLACED_CONTENT) //once it is a replaced box, do not change it back to text box
+                    box.setType(Type.TEXT_CONTENT);
                 box.setText(value.stringValue());
+            }
+            else if (BOX.containsImage.equals(pred))
+            {
+                box.setType(Type.REPLACED_CONTENT);
+                if (value instanceof URI)
+                {
+                    RDFContentImage obj = new RDFContentImage((URI) value);
+                    Value val = storage.getPropertyValue((URI) value, BOX.imageUrl);
+                    if (val != null && val instanceof Literal)
+                    {
+                        try {
+                            obj.setUrl(((Literal) val).stringValue());
+                        } catch (MalformedURLException e) {
+                            log.error(e.getMessage());
+                        }
+                    }   
+                    box.setContentObject(obj);
+                }
+            }
+            else if (BOX.containsObject.equals(pred))
+            {
+                box.setType(Type.REPLACED_CONTENT);
+                if (value instanceof URI)
+                {
+                    RDFContentObject obj = new RDFContentObject((URI) value);
+                    box.setContentObject(obj);
+                }
             }
             else if (BOX.height.equals(pred)) 
             {

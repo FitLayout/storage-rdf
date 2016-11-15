@@ -661,6 +661,22 @@ public class RDFStorage
 	}
 	
 	/**
+	 * Obtains the value of the given predicate for the given subject.
+	 * @param subject the subject resource
+	 * @param predicate the predicate URI
+	 * @return the resulting Value or {@code null} when there is no corresponding triplet available.
+	 * @throws RepositoryException
+	 */
+	public Value getPropertyValue(Resource subject, URI predicate) throws RepositoryException
+	{
+	    RepositoryResult<Statement> result = getConnection().getStatements(subject, predicate, null, true);
+	    if (result.hasNext())
+	        return result.next().getObject();
+	    else
+	        return null;
+	}
+	
+	/**
 	 * Obtains a model for the specific subject.
 	 * @param subject
 	 * @return

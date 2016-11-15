@@ -7,6 +7,8 @@ import org.fit.layout.model.Border;
 import org.fit.layout.model.Border.Side;
 import org.fit.layout.model.Box;
 import org.fit.layout.model.Box.Type;
+import org.fit.layout.model.ContentImage;
+import org.fit.layout.model.ContentObject;
 import org.fit.layout.model.Page;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.storage.ontology.BOX;
@@ -17,6 +19,8 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
+import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
 
 /**
  * Implements an RDF graph construction from a page box model. 
@@ -131,6 +135,29 @@ public class BoxModelBuilder
 		if (box.getType() == Type.TEXT_CONTENT) 
 		{
 			graph.add(individual, BOX.hasText, vf.createLiteral(box.getText()));
+		}
+		else if (box.getType() == Type.REPLACED_CONTENT)
+		{
+		    ContentObject obj = box.getContentObject();
+		    try
+            {
+                URI objuri = (new UUID()).evaluate(vf);
+                if (obj instanceof ContentImage)
+                {
+                    graph.add(objuri, RDF.TYPE, BOX.Image);
+                    java.net.URL url = ((ContentImage) obj).getUrl();
+                    if (url != null)
+                        graph.add(objuri, BOX.imageUrl, vf.createLiteral(url.toString()));
+                    graph.add(individual, BOX.containsImage, objuri);
+                }
+                else
+                {
+                    graph.add(objuri, RDF.TYPE, BOX.ContentObject);
+                    graph.add(individual, BOX.containsObject, objuri);
+                }
+            } catch (ValueExprEvaluationException e) {
+                e.printStackTrace();
+            }
 		}
 		// font attributes
 		graph.add(individual, BOX.fontFamily, vf.createLiteral(box.getFontFamily()));

@@ -56,7 +56,10 @@ public class RDFBox extends DefaultBox implements RDFResource
         }
         else if (getType() == Box.Type.REPLACED_CONTENT)
         {
-            ret += "OBJECT";
+            if (getContentObject() != null)
+                ret += getContentObject().toString();
+            else
+                ret += "(null object)";
         }
         else
         {
