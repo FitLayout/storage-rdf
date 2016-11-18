@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 
 import org.fit.layout.api.PageSet;
 import org.fit.layout.api.PageStorage;
+import org.fit.layout.api.ScriptObject;
 import org.fit.layout.api.ServiceManager;
 import org.fit.layout.gui.Browser;
 import org.fit.layout.gui.BrowserPlugin;
@@ -134,6 +135,12 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
             if (storage instanceof RDFStorageService)
                 ((RDFStorageService) storage).setPlugin(this);
         }
+        Map<String, ScriptObject> scripts = ServiceManager.findScriptObjects();
+        for (ScriptObject script : scripts.values())
+        {
+            if (script instanceof ScriptApi)
+                ((ScriptApi) script).setPlugin(this);
+        }
     }
     
     @Override
@@ -158,6 +165,34 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
     public void registerGUIUpdateListener(GUIUpdateListener listener)
     {
         updateListeners.add(listener);
+    }
+    
+    public void setStorage(RDFStorage storage)
+    {
+        try {
+            bdi = storage;
+            bdi.getLastSequenceValue("box"); //just for checking the connection
+            connected = true;
+        }
+        catch (Exception e) {
+            connected = false;
+            e.printStackTrace();
+        }
+        updateStorageState();
+    }
+    
+    public void updateStorageState()
+    {
+        fillPageTable();
+        updatePageSets();
+        updateGUIState();
+    }
+    
+    public void closeStorage()
+    {
+        clearPageTable();
+        updatePageSets();
+        updateGUIState();
     }
     
     private void connect(String DBConnectionUrl)
@@ -204,7 +239,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         return listData;
     }
     
-    private void updateGUIState()
+    public void updateGUIState()
     {
         if (connected)
         {

@@ -42,11 +42,17 @@ public class ScriptApi implements ScriptObject
     private PrintWriter werr;
     
     private RDFStorage bdi;
+    private StoragePlugin plugin;
 
     
     public ScriptApi()
     {
-        
+        plugin = null;
+    }
+    
+    public void setPlugin(StoragePlugin plugin)
+    {
+        this.plugin = plugin;
     }
     
     @Override
@@ -68,6 +74,8 @@ public class ScriptApi implements ScriptObject
         try
         {
             bdi = new RDFStorage(uri);
+            if (plugin != null)
+                plugin.setStorage(bdi);
         } 
         catch (RepositoryException e)
         {
@@ -86,6 +94,8 @@ public class ScriptApi implements ScriptObject
         {
             bdi.closeConnection();
             bdi = null;
+            if (plugin != null)
+                plugin.closeStorage();
         } 
         catch (RepositoryException e)
         {
@@ -98,6 +108,8 @@ public class ScriptApi implements ScriptObject
         try
         {
             bdi.createPageSet(name);
+            if (plugin != null)
+                plugin.updateStorageState();
         } 
         catch (RepositoryException e)
         {
@@ -110,6 +122,8 @@ public class ScriptApi implements ScriptObject
         try
         {
             bdi.deletePageSet(name);
+            if (plugin != null)
+                plugin.updateStorageState();
         } 
         catch (RepositoryException e)
         {
@@ -122,6 +136,8 @@ public class ScriptApi implements ScriptObject
         try
         {
             bdi.removeOrphanedPages();
+            if (plugin != null)
+                plugin.updateStorageState();
         } 
         catch (RepositoryException e)
         {
@@ -147,7 +163,11 @@ public class ScriptApi implements ScriptObject
         try
         {
             if (page instanceof RDFPage)
+            {
                 bdi.addPageToPageSet(((RDFPage) page).getUri(), name);
+                if (plugin != null)
+                    plugin.updateStorageState();
+            }
             else
                 werr.println("Error: The saved instance of the page is required.");
         } 
@@ -163,7 +183,10 @@ public class ScriptApi implements ScriptObject
         {
             try
             {
-                return bdi.insertPageBoxModel(page);
+                RDFPage ret = bdi.insertPageBoxModel(page);
+                if (plugin != null)
+                    plugin.updateStorageState();
+                return ret;
             } catch (RepositoryException e) {
                 werr.println("Couldn't save the box tree: " + e.getMessage());
             }
@@ -192,7 +215,11 @@ public class ScriptApi implements ScriptObject
             try
             {
                 if (sourcePage instanceof RDFPage)
+                {
                     bdi.insertAreaTree(atree, ltree, ((RDFPage) sourcePage).getUri());
+                    if (plugin != null)
+                        plugin.updateStorageState();
+                }
                 else
                     werr.println("Error: The saved instance of the page is required.");
             } catch (RepositoryException e) {
@@ -246,6 +273,8 @@ public class ScriptApi implements ScriptObject
     public void clearDB()
     {
         bdi.clearRDFDatabase();
+        if (plugin != null)
+            plugin.updateStorageState();
     }
     
     public void execQueryFromResource(String res)
@@ -266,6 +295,8 @@ public class ScriptApi implements ScriptObject
     {
         try {
             bdi.importTurtle(turtle);
+            if (plugin != null)
+                plugin.updateStorageState();
         } catch (RDFParseException | RepositoryException | IOException e) {
             werr.println("Couldn't import Turtle data: " + e.getMessage());
         }
@@ -280,6 +311,8 @@ public class ScriptApi implements ScriptObject
         scan.close();
         try {
             bdi.importTurtle(turtle);
+            if (plugin != null)
+                plugin.updateStorageState();
         } catch (RDFParseException | RepositoryException | IOException e) {
             werr.println("Couldn't import Turtle data: " + e.getMessage());
         }
