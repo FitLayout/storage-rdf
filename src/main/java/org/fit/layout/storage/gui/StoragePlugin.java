@@ -8,8 +8,11 @@ package org.fit.layout.storage.gui;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -911,6 +914,16 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         if (pageTable == null) {
         	pageTable = new JTable();
         	pageTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        	pageTable.addMouseListener(new MouseAdapter() {
+        	    public void mousePressed(MouseEvent me) {
+        	        JTable table =(JTable) me.getSource();
+        	        Point p = me.getPoint();
+        	        int row = table.rowAtPoint(p);
+        	        if (me.getClickCount() == 2 && row != -1) {
+        	            loadSelectedPage();
+        	        }
+        	    }
+        	});
         }
         return pageTable;
     }
