@@ -46,8 +46,24 @@ public class RDFPageSet extends AbstractPageSet
         {
             return storage.getPagesForPageSet(uri).size();
         } catch (RepositoryException e) {
-            e.printStackTrace();
+            log.error("Error: " + e.getMessage());
             return 0;
+        }
+    }
+
+    @Override
+    public Page get(int index) throws IndexOutOfBoundsException
+    {
+        try
+        {
+            List<URI> uris = storage.getPagesForPageSet(uri);
+            if (index < uris.size())
+                return storage.loadPage(uris.get(index));
+            else
+                throw new IndexOutOfBoundsException("Page index out of bounds: " + index + " >= " + uris.size()); 
+        } catch (RepositoryException e) {
+            log.error("Error: " + e.getMessage());
+            return null;
         }
     }
 
