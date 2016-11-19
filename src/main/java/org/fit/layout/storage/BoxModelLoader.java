@@ -142,7 +142,7 @@ public class BoxModelLoader extends ModelLoader
     private RDFBox createBoxFromModel(Model model, URI uri) throws RepositoryException
     {
         RDFBox box = new RDFBox(uri);
-        box.setTagName("unknown");
+        box.setTagName("");
         box.setType(Box.Type.ELEMENT);
         box.setDisplayType(Box.DisplayType.BLOCK);
         int x = 0, y = 0, width = 0, height = 0;
