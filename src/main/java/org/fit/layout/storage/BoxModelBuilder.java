@@ -72,16 +72,16 @@ public class BoxModelBuilder
 
 	/**
 	 * Recursively inserts the child boxes of a root box into the grapgh.
-	 * @param root
+	 * @param root the root box of the subtree to be inserted
 	 */
 	private void insertChildBoxes(Box root) 
 	{
-		// insert the boxes themselves
 		for (int i = 0; i < root.getChildCount(); i++)
-			insertBox(root.getChildBox(i));
-		// recursively insert children
-		for (int i = 0; i < root.getChildCount(); i++)
-			insertChildBoxes(root.getChildBox(i));
+		{
+		    final Box child = root.getChildBox(i); 
+			insertBox(child);
+			insertChildBoxes(child);
+		}
 	}
 
 	/**
