@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>cz.vutbr.fit.layout</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.3-SNAPSHOT</version>
+		<version>0.0.3</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -39,7 +39,7 @@
 		<url>https://github.com/FitLayout/storage-rdf</url>
 		<connection>scm:git:git@github.com:FitLayout/storage-rdf.git</connection>
 		<developerConnection>scm:git:git@github.com:FitLayout/storage-rdf.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>layout-storage-rdf-0.0.3</tag>
     </scm>
 
 	<build>
