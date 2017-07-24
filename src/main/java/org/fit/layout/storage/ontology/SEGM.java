@@ -1,8 +1,8 @@
 package org.fit.layout.storage.ontology;
 
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /**
  * Namespace SEGM.
@@ -21,132 +21,132 @@ public class SEGM {
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#Area">Area</a>
 	 */
-	public static final URI Area;
+	public static final IRI Area;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#AreaTree}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#AreaTree">AreaTree</a>
 	 */
-	public static final URI AreaTree;
+	public static final IRI AreaTree;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#belongsTo}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#belongsTo">belongsTo</a>
 	 */
-	public static final URI belongsTo;
+	public static final IRI belongsTo;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#containsArea}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#containsArea">containsArea</a>
 	 */
-	public static final URI containsArea;
+	public static final IRI containsArea;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#containsBox}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#containsBox">containsBox</a>
 	 */
-	public static final URI containsBox;
+	public static final IRI containsBox;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#hasName}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#hasName">hasName</a>
 	 */
-	public static final URI hasName;
+	public static final IRI hasName;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#hasTag}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#hasTag">hasTag</a>
 	 */
-	public static final URI hasTag;
+	public static final IRI hasTag;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#hasText}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#hasText">hasText</a>
 	 */
-	public static final URI hasText;
+	public static final IRI hasText;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#hasType}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#hasType">hasType</a>
 	 */
-	public static final URI hasType;
+	public static final IRI hasType;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#isChildOf}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#isChildOf">isChildOf</a>
 	 */
-	public static final URI isChildOf;
+	public static final IRI isChildOf;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#isSubordinateTo}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#isSubordinateTo">isSubordinateTo</a>
 	 */
-	public static final URI isSubordinateTo;
+	public static final IRI isSubordinateTo;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#LogicalArea}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#LogicalArea">LogicalArea</a>
 	 */
-	public static final URI LogicalArea;
+	public static final IRI LogicalArea;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#sourcePage}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#sourcePage">sourcePage</a>
 	 */
-	public static final URI sourcePage;
+	public static final IRI sourcePage;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#support}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#support">support</a>
 	 */
-	public static final URI support;
+	public static final IRI support;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#Tag}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#Tag">Tag</a>
 	 */
-	public static final URI Tag;
+	public static final IRI Tag;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/segmentation.owl#tagSupport}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/segmentation.owl#tagSupport">tagSupport</a>
 	 */
-	public static final URI tagSupport;
+	public static final IRI tagSupport;
 
 	static {
-		ValueFactory factory = ValueFactoryImpl.getInstance();
+		ValueFactory factory = SimpleValueFactory.getInstance();
 
-		Area = factory.createURI(SEGM.NAMESPACE, "Area");
-		AreaTree = factory.createURI(SEGM.NAMESPACE, "AreaTree");
-		belongsTo = factory.createURI(SEGM.NAMESPACE, "belongsTo");
-		containsArea = factory.createURI(SEGM.NAMESPACE, "containsArea");
-		containsBox = factory.createURI(SEGM.NAMESPACE, "containsBox");
-		hasName = factory.createURI(SEGM.NAMESPACE, "hasName");
-		hasTag = factory.createURI(SEGM.NAMESPACE, "hasTag");
-		hasText = factory.createURI(SEGM.NAMESPACE, "hasText");
-		hasType = factory.createURI(SEGM.NAMESPACE, "hasType");
-		isChildOf = factory.createURI(SEGM.NAMESPACE, "isChildOf");
-		isSubordinateTo = factory.createURI(SEGM.NAMESPACE, "isSubordinateTo");
-		LogicalArea = factory.createURI(SEGM.NAMESPACE, "LogicalArea");
-		sourcePage = factory.createURI(SEGM.NAMESPACE, "sourcePage");
-		support = factory.createURI(SEGM.NAMESPACE, "support");
-		Tag = factory.createURI(SEGM.NAMESPACE, "Tag");
-		tagSupport = factory.createURI(SEGM.NAMESPACE, "tagSupport");
+		Area = factory.createIRI(SEGM.NAMESPACE, "Area");
+		AreaTree = factory.createIRI(SEGM.NAMESPACE, "AreaTree");
+		belongsTo = factory.createIRI(SEGM.NAMESPACE, "belongsTo");
+		containsArea = factory.createIRI(SEGM.NAMESPACE, "containsArea");
+		containsBox = factory.createIRI(SEGM.NAMESPACE, "containsBox");
+		hasName = factory.createIRI(SEGM.NAMESPACE, "hasName");
+		hasTag = factory.createIRI(SEGM.NAMESPACE, "hasTag");
+		hasText = factory.createIRI(SEGM.NAMESPACE, "hasText");
+		hasType = factory.createIRI(SEGM.NAMESPACE, "hasType");
+		isChildOf = factory.createIRI(SEGM.NAMESPACE, "isChildOf");
+		isSubordinateTo = factory.createIRI(SEGM.NAMESPACE, "isSubordinateTo");
+		LogicalArea = factory.createIRI(SEGM.NAMESPACE, "LogicalArea");
+		sourcePage = factory.createIRI(SEGM.NAMESPACE, "sourcePage");
+		support = factory.createIRI(SEGM.NAMESPACE, "support");
+		Tag = factory.createIRI(SEGM.NAMESPACE, "Tag");
+		tagSupport = factory.createIRI(SEGM.NAMESPACE, "tagSupport");
 	}
 
 	private SEGM() {

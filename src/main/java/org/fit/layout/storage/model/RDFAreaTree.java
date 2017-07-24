@@ -7,10 +7,10 @@ package org.fit.layout.storage.model;
 
 import java.util.Map;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.fit.layout.impl.DefaultAreaTree;
 import org.fit.layout.model.AreaTree;
 import org.fit.layout.model.Page;
-import org.openrdf.model.URI;
 
 /**
  * 
@@ -18,74 +18,74 @@ import org.openrdf.model.URI;
  */
 public class RDFAreaTree extends DefaultAreaTree implements RDFResource
 {
-    protected URI uri;
-    protected Map<URI, RDFArea> areaUris;
-    protected Map<URI, RDFLogicalArea> logicalAreaUris;
+    protected IRI iri;
+    protected Map<IRI, RDFArea> areaIris;
+    protected Map<IRI, RDFLogicalArea> logicalAreaIris;
 
 
-    public RDFAreaTree(Page page, URI uri)
+    public RDFAreaTree(Page page, IRI iri)
     {
         super(page);
-        this.uri = uri;
+        this.iri = iri;
     }
     
-    public RDFAreaTree(AreaTree src, URI uri)
+    public RDFAreaTree(AreaTree src, IRI iri)
     {
         super(src);
-        this.uri = uri;
+        this.iri = iri;
     }
 
     @Override
-    public URI getUri()
+    public IRI getIri()
     {
-        return uri;
+        return iri;
     }
 
-    public void setUri(URI uri)
+    public void setIri(IRI iri)
     {
-        this.uri = uri;
+        this.iri = iri;
     }
 
-    public URI getPageUri()
+    public IRI getPageIri()
     {
         if (getPage() != null && getPage() instanceof RDFPage)
-            return ((RDFPage) getPage()).getUri();
+            return ((RDFPage) getPage()).getIri();
         else
             return null;
     }
     
-    public Map<URI, RDFArea> getAreaUris()
+    public Map<IRI, RDFArea> getAreaUris()
     {
-        return areaUris;
+        return areaIris;
     }
 
-    public void setAreaUris(Map<URI, RDFArea> areaUris)
+    public void setAreaIris(Map<IRI, RDFArea> areaIris)
     {
-        this.areaUris = areaUris;
+        this.areaIris = areaIris;
     }
     
-    public RDFArea findAreaByUri(URI uri)
+    public RDFArea findAreaByIri(IRI iri)
     {
-        if (areaUris != null)
-            return areaUris.get(uri);
+        if (areaIris != null)
+            return areaIris.get(iri);
         else
             return null;
     }
 
-    public Map<URI, RDFLogicalArea> getLogicalAreaUris()
+    public Map<IRI, RDFLogicalArea> getLogicalAreaIris()
     {
-        return logicalAreaUris;
+        return logicalAreaIris;
     }
 
-    public void setLogicalAreaUris(Map<URI, RDFLogicalArea> logicalAreaUris)
+    public void setLogicalAreaUris(Map<IRI, RDFLogicalArea> logicalAreaIris)
     {
-        this.logicalAreaUris = logicalAreaUris;
+        this.logicalAreaIris = logicalAreaIris;
     }
     
-    public RDFLogicalArea findLogicalAreaByUri(URI uri)
+    public RDFLogicalArea findLogicalAreaByUri(IRI iri)
     {
-        if (logicalAreaUris != null)
-            return logicalAreaUris.get(uri);
+        if (logicalAreaIris != null)
+            return logicalAreaIris.get(iri);
         else
             return null;
     }

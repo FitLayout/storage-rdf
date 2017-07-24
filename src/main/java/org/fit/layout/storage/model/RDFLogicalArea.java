@@ -5,8 +5,8 @@
  */
 package org.fit.layout.storage.model;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.fit.layout.impl.DefaultLogicalArea;
-import org.openrdf.model.URI;
 
 /**
  * 
@@ -14,23 +14,23 @@ import org.openrdf.model.URI;
  */
 public class RDFLogicalArea extends DefaultLogicalArea implements RDFResource
 {
-    protected URI uri;
+    protected IRI iri;
 
-    public RDFLogicalArea(URI uri)
+    public RDFLogicalArea(IRI iri)
     {
         super();
-        setUri(uri);
+        setIri(iri);
     }
 
     @Override
-    public URI getUri()
+    public IRI getIri()
     {
-        return uri;
+        return iri;
     }
 
-    public void setUri(URI uri)
+    public void setIri(IRI uri)
     {
-        this.uri = uri;
+        this.iri = uri;
     }
 
 }

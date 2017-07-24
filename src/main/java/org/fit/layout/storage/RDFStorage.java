@@ -19,33 +19,32 @@ import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.LAYOUT;
 import org.fit.layout.storage.ontology.RESOURCE;
 import org.fit.layout.storage.ontology.SEGM;
-import org.openrdf.model.Graph;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.GraphQuery;
-import org.openrdf.query.GraphQueryResult;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.Update;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.GraphQueryResult;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,9 +104,9 @@ public class RDFStorage
 	
 	public void createPageSet(String name) throws RepositoryException
 	{
-        Graph graph = new LinkedHashModel(); // it holds whole model
-        ValueFactory vf = ValueFactoryImpl.getInstance();
-        URI uri = RESOURCE.createPageSetURI(name);
+        Model graph = new LinkedHashModel(); // it holds whole model
+        ValueFactory vf = SimpleValueFactory.getInstance();
+        IRI uri = RESOURCE.createPageSetURI(name);
         graph.add(uri, RDF.TYPE, LAYOUT.PageSet);
         graph.add(uri, LAYOUT.hasName, vf.createLiteral(name));
         graph.add(uri, LAYOUT.createdOn, vf.createLiteral(new java.util.Date()));
@@ -116,7 +115,7 @@ public class RDFStorage
 	
 	public void deletePageSet(String name) throws RepositoryException
 	{
-	    URI uri = RESOURCE.createPageSetURI(name);
+	    IRI uri = RESOURCE.createPageSetURI(name);
 	    getConnection().remove(uri, null, null);
 	    closeConnection();
 	}
@@ -126,7 +125,7 @@ public class RDFStorage
         return getPageSet(RESOURCE.createPageSetURI(name));
     }
     
-	public PageSet getPageSet(URI uri) throws RepositoryException
+	public PageSet getPageSet(IRI uri) throws RepositoryException
 	{
         RepositoryResult<Statement> result = getConnection().getStatements(uri, null, null, false);
         RDFPageSet ret = new RDFPageSet(null, uri, this);
@@ -153,7 +152,7 @@ public class RDFStorage
             return ret;
 	}
 	
-	public List<URI> getPagesForPageSet(URI pageSetUri) throws RepositoryException
+	public List<IRI> getPagesForPageSet(IRI pageSetUri) throws RepositoryException
 	{
         final String query = PREFIXES
                 + "SELECT ?uri "
@@ -163,14 +162,14 @@ public class RDFStorage
                 + "}";
         System.out.println("QUERY: " + query);
         TupleQueryResult data = executeSafeTupleQuery(query);
-        List<URI> ret = new ArrayList<URI>();
+        List<IRI> ret = new ArrayList<IRI>();
         try
         {
             while (data.hasNext())
             {
                 BindingSet binding = data.next();
                 Binding b = binding.getBinding("uri");
-                ret.add((URI) b.getValue());
+                ret.add((IRI) b.getValue());
             }
         } catch (QueryEvaluationException e) {
             e.printStackTrace();
@@ -190,9 +189,9 @@ public class RDFStorage
         while (result.hasNext()) 
         {
             Statement st = result.next();
-            if (st.getSubject() instanceof URI)
+            if (st.getSubject() instanceof IRI)
             {
-                PageSet newset = getPageSet((URI) st.getSubject());
+                PageSet newset = getPageSet((IRI) st.getSubject());
                 if (newset != null)
                     ret.add(newset);
             }
@@ -203,9 +202,9 @@ public class RDFStorage
         return ret;
     }
 	
-	public void addPageToPageSet(URI pageUri, String psetName) throws RepositoryException
+	public void addPageToPageSet(IRI pageUri, String psetName) throws RepositoryException
 	{
-	    URI psetUri = RESOURCE.createPageSetURI(psetName);
+	    IRI psetUri = RESOURCE.createPageSetURI(psetName);
 	    getConnection().add(psetUri, LAYOUT.containsPage, pageUri);
 	    closeConnection();
 	}
@@ -215,7 +214,7 @@ public class RDFStorage
 	 * @return a set of page URIs
 	 * @throws RepositoryException 
 	 */
-	public Set<URI> getOrphanedPages() throws RepositoryException
+	public Set<IRI> getOrphanedPages() throws RepositoryException
 	{
         final String query = PREFIXES
                 + "SELECT ?pg "
@@ -227,14 +226,14 @@ public class RDFStorage
         
         System.out.println("QUERY: " + query);
         TupleQueryResult data = executeSafeTupleQuery(query);
-        Set<URI> ret = new HashSet<URI>();
+        Set<IRI> ret = new HashSet<IRI>();
         try
         {
             while (data.hasNext())
             {
                 BindingSet binding = data.next();
                 Binding b = binding.getBinding("pg");
-                ret.add((URI) b.getValue());
+                ret.add((IRI) b.getValue());
             }
         } catch (QueryEvaluationException e) {
             e.printStackTrace();
@@ -248,8 +247,8 @@ public class RDFStorage
 	 */
 	public void removeOrphanedPages() throws RepositoryException
 	{
-	    Set<URI> pages = getOrphanedPages();
-	    for (URI page : pages)
+	    Set<IRI> pages = getOrphanedPages();
+	    for (IRI page : pages)
 	        removePage(page);
 	}
 	
@@ -264,7 +263,7 @@ public class RDFStorage
 	    String contClause = "";
 	    if (psetName != null)
 	    {
-	        URI pageSetUri = RESOURCE.createPageSetURI(psetName);
+	        IRI pageSetUri = RESOURCE.createPageSetURI(psetName);
 	        contClause = " . <" + pageSetUri.toString() + "> layout:containsPage ?page";
 	    }
 	    final String query = PREFIXES
@@ -307,10 +306,10 @@ public class RDFStorage
 	 * @return
 	 * @throws RepositoryException 
 	 */
-	public Set<URI> getAllPageIds() throws RepositoryException 
+	public Set<IRI> getAllPageIds() throws RepositoryException 
 	{
 		RepositoryResult<Statement> result = getConnection().getStatements(null, RDF.TYPE, BOX.Page, true);
-		Set<URI> ret = getSubjectsFromResult(result);
+		Set<IRI> ret = getSubjectsFromResult(result);
 		result.close();
 		closeConnection();
 		return ret;
@@ -322,11 +321,11 @@ public class RDFStorage
 	 * @return list of launch URIs
 	 * @throws RepositoryException 
 	 */
-	public Set<URI> getPageIdsForUrl(String url) throws RepositoryException 
+	public Set<IRI> getPageIdsForUrl(String url) throws RepositoryException 
 	{
-		ValueFactoryImpl vf = ValueFactoryImpl.getInstance(); 
+		ValueFactory vf = SimpleValueFactory.getInstance(); 
 		RepositoryResult<Statement> result = getConnection().getStatements(null, BOX.sourceUrl, vf.createLiteral(url), true); 
-		Set<URI> ret = getSubjectsFromResult(result);
+		Set<IRI> ret = getSubjectsFromResult(result);
 		result.close();
 		closeConnection();
 		return ret;
@@ -341,7 +340,7 @@ public class RDFStorage
 	public RDFPage insertPageBoxModel(Page page) throws RepositoryException 
 	{
 	    long seq = getNextSequenceValue("page");
-        URI pageUri = RESOURCE.createPageURI(seq);
+        IRI pageUri = RESOURCE.createPageURI(seq);
 		BoxModelBuilder pgb = new BoxModelBuilder(page, pageUri);
 		insertGraph(pgb.getGraph());
 		if (page instanceof RDFPage)
@@ -358,18 +357,18 @@ public class RDFStorage
      */
     public RDFPage updatePageBoxModel(RDFPage page) throws RepositoryException 
     {
-        removePage(page.getUri());
-        BoxModelBuilder pgb = new BoxModelBuilder(page, page.getUri());
+        removePage(page.getIri());
+        BoxModelBuilder pgb = new BoxModelBuilder(page, page.getIri());
         insertGraph(pgb.getGraph());
         return page;
     }
 
 	/**
 	 * Removes a page from the storage. 
-	 * @param pageUri the page URI
+	 * @param pageUri the page IRI
 	 * @throws RepositoryException 
 	 */
-	public void removePage(URI pageUri) throws RepositoryException 
+	public void removePage(IRI pageUri) throws RepositoryException 
 	{
 	    removeAreaTreesForPage(pageUri);
 		removePageModel(pageUri);
@@ -378,11 +377,11 @@ public class RDFStorage
 
 	/**
 	 * Loads a page from the repository.
-	 * @param pageId The page URI
+	 * @param pageId The page IRI
 	 * @return the corresponding Page or {@code null} when the page is not available in the repository.
 	 * @throws RepositoryException
 	 */
-	public RDFPage loadPage(URI pageId) throws RepositoryException
+	public RDFPage loadPage(IRI pageId) throws RepositoryException
 	{
         BoxModelLoader loader = new BoxModelLoader(this, pageId);
         return loader.getPage();
@@ -394,7 +393,7 @@ public class RDFStorage
 	 * @return
 	 * @throws RepositoryException 
 	 */
-	public Model getBoxModelForPage(URI pageId) throws RepositoryException
+	public Model getBoxModelForPage(IRI pageId) throws RepositoryException
 	{
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
@@ -411,7 +410,7 @@ public class RDFStorage
      * @return
      * @throws RepositoryException 
      */
-    public Model getBorderModelForPage(URI pageId) throws RepositoryException
+    public Model getBorderModelForPage(IRI pageId) throws RepositoryException
     {
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . "
@@ -427,7 +426,7 @@ public class RDFStorage
      * @return
      * @throws RepositoryException 
      */
-    public Model getAttributeModelForPage(URI pageId) throws RepositoryException
+    public Model getAttributeModelForPage(IRI pageId) throws RepositoryException
     {
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . "
@@ -443,7 +442,7 @@ public class RDFStorage
 	 * @return
 	 * @throws RepositoryException 
 	 */
-	public Model getPageInfo(URI pageUri) throws RepositoryException 
+	public Model getPageInfo(IRI pageUri) throws RepositoryException 
 	{
 		RepositoryResult<Statement> result = null;
 		result = getConnection().getStatements(pageUri, null, null, true);
@@ -458,32 +457,32 @@ public class RDFStorage
 	
     /**
      * Loads an area tree from the repository.
-     * @param areaTreeId The area tree URI
+     * @param areaTreeId The area tree IRI
      * @return a create model loader. Use its {@code getAreaTree} and {@code getLogicalAreaTree}
      * methods for obtaining the trees.
      * @throws RepositoryException
      */
-    public AreaModelLoader loadAreaTrees(URI areaTreeId, RDFPage srcPage) throws RepositoryException
+    public AreaModelLoader loadAreaTrees(IRI areaTreeId, RDFPage srcPage) throws RepositoryException
     {
         return new AreaModelLoader(this, areaTreeId, srcPage);
     }
     
     /**
-     * Obtains the the URI of the source page given an AreaTree URI
-     * @param areaTreeUri the URI of the area tree
-     * @return the source Page URI or {@code null} when not specified
+     * Obtains the the IRI of the source page given an AreaTree IRI
+     * @param areaTreeUri the IRI of the area tree
+     * @return the source Page IRI or {@code null} when not specified
      * @throws RepositoryException 
      */
-    public URI getSourcePageForAreaTree(URI areaTreeUri) throws RepositoryException 
+    public IRI getSourcePageForAreaTree(IRI areaTreeUri) throws RepositoryException 
     {
-        URI ret = null;
+        IRI ret = null;
         RepositoryResult<Statement> result = getConnection().getStatements(areaTreeUri, SEGM.sourcePage, null, true); 
         while (result.hasNext())
         {
             Value val = result.next().getObject();
-            if (val instanceof URI)
+            if (val instanceof IRI)
             {
-                ret = (URI) val;
+                ret = (IRI) val;
                 break;
             }
         }
@@ -498,7 +497,7 @@ public class RDFStorage
 	 * @return A Model containing the triplets for all the visual areas contained in the given area tree.
 	 * @throws RepositoryException 
 	 */
-	public Model getAreaModelForAreaTree(URI areaTreeUri) throws RepositoryException
+	public Model getAreaModelForAreaTree(IRI areaTreeUri) throws RepositoryException
 	{
 		final String query = PREFIXES
 				+ "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
@@ -515,7 +514,7 @@ public class RDFStorage
      * @return A Model containing the triplets for all the visual areas contained in the given area tree.
      * @throws RepositoryException 
      */
-    public Model getLogicalAreaModelForAreaTree(URI areaTreeUri) throws RepositoryException
+    public Model getLogicalAreaModelForAreaTree(IRI areaTreeUri) throws RepositoryException
     {
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
@@ -532,7 +531,7 @@ public class RDFStorage
      * @return
      * @throws RepositoryException 
      */
-    public Model getBorderModelForAreaTree(URI areaTreeUri) throws RepositoryException
+    public Model getBorderModelForAreaTree(IRI areaTreeUri) throws RepositoryException
     {
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . "
@@ -548,7 +547,7 @@ public class RDFStorage
      * @return A Model containing the triplets for all tags of the visual areas contained in the given area tree.
      * @throws RepositoryException 
      */
-	public Model getTagModelForAreaTree(URI areaTreeUri) throws RepositoryException
+	public Model getTagModelForAreaTree(IRI areaTreeUri) throws RepositoryException
 	{
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
@@ -564,7 +563,7 @@ public class RDFStorage
      * @return A Model containing the triplets for all tags of the visual areas contained in the given area tree.
      * @throws RepositoryException 
      */
-    public Model getTagSupportModelForAreaTree(URI areaTreeUri) throws RepositoryException
+    public Model getTagSupportModelForAreaTree(IRI areaTreeUri) throws RepositoryException
     {
         final String query = PREFIXES
                 + "CONSTRUCT { ?s ?p ?o } " + "WHERE { ?s ?p ?o . "
@@ -575,15 +574,15 @@ public class RDFStorage
     }
     
 	/**
-	 * Obtains all the area trees for a page URI.
-	 * @param pageUri the URI of a Page
+	 * Obtains all the area trees for a page IRI.
+	 * @param pageUri the IRI of a Page
 	 * @return A set of AreaTree URIs that come from the specified page.
 	 * @throws RepositoryException 
 	 */
-	public Set<URI> getAreaTreeIdsForPageId(URI pageUri) throws RepositoryException 
+	public Set<IRI> getAreaTreeIdsForPageId(IRI pageUri) throws RepositoryException 
 	{
 		RepositoryResult<Statement> result = getConnection().getStatements(null, SEGM.sourcePage, pageUri, true);
-        Set<URI> ret = getSubjectsFromResult(result);
+        Set<IRI> ret = getSubjectsFromResult(result);
         result.close();
         closeConnection();
         return ret;
@@ -591,32 +590,32 @@ public class RDFStorage
 	
     /**
      * Adds an area tree to the repository. The tree is assigned to a given page that must be
-     * already stored in the repository. The URI of the tree is generated automatically.
-     * @param targetUri the URI of the new area tree
+     * already stored in the repository. The IRI of the tree is generated automatically.
+     * @param targetUri the IRI of the new area tree
      * @param atree the area tree to be stored
      * @param ltree the logical area tree to be stored or {@code null} when there is no logical area tree.
-     * @param pageUri the URI of the source page model (rendered page)
+     * @param pageUri the IRI of the source page model (rendered page)
      * @return the RDFAreaTree version of the given area tree
      * @throws RepositoryException 
      */
-	public RDFAreaTree insertAreaTree(AreaTree atree, LogicalAreaTree ltree, URI pageUri) throws RepositoryException
+	public RDFAreaTree insertAreaTree(AreaTree atree, LogicalAreaTree ltree, IRI pageUri) throws RepositoryException
 	{
         long seq = getNextSequenceValue("areatree");
-        URI targetUri = RESOURCE.createAreaTreeURI(seq);
+        IRI targetUri = RESOURCE.createAreaTreeURI(seq);
         return insertAreaTree(targetUri, atree, ltree, pageUri);
 	}
 
     /**
      * Adds an area tree to the repository. The tree is assigned to a given page that must be
      * already stored in the repository.
-     * @param targetUri the URI of the new area tree
+     * @param targetUri the IRI of the new area tree
      * @param atree the area tree to be stored
      * @param ltree the logical area tree to be stored or {@code null} when there is no logical area tree.
-     * @param pageUri the URI of the source page model (rendered page)
+     * @param pageUri the IRI of the source page model (rendered page)
      * @return the RDFAreaTree version of the given area tree
      * @throws RepositoryException 
      */
-    public RDFAreaTree insertAreaTree(URI targetUri, AreaTree atree, LogicalAreaTree ltree, URI pageUri) throws RepositoryException
+    public RDFAreaTree insertAreaTree(IRI targetUri, AreaTree atree, LogicalAreaTree ltree, IRI pageUri) throws RepositoryException
     {
         AreaModelBuilder pgb = new AreaModelBuilder(atree, ltree, pageUri, targetUri);
         insertGraph(pgb.getGraph());
@@ -628,10 +627,10 @@ public class RDFStorage
     
 	/**
 	 * Removes the area tree from the repository. 
-	 * @param areaTreeUri the URI of the area tree
+	 * @param areaTreeUri the IRI of the area tree
 	 * @throws RepositoryException
 	 */
-	public void removeAreaTree(URI areaTreeUri) throws RepositoryException
+	public void removeAreaTree(IRI areaTreeUri) throws RepositoryException
 	{
         Model mat = getAreaModelForAreaTree(areaTreeUri);
         mat.addAll(getLogicalAreaModelForAreaTree(areaTreeUri));
@@ -663,11 +662,11 @@ public class RDFStorage
 	/**
 	 * Obtains the value of the given predicate for the given subject.
 	 * @param subject the subject resource
-	 * @param predicate the predicate URI
+	 * @param predicate the predicate IRI
 	 * @return the resulting Value or {@code null} when there is no corresponding triplet available.
 	 * @throws RepositoryException
 	 */
-	public Value getPropertyValue(Resource subject, URI predicate) throws RepositoryException
+	public Value getPropertyValue(Resource subject, IRI predicate) throws RepositoryException
 	{
 	    RepositoryResult<Statement> result = getConnection().getStatements(subject, predicate, null, true);
 	    if (result.hasNext())
@@ -701,7 +700,7 @@ public class RDFStorage
 	 */
 	public TupleQueryResult executeQuery(String query) throws QueryEvaluationException, RepositoryException, MalformedQueryException
 	{
-		org.openrdf.query.TupleQuery tq = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query);
+		org.eclipse.rdf4j.query.TupleQuery tq = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query);
 		return tq.evaluate();
 	}
 	
@@ -740,7 +739,7 @@ public class RDFStorage
      */
     public long getLastSequenceValue(String name) throws RepositoryException
     {
-        URI sequence = RESOURCE.createSequenceURI(name);
+        IRI sequence = RESOURCE.createSequenceURI(name);
         RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false);
         if (result.hasNext())
         {
@@ -763,7 +762,7 @@ public class RDFStorage
     public long getNextSequenceValue(String name) throws RepositoryException
     {
         getConnection().begin(); //TODO should be IsolationLevels.SERIALIZABLE but not supported by Sesame 2.7
-        URI sequence = RESOURCE.createSequenceURI(name);
+        IRI sequence = RESOURCE.createSequenceURI(name);
         RepositoryResult<Statement> result = getConnection().getStatements(sequence, RDF.VALUE, null, false); 
         long val = 0;
         if (result.hasNext())
@@ -776,7 +775,7 @@ public class RDFStorage
         }
         result.close();
         val++;
-        ValueFactory vf = ValueFactoryImpl.getInstance();
+        ValueFactory vf = SimpleValueFactory.getInstance();
         getConnection().add(sequence, RDF.VALUE, vf.createLiteral(val));
         getConnection().commit();
         closeConnection();
@@ -792,7 +791,7 @@ public class RDFStorage
 	 * @param pageId
 	 * @throws RepositoryException 
 	 */
-	private void removePageModel(URI pageUri) throws RepositoryException 
+	private void removePageModel(IRI pageUri) throws RepositoryException 
 	{
         Model mat = getBoxModelForPage(pageUri);
         mat.addAll(getBorderModelForPage(pageUri));
@@ -805,12 +804,12 @@ public class RDFStorage
 	 * @param pageUri
 	 * @throws RepositoryException
 	 */
-	private void removeAreaTreesForPage(URI pageUri) throws RepositoryException
+	private void removeAreaTreesForPage(IRI pageUri) throws RepositoryException
 	{
         //load all area trees
-        Set<URI> areaTreeModels = getAreaTreeIdsForPageId(pageUri);
+        Set<IRI> areaTreeModels = getAreaTreeIdsForPageId(pageUri);
         //removes all area trees
-        for(URI areaTreeId : areaTreeModels)
+        for(IRI areaTreeId : areaTreeModels)
             removeAreaTree(areaTreeId);
 	}
 	
@@ -819,7 +818,7 @@ public class RDFStorage
 	 * @param pageId
 	 * @throws RepositoryException 
 	 */
-	private void removePageInfo(URI pageUri) throws RepositoryException 
+	private void removePageInfo(IRI pageUri) throws RepositoryException 
 	{
 		Model m = getPageInfo(pageUri);
 		getConnection().remove(m);
@@ -905,14 +904,14 @@ public class RDFStorage
      * @return
      * @throws RepositoryException
      */
-    public Set<URI> getSubjectsFromResult(RepositoryResult<Statement> result) throws RepositoryException 
+    public Set<IRI> getSubjectsFromResult(RepositoryResult<Statement> result) throws RepositoryException 
     {
-        Set<URI> output = new HashSet<URI>();
+        Set<IRI> output = new HashSet<IRI>();
         while (result.hasNext()) 
         {
             Resource uri = result.next().getSubject();
-            if (uri instanceof URI)
-                output.add((URI) uri);
+            if (uri instanceof IRI)
+                output.add((IRI) uri);
         }
         return output;
     }
@@ -922,7 +921,7 @@ public class RDFStorage
 	 * @param graph
 	 * @throws RepositoryException 
 	 */
-    private void insertGraph(Graph graph) throws RepositoryException
+    private void insertGraph(Model graph) throws RepositoryException
 	{
         getConnection().begin();
 		getConnection().add(graph);

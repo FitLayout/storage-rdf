@@ -11,10 +11,10 @@ import java.net.URL;
 import org.fit.layout.impl.BaseBoxTreeProvider;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.ontology.RESOURCE;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * A box tree provider that obtains the stored pages from a RDF repository. 
@@ -25,19 +25,19 @@ import org.openrdf.repository.RepositoryException;
 public class RDFBoxTreeProvider extends BaseBoxTreeProvider
 {
     private URL urlDb;
-    private URI pageId;
+    private IRI pageId;
     
     private final String[] paramNames = { "urlDb", "pageId" };
     private final ValueType[] paramTypes = { ValueType.STRING, ValueType.STRING };
 
     public RDFBoxTreeProvider() throws MalformedURLException
     {
-		urlDb = new URL("http://localhost:8080/openrdf-sesame/repositories/user");
+		urlDb = new URL("http://localhost:8080/rdf4j-server/repositories/user");
 		pageId = RESOURCE.createPageURI(1);
     }
 
     
-    public RDFBoxTreeProvider(URL urlDb, URI pageId)
+    public RDFBoxTreeProvider(URL urlDb, IRI pageId)
     {
         this.urlDb = urlDb;
         this.pageId = pageId;
@@ -92,20 +92,20 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
         }
     }
 
-    public URI getPageId()
+    public IRI getPageId()
     {
         return pageId;
     }
 
-    public void setPageId(URI pageId)
+    public void setPageId(IRI pageId)
     {
         this.pageId = pageId;
     }
 
     public void setPageId(String pageId)
     {
-        ValueFactory vf = ValueFactoryImpl.getInstance();
-        this.pageId = vf.createURI(pageId);
+        ValueFactory vf = SimpleValueFactory.getInstance();
+        this.pageId = vf.createIRI(pageId);
     }
     
     public Page getPage() 

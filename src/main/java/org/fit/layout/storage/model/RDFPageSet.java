@@ -12,11 +12,11 @@ import java.util.List;
 import org.fit.layout.impl.AbstractPageSet;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.RDFStorage;
-import org.openrdf.model.URI;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +30,12 @@ public class RDFPageSet extends AbstractPageSet
     private static Logger log = LoggerFactory.getLogger(RDFPageSet.class);
     
     private RDFStorage storage;
-    private URI uri;
+    private IRI iri;
 
-    public RDFPageSet(String name, URI uri, RDFStorage storage)
+    public RDFPageSet(String name, IRI iri, RDFStorage storage)
     {
         super(name);
-        this.uri = uri;
+        this.iri = iri;
         this.storage = storage;
     }
 
@@ -44,7 +44,7 @@ public class RDFPageSet extends AbstractPageSet
     {
         try
         {
-            return storage.getPagesForPageSet(uri).size();
+            return storage.getPagesForPageSet(iri).size();
         } catch (RepositoryException e) {
             log.error("Error: " + e.getMessage());
             return 0;
@@ -56,7 +56,7 @@ public class RDFPageSet extends AbstractPageSet
     {
         try
         {
-            List<URI> uris = storage.getPagesForPageSet(uri);
+            List<IRI> uris = storage.getPagesForPageSet(iri);
             if (index < uris.size())
                 return storage.loadPage(uris.get(index));
             else
@@ -73,7 +73,7 @@ public class RDFPageSet extends AbstractPageSet
         try
         {
             if (page instanceof RDFPage)
-                storage.addPageToPageSet(((RDFPage) page).getUri(), getName());
+                storage.addPageToPageSet(((RDFPage) page).getIri(), getName());
             else
                 log.error("addPage: The saved instance of the page is required.");
         } 
@@ -88,7 +88,7 @@ public class RDFPageSet extends AbstractPageSet
     {
         try
         {
-            return new PageIterator(storage, storage.getPagesForPageSet(uri));
+            return new PageIterator(storage, storage.getPagesForPageSet(iri));
         } catch (RepositoryException e) {
             e.printStackTrace();
             return null;
@@ -101,21 +101,21 @@ public class RDFPageSet extends AbstractPageSet
         return getName();
     }
 
-    public URI[] getAreaTreeURIs()
+    public IRI[] getAreaTreeIRIs()
     {
         try
         {
-            ArrayList<URI> list = new ArrayList<URI>();
+            ArrayList<IRI> list = new ArrayList<IRI>();
             TupleQueryResult data = storage.getAvailableTrees(getName());
             while (data.hasNext())
             {
                 BindingSet tuple = data.next();
-                if (tuple.getBinding("tree").getValue() instanceof URI)
+                if (tuple.getBinding("tree").getValue() instanceof IRI)
                 {
-                    list.add((URI) tuple.getBinding("tree").getValue());
+                    list.add((IRI) tuple.getBinding("tree").getValue());
                 }
             }
-            URI[] ret = new URI[list.size()];
+            IRI[] ret = new IRI[list.size()];
             return list.toArray(ret);
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -129,13 +129,13 @@ public class RDFPageSet extends AbstractPageSet
     public class PageIterator implements Iterator<Page>
     {
         private RDFStorage storage;
-        private List<URI> pageUris;
+        private List<IRI> pageUris;
         private int currentIndex;
         
-        public PageIterator(RDFStorage storage, List<URI> pageUris)
+        public PageIterator(RDFStorage storage, List<IRI> pageIris)
         {
             this.storage = storage;
-            this.pageUris = pageUris;
+            this.pageUris = pageIris;
             currentIndex = 0;
         }
 

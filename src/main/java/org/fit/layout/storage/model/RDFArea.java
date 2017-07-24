@@ -8,10 +8,10 @@ package org.fit.layout.storage.model;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.fit.layout.impl.DefaultArea;
 import org.fit.layout.model.Box;
 import org.fit.layout.model.Rectangular;
-import org.openrdf.model.URI;
 
 /**
  * 
@@ -19,24 +19,24 @@ import org.openrdf.model.URI;
  */
 public class RDFArea extends DefaultArea implements RDFResource
 {
-    protected URI uri;
+    protected IRI iri;
     protected int documentOrder;
 
-    public RDFArea(Rectangular r, URI uri)
+    public RDFArea(Rectangular r, IRI uri)
     {
         super(r);
-        setUri(uri);
+        setIri(uri);
     }
 
     @Override
-    public URI getUri()
+    public IRI getIri()
     {
-        return uri;
+        return iri;
     }
 
-    public void setUri(URI uri)
+    public void setIri(IRI uri)
     {
-        this.uri = uri;
+        this.iri = uri;
         setId(Integer.parseInt(uri.getLocalName().substring(1))); //skip 'a' prefix
     }
 

@@ -3,11 +3,11 @@ package org.fit.layout.storage;
 import java.util.Date;
 
 import org.fit.layout.storage.ontology.BOX;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 
 
 /**
@@ -19,7 +19,7 @@ import org.openrdf.model.Value;
 public class PageInfo {
 
 	private Date date;
-	private URI id;
+	private IRI id;
 	private String url;
 	private String title;
 	
@@ -28,9 +28,9 @@ public class PageInfo {
     {
         for (Statement st : model) 
         {
-            if (st.getSubject() instanceof URI)
+            if (st.getSubject() instanceof IRI)
             {
-                id = (URI) st.getSubject();
+                id = (IRI) st.getSubject();
                 if (st.getPredicate().equals(BOX.sourceUrl)) {
                     url = st.getObject().stringValue();
                 } else if (st.getPredicate().equals(BOX.launchDatetime)) {
@@ -45,7 +45,7 @@ public class PageInfo {
         
     }
     
-	public URI getId() {
+	public IRI getId() {
 		return id;
 	}
 	

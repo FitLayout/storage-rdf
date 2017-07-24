@@ -21,13 +21,13 @@ import org.fit.layout.model.Page;
 import org.fit.layout.storage.AreaModelLoader;
 import org.fit.layout.storage.RDFStorage;
 import org.fit.layout.storage.model.RDFPage;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFParseException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFParseException;
 
 /**
  * JavaScript application interface for the storage.
@@ -164,7 +164,7 @@ public class ScriptApi implements ScriptObject
         {
             if (page instanceof RDFPage)
             {
-                bdi.addPageToPageSet(((RDFPage) page).getUri(), name);
+                bdi.addPageToPageSet(((RDFPage) page).getIri(), name);
                 if (plugin != null)
                     plugin.updateStorageState();
             }
@@ -216,7 +216,7 @@ public class ScriptApi implements ScriptObject
             {
                 if (sourcePage instanceof RDFPage)
                 {
-                    bdi.insertAreaTree(atree, ltree, ((RDFPage) sourcePage).getUri());
+                    bdi.insertAreaTree(atree, ltree, ((RDFPage) sourcePage).getIri());
                     if (plugin != null)
                         plugin.updateStorageState();
                 }
@@ -232,8 +232,8 @@ public class ScriptApi implements ScriptObject
     {
         try
         {
-            ValueFactory vf = ValueFactoryImpl.getInstance();
-            URI uri = vf.createURI(pageUri);
+            ValueFactory vf = SimpleValueFactory.getInstance();
+            IRI uri = vf.createIRI(pageUri);
             return bdi.loadPage(uri);
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -245,8 +245,8 @@ public class ScriptApi implements ScriptObject
     {
         try
         {
-            ValueFactory vf = ValueFactoryImpl.getInstance();
-            URI uri = vf.createURI(treeUri);
+            ValueFactory vf = SimpleValueFactory.getInstance();
+            IRI uri = vf.createIRI(treeUri);
             AreaModelLoader loader = bdi.loadAreaTrees(uri, page);
             return loader.getAreaTree();
         } catch (RepositoryException e) {
@@ -259,10 +259,10 @@ public class ScriptApi implements ScriptObject
     {
         try
         {
-            Set<URI> uris = bdi.getAreaTreeIdsForPageId(page.getUri());
+            Set<IRI> uris = bdi.getAreaTreeIdsForPageId(page.getIri());
             String[] ret = new String[uris.size()];
             int i = 0;
-            for (URI uri : uris)
+            for (IRI uri : uris)
                 ret[i++] = uri.toString();
             return ret;
         } catch (RepositoryException e) {

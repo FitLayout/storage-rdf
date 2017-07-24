@@ -5,8 +5,8 @@
  */
 package org.fit.layout.storage.model;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.fit.layout.model.ContentObject;
-import org.openrdf.model.URI;
 
 /**
  * Generic ContentObject implementation.
@@ -15,17 +15,17 @@ import org.openrdf.model.URI;
  */
 public class RDFContentObject implements RDFResource, ContentObject
 {
-    private URI uri;
+    private IRI iri;
     
-    public RDFContentObject(URI uri)
+    public RDFContentObject(IRI iri)
     {
-        this.uri = uri;
+        this.iri = iri;
     }
 
     @Override
-    public URI getUri()
+    public IRI getIri()
     {
-        return uri;
+        return iri;
     }
 
     @Override

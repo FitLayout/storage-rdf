@@ -44,11 +44,11 @@ import org.fit.layout.storage.model.RDFAreaTree;
 import org.fit.layout.storage.model.RDFPage;
 import org.fit.layout.storage.ontology.RESOURCE;
 import org.fit.layout.storage.service.RDFStorageService;
-import org.openrdf.model.URI;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -77,8 +77,8 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
     private int loadedPageIndex = -1;
     private Vector<String> listColumns;
     private Vector<Vector<String>> listData;
-    private Vector<URI> listPageURIs;
-    private Vector<URI> listTreeURIs;
+    private Vector<IRI> listPageIRIs;
+    private Vector<IRI> listTreeIRIs;
     
     private JPanel pnl_main;
     private JPanel tbr_connection;
@@ -121,8 +121,8 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         listColumns.add("URL");
         listColumns.add("TreeID");
         listData = new Vector<Vector<String>>();
-        listPageURIs = new Vector<URI>();
-        listTreeURIs = new Vector<URI>();
+        listPageIRIs = new Vector<IRI>();
+        listTreeIRIs = new Vector<IRI>();
         updatePageTable();
         updatePageSets();
         updateGUIState();
@@ -294,16 +294,16 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
     private void clearPageTable()
     {
         listData.removeAllElements();
-        listPageURIs.removeAllElements();
-        listTreeURIs.removeAllElements();
+        listPageIRIs.removeAllElements();
+        listTreeIRIs.removeAllElements();
         updatePageTable();
     }
     
     private void fillPageTable()
     {
         listData.removeAllElements();
-        listPageURIs.removeAllElements();
-        listTreeURIs.removeAllElements();
+        listPageIRIs.removeAllElements();
+        listTreeIRIs.removeAllElements();
         PageSet pset = getSelectedPageSet();
         if (pset != null)
         {
@@ -314,11 +314,11 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
                 while (data.hasNext())
                 {
                     BindingSet tuple = data.next();
-                    if (tuple.getBinding("tree").getValue() instanceof URI
-                            && tuple.getBinding("page").getValue() instanceof URI)
+                    if (tuple.getBinding("tree").getValue() instanceof IRI
+                            && tuple.getBinding("page").getValue() instanceof IRI)
                     {
-                        listPageURIs.add((URI) tuple.getBinding("page").getValue());
-                        listTreeURIs.add((URI) tuple.getBinding("tree").getValue());
+                        listPageIRIs.add((IRI) tuple.getBinding("page").getValue());
+                        listTreeIRIs.add((IRI) tuple.getBinding("tree").getValue());
                         
                         Vector<String> row = new Vector<String>(listColumns.size());
                         String pageUri = tuple.getBinding("page").getValue().stringValue();
@@ -369,11 +369,11 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         getPageTable().setRowSelectionInterval(index, index);
     }
     
-    private URI getSelectedPageURI()
+    private IRI getSelectedPageURI()
     {
         int sel = getPageTable().getSelectedRow();
         if (sel != -1)
-            return listPageURIs.elementAt(sel);
+            return listPageIRIs.elementAt(sel);
         else
             return null;
     }
@@ -384,7 +384,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         AreaTree atree = null;
         LogicalAreaTree ltree = null;
         try {
-            URI pageId = getSelectedPageURI();
+            IRI pageId = getSelectedPageURI();
             if (pageId != null)
             {
                 //load the box model
@@ -392,7 +392,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
                 //load the trees
                 if (page != null)
                 {
-                    URI atreeUri = getSelectedTreeURI();
+                    IRI atreeUri = getSelectedTreeURI();
                     AreaModelLoader loader = bdi.loadAreaTrees(atreeUri, page);
                     atree = loader.getAreaTree();
                     ltree = loader.getLogicalAreaTree();
@@ -451,8 +451,8 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
                 {
                     PageSet currentPset = getSelectedPageSet();
                     if (currentPset != null)
-                        bdi.addPageToPageSet(rdfpage.getUri(), currentPset.getName());
-                    bdi.insertAreaTree(atree, ltree, rdfpage.getUri());
+                        bdi.addPageToPageSet(rdfpage.getIri(), currentPset.getName());
+                    bdi.insertAreaTree(atree, ltree, rdfpage.getIri());
                 } catch (RepositoryException e1) {
                     e1.printStackTrace();
                 }
@@ -488,9 +488,9 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
                 RDFPage rdfpage = (RDFPage) page;
                 try
                 {
-                    URI atreeUri = ((RDFAreaTree) atree).getUri();
+                    IRI atreeUri = ((RDFAreaTree) atree).getIri();
                     bdi.removeAreaTree(atreeUri);
-                    bdi.insertAreaTree(atreeUri, atree, ltree, rdfpage.getUri());
+                    bdi.insertAreaTree(atreeUri, atree, ltree, rdfpage.getIri());
                 } catch (RepositoryException e1) {
                     e1.printStackTrace();
                 }
@@ -515,11 +515,11 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         fillPageTable();
     }
     
-    private URI getSelectedTreeURI()
+    private IRI getSelectedTreeURI()
     {
         int sel = getPageTable().getSelectedRow();
         if (sel != -1)
-            return listTreeURIs.elementAt(sel);
+            return listTreeIRIs.elementAt(sel);
         else
             return null;
     }
@@ -705,10 +705,10 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
 				    if (response == JOptionPane.YES_OPTION)
 				    {
     					try {
-    					    URI pageId = getSelectedPageURI();
-    						URI areaTreeId = getSelectedTreeURI();
+    					    IRI pageId = getSelectedPageURI();
+    						IRI areaTreeId = getSelectedTreeURI();
     						bdi.removeAreaTree(areaTreeId);
-    						Set<URI> remainingTrees = bdi.getAreaTreeIdsForPageId(pageId);
+    						Set<IRI> remainingTrees = bdi.getAreaTreeIdsForPageId(pageId);
     						if (remainingTrees.isEmpty())
     						{
     						    bdi.removePage(pageId);  //no trees remaining, remove the page
@@ -856,7 +856,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         	        {
         	            String message = "Do you want to remove the selected page set?";
         	            JCheckBox cbox = new JCheckBox("Also delete orphaned pages", true);
-        	            if (listPageURIs.size() == 0)
+        	            if (listPageIRIs.size() == 0)
         	            {
         	                cbox.setEnabled(false);
         	                cbox.setSelected(false);
@@ -889,7 +889,7 @@ public class StoragePlugin implements BrowserPlugin, GUIUpdateSource, TreeListen
         	    public void actionPerformed(ActionEvent e) {
         	        if (!connected)
         	        {
-            	        String urlstring = ConnectDialog.show("sesame:http://localhost:8080/openrdf-sesame/repositories/user");
+            	        String urlstring = ConnectDialog.show("sesame:http://localhost:8080/rdf4j-server/repositories/user");
             	        if (urlstring != null)
             	        {
                             connect(urlstring);

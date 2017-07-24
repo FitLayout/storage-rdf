@@ -5,8 +5,8 @@
  */
 package org.fit.layout.storage;
 
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.http.HTTPRepository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.http.HTTPRepository;
 
 /**
  * A RDF connector optimized for the Sesame remote server.

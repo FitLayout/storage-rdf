@@ -1,22 +1,23 @@
 package org.fit.layout.storage;
 
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.StatementImpl;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.sparql.SPARQLRepository;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 
 /**
  * 
@@ -29,6 +30,7 @@ public class RDFConnector
 	protected String endpointUrl;
 	protected RepositoryConnection connection;
 	protected Repository repo;
+	protected ValueFactory vf;
 
 	/**
 	 * Establishes a connection to the SPARQL endpoint.
@@ -39,6 +41,7 @@ public class RDFConnector
 	{
 		endpointUrl = endpoint;
 		connection = null;
+		vf = SimpleValueFactory.getInstance();
 		initRepository();
 	}
 	
@@ -84,11 +87,11 @@ public class RDFConnector
 	 * @param o
 	 * @throws RepositoryException
 	 */
-	public void add(Resource s, URI p, Value o) 
+	public void add(Resource s, IRI p, Value o) 
 	{
 		try {
 			
-			Statement stmt = new StatementImpl(s, p, o);
+			Statement stmt = vf.createStatement(s, p, o);
 			this.connection.add(stmt);
 			this.connection.commit();
 			

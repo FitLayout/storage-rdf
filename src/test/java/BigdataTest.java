@@ -2,9 +2,7 @@
  
 import org.fit.layout.storage.RDFStorage;
 import org.junit.Test; 
-import org.openrdf.model.Namespace;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.RepositoryException;
  
 /**  
  *  

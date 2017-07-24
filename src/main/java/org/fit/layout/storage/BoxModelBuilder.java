@@ -13,14 +13,14 @@ import org.fit.layout.model.Page;
 import org.fit.layout.model.Rectangular;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.RESOURCE;
-import org.openrdf.model.Graph;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
-import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.query.algebra.evaluation.function.rdfterm.UUID;
 
 /**
  * Implements an RDF graph construction from a page box model. 
@@ -30,15 +30,15 @@ import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
  */
 public class BoxModelBuilder 
 {
-	private Graph graph;
+	private Model graph;
 	private Page page;
 	private String baseUrl;
-	private ValueFactoryImpl vf;
-	private URI pageNode;
+	private ValueFactory vf;
+	private IRI pageNode;
 	
 	private int next_order; //order counter
 
-	public BoxModelBuilder(Page page, URI uri) 
+	public BoxModelBuilder(Page page, IRI uri) 
 	{
 	    this.page = page;
 		baseUrl = page.getSourceURL().toString();
@@ -54,10 +54,10 @@ public class BoxModelBuilder
 	 * 
 	 * @return launch node for the element linking
 	 */
-	private URI initializeGraph() 
+	private IRI initializeGraph() 
 	{
 		graph = new LinkedHashModel(); // it holds whole model
-		vf = ValueFactoryImpl.getInstance();
+		vf = SimpleValueFactory.getInstance();
 		next_order = 0;
 		
 		// inicialization with launch node
@@ -91,7 +91,7 @@ public class BoxModelBuilder
 	private void insertBox(Box box) 
 	{
 		// add BOX individual into graph
-		final URI individual = RESOURCE.createBoxURI(pageNode, box);
+		final IRI individual = RESOURCE.createBoxURI(pageNode, box);
 		graph.add(individual, RDF.TYPE, BOX.Box);
 		graph.add(individual, BOX.documentOrder, vf.createLiteral(next_order++));
 
@@ -110,7 +110,7 @@ public class BoxModelBuilder
 		Map<String, String> attrs = box.getAttributes();
 		for (Map.Entry<String, String> attr : attrs.entrySet())
 		{
-		    URI attrUri = insertAttribute(individual, attr.getKey(), attr.getValue());
+		    IRI attrUri = insertAttribute(individual, attr.getKey(), attr.getValue());
 		    graph.add(individual, BOX.hasAttribute, attrUri);
 		}
 		
@@ -139,24 +139,19 @@ public class BoxModelBuilder
 		else if (box.getType() == Type.REPLACED_CONTENT)
 		{
 		    ContentObject obj = box.getContentObject();
-		    try
+            IRI objuri = (new UUID()).evaluate(vf);
+            if (obj instanceof ContentImage)
             {
-                URI objuri = (new UUID()).evaluate(vf);
-                if (obj instanceof ContentImage)
-                {
-                    graph.add(objuri, RDF.TYPE, BOX.Image);
-                    java.net.URL url = ((ContentImage) obj).getUrl();
-                    if (url != null)
-                        graph.add(objuri, BOX.imageUrl, vf.createLiteral(url.toString()));
-                    graph.add(individual, BOX.containsImage, objuri);
-                }
-                else
-                {
-                    graph.add(objuri, RDF.TYPE, BOX.ContentObject);
-                    graph.add(individual, BOX.containsObject, objuri);
-                }
-            } catch (ValueExprEvaluationException e) {
-                e.printStackTrace();
+                graph.add(objuri, RDF.TYPE, BOX.Image);
+                java.net.URL url = ((ContentImage) obj).getUrl();
+                if (url != null)
+                    graph.add(objuri, BOX.imageUrl, vf.createLiteral(url.toString()));
+                graph.add(individual, BOX.containsImage, objuri);
+            }
+            else
+            {
+                graph.add(objuri, RDF.TYPE, BOX.ContentObject);
+                graph.add(individual, BOX.containsObject, objuri);
             }
 		}
 		// font attributes
@@ -170,30 +165,30 @@ public class BoxModelBuilder
         
         if (box.getBorderStyle(Side.TOP) != null && box.hasTopBorder())
         {
-            URI btop = insertBorder(box.getBorderStyle(Side.TOP), individual, "top");
+            IRI btop = insertBorder(box.getBorderStyle(Side.TOP), individual, "top");
             graph.add(individual, BOX.hasTopBorder, btop);
         }
         if (box.getBorderStyle(Side.RIGHT) != null && box.hasRightBorder())
         {
-            URI bright = insertBorder(box.getBorderStyle(Side.RIGHT), individual, "right");
+            IRI bright = insertBorder(box.getBorderStyle(Side.RIGHT), individual, "right");
             graph.add(individual, BOX.hasRightBorder, bright);
         }
         if (box.getBorderStyle(Side.BOTTOM) != null && box.hasBottomBorder())
         {
-            URI bbottom = insertBorder(box.getBorderStyle(Side.BOTTOM), individual, "bottom");
+            IRI bbottom = insertBorder(box.getBorderStyle(Side.BOTTOM), individual, "bottom");
             graph.add(individual, BOX.hasBottomBorder, bbottom);
         }
         if (box.getBorderStyle(Side.LEFT) != null && box.hasLeftBorder())
         {
-            URI bleft = insertBorder(box.getBorderStyle(Side.LEFT), individual, "left");
+            IRI bleft = insertBorder(box.getBorderStyle(Side.LEFT), individual, "left");
             graph.add(individual, BOX.hasLeftBorder, bleft);
         }
 
 	}
 	
-	private URI insertBorder(Border border, URI boxUri, String side)
+	private IRI insertBorder(Border border, IRI boxUri, String side)
 	{
-	    URI uri = RESOURCE.createBorderURI(boxUri, side);
+	    IRI uri = RESOURCE.createBorderURI(boxUri, side);
 	    graph.add(uri, RDF.TYPE, BOX.Border);
 	    graph.add(uri, BOX.borderWidth, vf.createLiteral(border.getWidth()));
 	    graph.add(uri, BOX.borderStyle, vf.createLiteral(border.getStyle().toString()));
@@ -201,20 +196,20 @@ public class BoxModelBuilder
 	    return uri;
 	}
 	
-	private URI insertAttribute(URI boxUri, String name, String value)
+	private IRI insertAttribute(IRI boxUri, String name, String value)
 	{
-	    URI uri = RESOURCE.createAttributeURI(boxUri, name);
+	    IRI uri = RESOURCE.createAttributeURI(boxUri, name);
 	    graph.add(uri, RDFS.LABEL, vf.createLiteral(name));
 	    graph.add(uri, RDF.VALUE, vf.createLiteral(value));
 	    return uri;
 	}
 
-	public Graph getGraph() 
+	public Model getGraph() 
 	{
 		return graph;
 	}
 
-	public URI getLaunchNode()
+	public IRI getLaunchNode()
 	{
 		return pageNode;
 	} 

@@ -8,13 +8,13 @@ package org.fit.layout.storage.ontology;
 import org.fit.layout.model.Area;
 import org.fit.layout.model.Box;
 import org.fit.layout.model.Tag;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.unbescape.uri.UriEscape;
 
 /**
- * FitLayout resource URI generation.
+ * FitLayout resource IRI generation.
  * 
  * @author burgetr
  */
@@ -23,65 +23,65 @@ public class RESOURCE
     public static final String NAMESPACE = "http://fitlayout.github.io/resource/";
     public static final String PREFIX = "flr";
 
-    private static final ValueFactory factory = ValueFactoryImpl.getInstance();
+    private static final ValueFactory factory = SimpleValueFactory.getInstance();
     
     /**
-     * Creates a page set URI from its name.
+     * Creates a page set IRI from its name.
      * @param name the name of the page set
-     * @return the created URI
+     * @return the created IRI
      */
-    public static URI createPageSetURI(String name)
+    public static IRI createPageSetURI(String name)
     {
         String res = name.replace(' ', '_');
         res = UriEscape.escapeUriPathSegment(res);
-        return factory.createURI(NAMESPACE, "pset-" + res);
+        return factory.createIRI(NAMESPACE, "pset-" + res);
     }
     
-    public static URI createPageURI(long seq)
+    public static IRI createPageURI(long seq)
     {
-        return factory.createURI(NAMESPACE, "page" + seq);
+        return factory.createIRI(NAMESPACE, "page" + seq);
     }
     
-    public static URI createBoxURI(URI pageUri, Box box)
+    public static IRI createBoxURI(IRI pageUri, Box box)
     {
-        return factory.createURI(pageUri.toString() + '#' + box.getId());
+        return factory.createIRI(pageUri.toString() + '#' + box.getId());
     }
     
-    public static URI createBorderURI(URI boxUri, String side)
+    public static IRI createBorderURI(IRI boxUri, String side)
     {
         String localName = boxUri.getLocalName() + "B" + side;
-        return factory.createURI(boxUri.getNamespace(), localName);
+        return factory.createIRI(boxUri.getNamespace(), localName);
     }
     
-    public static URI createAttributeURI(URI boxUri, String name)
+    public static IRI createAttributeURI(IRI boxUri, String name)
     {
         String localName = boxUri.getLocalName() + "-attr-" + name;
-        return factory.createURI(boxUri.getNamespace(), localName);
+        return factory.createIRI(boxUri.getNamespace(), localName);
     }
     
-    public static URI createAreaTreeURI(long seq)
+    public static IRI createAreaTreeURI(long seq)
     {
-        return factory.createURI(NAMESPACE, "atree" + seq);
+        return factory.createIRI(NAMESPACE, "atree" + seq);
     }
     
-    public static URI createAreaURI(URI areaTreeNode, Area area) 
+    public static IRI createAreaURI(IRI areaTreeNode, Area area) 
     {
-        return factory.createURI(areaTreeNode.toString() + "#a" + area.getId());
+        return factory.createIRI(areaTreeNode.toString() + "#a" + area.getId());
     }
     
-    public static URI createLogicalAreaURI(URI areaTreeNode, int cnt) 
+    public static IRI createLogicalAreaURI(IRI areaTreeNode, int cnt) 
     {
-        return factory.createURI(areaTreeNode.toString() + "#l" + cnt);
+        return factory.createIRI(areaTreeNode.toString() + "#l" + cnt);
     }
     
-    public static URI createTagSupportURI(URI areaUri, Tag tag) 
+    public static IRI createTagSupportURI(IRI areaUri, Tag tag) 
     {
-        return factory.createURI(areaUri.toString() + "-" + getTagDesc(tag));
+        return factory.createIRI(areaUri.toString() + "-" + getTagDesc(tag));
     }
     
-    public static URI createTagURI(Tag tag) 
+    public static IRI createTagURI(Tag tag) 
     {
-        return factory.createURI(RESOURCE.NAMESPACE, "tag-" + getTagDesc(tag));
+        return factory.createIRI(RESOURCE.NAMESPACE, "tag-" + getTagDesc(tag));
     }
     
     private static String getTagDesc(Tag tag) 
@@ -90,13 +90,13 @@ public class RESOURCE
     }
     
     /**
-     * Creates a sequence URI from its name.
+     * Creates a sequence IRI from its name.
      * @param name the name of the sequence (alphabetical characters only)
-     * @return the created URI
+     * @return the created IRI
      */
-    public static URI createSequenceURI(String name)
+    public static IRI createSequenceURI(String name)
     {
-        return factory.createURI(NAMESPACE, "seq-" + name);
+        return factory.createIRI(NAMESPACE, "seq-" + name);
     }
     
     

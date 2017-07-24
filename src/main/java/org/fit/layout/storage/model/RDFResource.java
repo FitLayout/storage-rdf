@@ -5,7 +5,7 @@
  */
 package org.fit.layout.storage.model;
 
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * A RDF resource with an URI.
@@ -18,6 +18,6 @@ public interface RDFResource
      * Obtains the URI of the resource in the RDF storage.
      * @return the resource URI
      */
-    public URI getUri();
+    public IRI getIri();
 
 }

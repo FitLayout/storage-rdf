@@ -18,12 +18,13 @@ import org.fit.layout.storage.model.RDFArea;
 import org.fit.layout.storage.ontology.BOX;
 import org.fit.layout.storage.ontology.RESOURCE;
 import org.fit.layout.storage.ontology.SEGM;
-import org.openrdf.model.Graph;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 
 /**
  * Implements an RDF graph construction from an area tree. 
@@ -33,19 +34,19 @@ import org.openrdf.model.vocabulary.RDFS;
  */
 public class AreaModelBuilder
 {
-	private Graph graph = null;
-	private ValueFactoryImpl vf;
-	private URI pageNode;
-	private URI areaTreeNode;
+	private Model graph = null;
+	private ValueFactory vf;
+	private IRI pageNode;
+	private IRI areaTreeNode;
 	private int logAreaCnt;
 	private Set<Tag> usedTags;
 	
 	private int next_order;
 
-	public AreaModelBuilder(AreaTree areaTree, LogicalAreaTree logicalTree, URI pageNode, URI uri)
+	public AreaModelBuilder(AreaTree areaTree, LogicalAreaTree logicalTree, IRI pageNode, IRI uri)
 	{
 		graph = new LinkedHashModel();
-		vf = ValueFactoryImpl.getInstance();
+		vf = SimpleValueFactory.getInstance();
 		this.pageNode = pageNode;
 		areaTreeNode = uri;
 		usedTags = new HashSet<Tag>();
@@ -53,14 +54,14 @@ public class AreaModelBuilder
 		addUsedTags();
 	}
 
-	public Graph getGraph()
+	public Model getGraph()
 	{
 		return graph;
 	}
 	
 	//=========================================================================
 	
-	private void createAreaTreeModel(URI pageNode, AreaTree areaTree, LogicalAreaTree logicalTree) 
+	private void createAreaTreeModel(IRI pageNode, AreaTree areaTree, LogicalAreaTree logicalTree) 
 	{
 		graph.add(areaTreeNode, RDF.TYPE, SEGM.AreaTree);
 		graph.add(areaTreeNode, SEGM.sourcePage, pageNode);
@@ -71,7 +72,7 @@ public class AreaModelBuilder
 		
 		if (logicalTree != null)
 		{
-    		URI lroot = addLogicalArea(logicalTree.getRoot(), null);
+    		IRI lroot = addLogicalArea(logicalTree.getRoot(), null);
     		insertAllLogicalAreas(logicalTree.getRoot().getChildAreas(), lroot);
 		}
 	}
@@ -94,11 +95,11 @@ public class AreaModelBuilder
      * @param areas
      * @param parent
      */
-    private void insertAllLogicalAreas(List<LogicalArea> areas, URI parent) 
+    private void insertAllLogicalAreas(List<LogicalArea> areas, IRI parent) 
     {
         for (LogicalArea area : areas) 
         {
-            URI p = addLogicalArea(area, parent);
+            IRI p = addLogicalArea(area, parent);
             insertAllLogicalAreas(area.getChildAreas(), p);
         }
     }
@@ -109,7 +110,7 @@ public class AreaModelBuilder
 	 */
 	private void addArea(Area area) 
 	{
-		final URI individual = RESOURCE.createAreaURI(areaTreeNode, area);
+		final IRI individual = RESOURCE.createAreaURI(areaTreeNode, area);
 		graph.add(individual, RDF.TYPE, SEGM.Area);
 		if (area instanceof DefaultArea && ((DefaultArea) area).getName() != null)
 		    graph.add(individual, RDFS.LABEL, vf.createLiteral(((DefaultArea) area).getName()));
@@ -136,9 +137,9 @@ public class AreaModelBuilder
 				if (support != null && support > 0.0f)
 				{
 				    usedTags.add(t);
-				    final URI tagUri = RESOURCE.createTagURI(t);
+				    final IRI tagUri = RESOURCE.createTagURI(t);
 				    graph.add(individual, SEGM.hasTag, tagUri);
-				    final URI supUri = RESOURCE.createTagSupportURI(individual, t);
+				    final IRI supUri = RESOURCE.createTagSupportURI(individual, t);
 				    graph.add(individual, SEGM.tagSupport, supUri);
 				    graph.add(supUri, SEGM.support, vf.createLiteral(support));
 				    graph.add(supUri, SEGM.hasTag, tagUri);
@@ -161,14 +162,14 @@ public class AreaModelBuilder
         //dump boxes
         for (Box box : area.getBoxes())
         {
-            URI boxUri = RESOURCE.createBoxURI(pageNode, box);
+            IRI boxUri = RESOURCE.createBoxURI(pageNode, box);
             graph.add(individual, SEGM.containsBox, boxUri);
         }
 	}
 
-    private URI addLogicalArea(LogicalArea area, URI parent) 
+    private IRI addLogicalArea(LogicalArea area, IRI parent) 
     {
-        final URI individual = RESOURCE.createLogicalAreaURI(areaTreeNode, logAreaCnt++);
+        final IRI individual = RESOURCE.createLogicalAreaURI(areaTreeNode, logAreaCnt++);
         graph.add(individual, RDF.TYPE, SEGM.LogicalArea);
         graph.add(individual, BOX.documentOrder, vf.createLiteral(next_order++));
         graph.add(individual, SEGM.belongsTo, areaTreeNode);
@@ -179,9 +180,9 @@ public class AreaModelBuilder
             graph.add(individual, SEGM.hasTag, RESOURCE.createTagURI(area.getMainTag()));
         for (Area a : area.getAreas())
         {
-            URI areaUri;
+            IRI areaUri;
             if (a instanceof RDFArea)
-                areaUri = ((RDFArea) a).getUri();
+                areaUri = ((RDFArea) a).getIri();
             else
                 areaUri = RESOURCE.createAreaURI(areaTreeNode, a);
             graph.add(individual, SEGM.containsArea, areaUri);
@@ -193,7 +194,7 @@ public class AreaModelBuilder
     {
         for (Tag t : usedTags)
         {
-            URI tagUri = RESOURCE.createTagURI(t);
+            IRI tagUri = RESOURCE.createTagURI(t);
             graph.add(tagUri, SEGM.hasType, vf.createLiteral(t.getType()));
             graph.add(tagUri, SEGM.hasName, vf.createLiteral(t.getValue()));
         }

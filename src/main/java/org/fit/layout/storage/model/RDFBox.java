@@ -5,9 +5,9 @@
  */
 package org.fit.layout.storage.model;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.fit.layout.impl.DefaultBox;
 import org.fit.layout.model.Box;
-import org.openrdf.model.URI;
 
 /**
  * 
@@ -15,24 +15,24 @@ import org.openrdf.model.URI;
  */
 public class RDFBox extends DefaultBox implements RDFResource
 {
-    protected URI uri;
+    protected IRI iri;
     protected int documentOrder;
 
-    public RDFBox(URI uri)
+    public RDFBox(IRI uri)
     {
         super();
-        setUri(uri);
+        setIri(uri);
     }
 
     @Override
-    public URI getUri()
+    public IRI getIri()
     {
-        return uri;
+        return iri;
     }
 
-    public void setUri(URI uri)
+    public void setIri(IRI uri)
     {
-        this.uri = uri;
+        this.iri = uri;
         setId(Integer.parseInt(uri.getLocalName()));
     }
 

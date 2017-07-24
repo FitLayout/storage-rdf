@@ -5,13 +5,13 @@ import java.util.Map;
 
 import org.fit.layout.model.Border;
 import org.fit.layout.storage.ontology.BOX;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +29,13 @@ public abstract class ModelLoader
 {
     private static Logger log = LoggerFactory.getLogger(ModelLoader.class);
     
-    protected Border createBorder(Model model, URI uri)
+    protected Border createBorder(Model model, IRI uri)
     {
         Border ret = new Border();
         
         for (Statement st : model.filter(uri, null, null))
         {
-            final URI pred = st.getPredicate();
+            final IRI pred = st.getPredicate();
             final Value value = st.getObject();
             
             if (BOX.borderColor.equals(pred)) 
@@ -61,13 +61,13 @@ public abstract class ModelLoader
         return ret;
     }
     
-    protected Map.Entry<String, String> createAttribute(Model model, URI uri)
+    protected Map.Entry<String, String> createAttribute(Model model, IRI uri)
     {
         String name = null;
         String avalue = null;
         for (Statement st : model.filter(uri, null, null))
         {
-            final URI pred = st.getPredicate();
+            final IRI pred = st.getPredicate();
             final Value value = st.getObject();
             if (RDFS.LABEL.equals(pred))
             {

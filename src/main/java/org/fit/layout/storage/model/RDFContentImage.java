@@ -8,8 +8,8 @@ package org.fit.layout.storage.model;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.fit.layout.model.ContentImage;
-import org.openrdf.model.URI;
 
 /**
  * ContentImage implementation for the RDF model.
@@ -20,9 +20,9 @@ public class RDFContentImage extends RDFContentObject implements ContentImage
 {
     private URL url;
 
-    public RDFContentImage(URI uri)
+    public RDFContentImage(IRI iri)
     {
-        super(uri);
+        super(iri);
     }
 
     @Override

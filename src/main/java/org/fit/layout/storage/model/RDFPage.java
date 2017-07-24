@@ -9,9 +9,9 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.fit.layout.impl.DefaultPage;
 import org.fit.layout.model.Page;
-import org.openrdf.model.URI;
 
 /**
  * 
@@ -19,9 +19,9 @@ import org.openrdf.model.URI;
  */
 public class RDFPage extends DefaultPage implements RDFResource
 {
-    protected URI uri;
+    protected IRI iri;
     protected Date createdOn;
-    protected Map<URI, RDFBox> boxUris;
+    protected Map<IRI, RDFBox> boxIris;
     
 
     public RDFPage(URL url)
@@ -29,28 +29,28 @@ public class RDFPage extends DefaultPage implements RDFResource
         super(url);
     }
 
-    public RDFPage(URL url, URI uri, Date createdOn)
+    public RDFPage(URL url, IRI uri, Date createdOn)
     {
         super(url);
-        this.uri = uri;
+        this.iri = uri;
         this.createdOn = createdOn;
     }
     
-    public RDFPage(Page src, URI uri)
+    public RDFPage(Page src, IRI uri)
     {
         super(src);
-        this.uri = uri;
+        this.iri = uri;
     }
 
     @Override
-    public URI getUri()
+    public IRI getIri()
     {
-        return uri;
+        return iri;
     }
 
-    public void setUri(URI uri)
+    public void setIri(IRI uri)
     {
-        this.uri = uri;
+        this.iri = uri;
     }
 
     public Date getCreatedOn()
@@ -63,20 +63,20 @@ public class RDFPage extends DefaultPage implements RDFResource
         this.createdOn = createdOn;
     }
 
-    public Map<URI, RDFBox> getBoxUris()
+    public Map<IRI, RDFBox> getBoxIris()
     {
-        return boxUris;
+        return boxIris;
     }
 
-    public void setBoxUris(Map<URI, RDFBox> boxUris)
+    public void setBoxIris(Map<IRI, RDFBox> boxUris)
     {
-        this.boxUris = boxUris;
+        this.boxIris = boxUris;
     }
 
-    public RDFBox findBoxByUri(URI uri)
+    public RDFBox findBoxByIri(IRI uri)
     {
-        if (boxUris != null)
-            return boxUris.get(uri);
+        if (boxIris != null)
+            return boxIris.get(uri);
         else
             return null;
     }

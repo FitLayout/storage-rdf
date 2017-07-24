@@ -1,8 +1,8 @@
 package org.fit.layout.storage.ontology;
 
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /**
  * FITLayout system types and properties.
@@ -23,21 +23,21 @@ public class LAYOUT {
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/fitlayout.owl#containsPage">containsPage</a>
 	 */
-	public static final URI containsPage;
+	public static final IRI containsPage;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/fitlayout.owl#createdOn}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/fitlayout.owl#createdOn">createdOn</a>
 	 */
-	public static final URI createdOn;
+	public static final IRI createdOn;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/fitlayout.owl#hasName}.
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/fitlayout.owl#hasName">hasName</a>
 	 */
-	public static final URI hasName;
+	public static final IRI hasName;
 
 	/**
 	 * {@code http://fitlayout.github.io/ontology/fitlayout.owl#PageSet}.
@@ -46,15 +46,15 @@ public class LAYOUT {
 	 *
 	 * @see <a href="http://fitlayout.github.io/ontology/fitlayout.owl#PageSet">PageSet</a>
 	 */
-	public static final URI PageSet;
+	public static final IRI PageSet;
 
 	static {
-		ValueFactory factory = ValueFactoryImpl.getInstance();
+		ValueFactory factory = SimpleValueFactory.getInstance();
 
-		containsPage = factory.createURI(LAYOUT.NAMESPACE, "containsPage");
-		createdOn = factory.createURI(LAYOUT.NAMESPACE, "createdOn");
-		hasName = factory.createURI(LAYOUT.NAMESPACE, "hasName");
-		PageSet = factory.createURI(LAYOUT.NAMESPACE, "PageSet");
+		containsPage = factory.createIRI(LAYOUT.NAMESPACE, "containsPage");
+		createdOn = factory.createIRI(LAYOUT.NAMESPACE, "createdOn");
+		hasName = factory.createIRI(LAYOUT.NAMESPACE, "hasName");
+		PageSet = factory.createIRI(LAYOUT.NAMESPACE, "PageSet");
 	}
 
 	private LAYOUT() {
