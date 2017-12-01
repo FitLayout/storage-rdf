@@ -7,8 +7,12 @@ package org.fit.layout.storage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.fit.layout.api.Parameter;
 import org.fit.layout.impl.BaseBoxTreeProvider;
+import org.fit.layout.impl.ParameterString;
 import org.fit.layout.model.Page;
 import org.fit.layout.storage.ontology.RESOURCE;
 import org.eclipse.rdf4j.model.IRI;
@@ -27,15 +31,11 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
     private URL urlDb;
     private IRI pageId;
     
-    private final String[] paramNames = { "urlDb", "pageId" };
-    private final ValueType[] paramTypes = { ValueType.STRING, ValueType.STRING };
-
     public RDFBoxTreeProvider() throws MalformedURLException
     {
 		urlDb = new URL("http://localhost:8080/rdf4j-server/repositories/user");
 		pageId = RESOURCE.createPageURI(1);
     }
-
     
     public RDFBoxTreeProvider(URL urlDb, IRI pageId)
     {
@@ -43,36 +43,33 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
         this.pageId = pageId;
     }
 
-
+    @Override
     public String getId()
     {
         return "FitLayout.RDFSource";
     }
-
    
+    @Override
     public String getName()
     {
         return "RDF page source";
     }
-
     
+    @Override
     public String getDescription()
     {
         return "Uses the a RDF repository for obtaining the box tree.";
     }
-
     
-    public String[] getParamNames()
+    @Override
+    public List<Parameter> defineParams()
     {
-        return paramNames;
+        List<Parameter> ret = new ArrayList<>();
+        ret.add(new ParameterString("urlDb"));
+        ret.add(new ParameterString("pageId"));
+        return ret;
     }
-
     
-    public ValueType[] getParamTypes()
-    {
-        return paramTypes;
-    }
-
     public URL getUrlDb()
     {
         return urlDb;
@@ -108,6 +105,7 @@ public class RDFBoxTreeProvider extends BaseBoxTreeProvider
         this.pageId = vf.createIRI(pageId);
     }
     
+    @Override
     public Page getPage() 
     {
     	try {
