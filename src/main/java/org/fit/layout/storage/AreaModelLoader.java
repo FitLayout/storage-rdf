@@ -122,7 +122,7 @@ public class AreaModelLoader extends ModelLoader
                 RDFArea child = areas.get(st.getSubject());
                 if (parent != null && child != null)
                 {
-                    parent.add(child);
+                    parent.appendChild(child);
                     rootAreas.remove(child);
                 }
             }
@@ -292,7 +292,7 @@ public class AreaModelLoader extends ModelLoader
     private void recursiveUpdateTopologies(Area root)
     {
         for (int i = 0; i < root.getChildCount(); i++)
-            recursiveUpdateTopologies(root.getChildArea(i));
+            recursiveUpdateTopologies(root.getChildAt(i));
         root.updateTopologies();
     }
     
@@ -334,7 +334,7 @@ public class AreaModelLoader extends ModelLoader
                 RDFLogicalArea child = areas.get(st.getSubject());
                 if (parent != null && child != null)
                 {
-                    parent.add(child);
+                    parent.appendChild(child);
                     rootAreas.remove(child);
                 }
             }

@@ -78,7 +78,7 @@ public class BoxModelBuilder
 	{
 		for (int i = 0; i < root.getChildCount(); i++)
 		{
-		    final Box child = root.getChildBox(i); 
+		    final Box child = root.getChildAt(i); 
 			insertBox(child);
 			insertChildBoxes(child);
 		}
@@ -99,8 +99,8 @@ public class BoxModelBuilder
 		graph.add(individual, BOX.belongsTo, pageNode);
 		
 		//parent
-		if (box.getParentBox() != null)
-		    graph.add(individual, BOX.isChildOf, RESOURCE.createBoxURI(pageNode, box.getParentBox()));
+		if (box.getParent() != null)
+		    graph.add(individual, BOX.isChildOf, RESOURCE.createBoxURI(pageNode, box.getParent()));
 
 		//tag properties
 		if (box.getTagName() != null)

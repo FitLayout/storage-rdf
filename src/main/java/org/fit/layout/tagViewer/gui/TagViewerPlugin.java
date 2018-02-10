@@ -175,7 +175,7 @@ public class TagViewerPlugin implements BrowserPlugin
     
     private void fillTagListFromParentArea(Area parentArea) 
     {
-    	for(Area area : parentArea.getChildAreas()) 
+    	for(Area area : parentArea.getChildren()) 
     	{
     		addAreaTagsToList(area.getTags(), area.getText());
     		fillTagListFromParentArea(area);

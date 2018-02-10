@@ -125,7 +125,7 @@ public class BoxModelLoader extends ModelLoader
                 RDFBox child = boxes.get(st.getSubject());
                 if (parent != null && child != null)
                 {
-                    parent.add(child);
+                    parent.appendChild(child);
                     rootBoxes.remove(child);
                 }
             }

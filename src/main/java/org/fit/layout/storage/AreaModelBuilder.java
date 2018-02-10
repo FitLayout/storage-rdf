@@ -68,12 +68,12 @@ public class AreaModelBuilder
 		next_order = 0;
 		
 		addArea(areaTree.getRoot());
-		insertAllAreas(areaTree.getRoot().getChildAreas());
+		insertAllAreas(areaTree.getRoot().getChildren());
 		
 		if (logicalTree != null)
 		{
     		IRI lroot = addLogicalArea(logicalTree.getRoot(), null);
-    		insertAllLogicalAreas(logicalTree.getRoot().getChildAreas(), lroot);
+    		insertAllLogicalAreas(logicalTree.getRoot().getChildren(), lroot);
 		}
 	}
 
@@ -86,7 +86,7 @@ public class AreaModelBuilder
 		for(Area area : areas) 
 		{
 			addArea(area);
-			insertAllAreas(area.getChildAreas());
+			insertAllAreas(area.getChildren());
 		}
 	}
 
@@ -100,7 +100,7 @@ public class AreaModelBuilder
         for (LogicalArea area : areas) 
         {
             IRI p = addLogicalArea(area, parent);
-            insertAllLogicalAreas(area.getChildAreas(), p);
+            insertAllLogicalAreas(area.getChildren(), p);
         }
     }
 
@@ -117,8 +117,8 @@ public class AreaModelBuilder
 		graph.add(individual, BOX.documentOrder, vf.createLiteral(next_order++));
         graph.add(individual, SEGM.belongsTo, this.areaTreeNode);
 
-        if (area.getParentArea() != null)
-            graph.add(individual, SEGM.isChildOf, RESOURCE.createAreaURI(areaTreeNode, area.getParentArea()));
+        if (area.getParent() != null)
+            graph.add(individual, SEGM.isChildOf, RESOURCE.createAreaURI(areaTreeNode, area.getParent()));
         
 		// appends geometry
 		Rectangular rec = area.getBounds();
